@@ -21,7 +21,7 @@ class WalletsController extends ResourceController {
       return Response.notFound();
     }
 
-    return Response.ok(id);
+    return Response.ok({"id": id});
   }
 
   @Operation.post('id', 'actionName', 'actionParams')
@@ -35,7 +35,7 @@ class WalletsController extends ResourceController {
     //   return Response.notFound();
     // }
 
-    return Response.ok(id);
+    return Response.ok({"id": id});
   }
 
   Future<String> isWalletIdValid(int id) async {
