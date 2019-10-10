@@ -28,8 +28,12 @@ class IndyCloudChannel extends ApplicationChannel {
     final router = Router();
 
     router
-      .route('/wallets/[:id]')
+      .route('/wallets/[:id/[action/[:actionName/[params/[:actionParams]]]]]')
       .link(() => WalletsController());
+
+    // router
+    //   .route('/wallets/[:id/[action/[:actionName/[params/[:actionParams]]]]]')
+    //   .link(() => WalletsController());
 
     // Prefer to use `link` instead of `linkFunction`.
     // See: https://aqueduct.io/docs/http/request_controller/
