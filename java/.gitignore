@@ -34,3 +34,7 @@ out/
 .DS_Store
 
 bin/
+
+*.so
+*.a
+*.dylib

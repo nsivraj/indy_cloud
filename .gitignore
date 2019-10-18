@@ -50,3 +50,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+*.so
+*.a
+*.dylib

@@ -29,20 +29,25 @@ public class WalletResource
   }
 
   @POST
-  @Path("{id}/action/{actionName}/params/{actionParams}")
+  @Path("{id}/action/{actionName}")
   @Consumes("application/json")
   @Produces("application/json")
   public Response operateOnWallet(
     @PathParam("id") int id,
     @PathParam("actionName") String actionName,
-    @PathParam("actionParams") String actionParams) throws URISyntaxException
+    String actionParams) throws URISyntaxException
   {
-    // final Wallet wallet = await findWalletById(id);
-    // if (wallet == null) {
-    //   return Response.notFound();
-    // }
-
-    return Response.status(200).entity("{\"id\": "+id+"}").build();
+    try {
+      WalletAction wAction = new WalletAction(id, actionName, actionParams);
+      System.out.println("WalletAction: "+wAction);
+      String walletActionResponse = WalletActionHandler.execute(wAction);
+      String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + "}";
+      System.out.println("cloudResponse: "+cloudResponse);
+      return Response.ok( cloudResponse ).build();
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    }
   }
 
   public Wallet findWalletById(int id) {
@@ -56,9 +61,5 @@ public class WalletResource
     return String.valueOf(id);
   }
 
+
 }
-
-
-// [INFO] aqueduct: POST /wallets/-1/action/setVcxLogger/params/%7B%22logLevel%22:%22debug%22,%22uniqueId%22:%2270c385f1-cbbc-2f12-8cb5-8df71ef3799b%22,%22MAX_ALLOWED_FILE_BYTES%22:10000000%7D 76ms 200
-// [INFO] aqueduct: POST /wallets/-1/action/createWalletKey/params/%7B%22lengthOfKey%22:64%7D 93ms 200
-// [INFO] aqueduct: POST /wallets/-1/action/shutdownVcx/params/%7B%22deletePool%22:false%7D 1ms 200
