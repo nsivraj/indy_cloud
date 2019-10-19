@@ -21,9 +21,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jersey'
 	implementation 'com.evernym:vcx:0.4.55832442'
 	implementation 'net.java.dev.jna:jna:4.5.0'
+	implementation 'net.sourceforge.streamsupport:android-retrofuture:1.6.2'
+	implementation group: 'org.json', name: 'json', version: '20160810'
 	//implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		exclude group: 'com.vaadin.external.google', module: 'android-json'
 	}
 }
 
