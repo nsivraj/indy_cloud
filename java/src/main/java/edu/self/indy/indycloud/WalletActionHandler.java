@@ -10,15 +10,24 @@ import com.evernym.sdk.vcx.vcx.AlreadyInitializedException;
 import com.evernym.sdk.vcx.vcx.VcxApi;
 import com.evernym.sdk.vcx.wallet.WalletApi;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import edu.self.indy.indycloud.jpa.Wallet;
+import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.StrUtil;
 
 // [INFO] aqueduct: POST /wallets/-1/action/setVcxLogger/params/%7B%22logLevel%22:%22debug%22,%22uniqueId%22:%2270c385f1-cbbc-2f12-8cb5-8df71ef3799b%22,%22MAX_ALLOWED_FILE_BYTES%22:10000000%7D 76ms 200
 // [INFO] aqueduct: POST /wallets/-1/action/createWalletKey/params/%7B%22lengthOfKey%22:64%7D 93ms 200
 // [INFO] aqueduct: POST /wallets/-1/action/shutdownVcx/params/%7B%22deletePool%22:false%7D 1ms 200
 
-
+@Component
 public class WalletActionHandler {
-  public static final String execute(WalletAction wAction) throws Exception {
+
+  @Autowired
+  WalletRepository walletRepository;
+
+  public String execute(WalletAction wAction) throws Exception {
     if(wAction.actionName.equalsIgnoreCase("setVcxLogger")) {
       // ContextWrapper cw = new ContextWrapper(reactContext);
       // RNIndyStaticData.MAX_ALLOWED_FILE_BYTES = MAX_ALLOWED_FILE_BYTES;
@@ -134,15 +143,15 @@ public class WalletActionHandler {
     }
     else if(wAction.actionName.equalsIgnoreCase("createBrandNewWallet")) {
       boolean secure = Boolean.valueOf(wAction.getParameter("secure").toString());
-      String walletId = "1";
+      Wallet wallet = walletRepository.save(new Wallet("wallet_name", secure));
       if(secure) {
         // TODO: If they want a secure wallet then additional security requirements will be enforced
-        walletId = "11";
+
       } else {
-        walletId = "10";
+
       }
 
-      return walletId;
+      return String.valueOf(wallet.getId());
     }
     else {
       return "-267896";

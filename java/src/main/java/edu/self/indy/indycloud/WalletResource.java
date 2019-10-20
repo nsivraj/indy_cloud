@@ -9,11 +9,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+
 import edu.self.indy.indycloud.jpa.Wallet;
+import edu.self.indy.indycloud.jpa.WalletRepository;
 
 @Path("/api/v1/wallets")
 public class WalletResource
 {
+  @Autowired
+  WalletActionHandler walletActionHandler;
+
   @GET
   @Path("{id}")
   @Produces({ MediaType.APPLICATION_JSON })
@@ -48,7 +55,7 @@ public class WalletResource
       }
       WalletAction wAction = new WalletAction(id, actionName, actionParams);
       System.out.println("WalletAction: "+wAction);
-      String walletActionResponse = WalletActionHandler.execute(wAction);
+      String walletActionResponse = walletActionHandler.execute(wAction);
       String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + "}";
       System.out.println("cloudResponse: "+cloudResponse);
       return Response.ok( cloudResponse ).build();
