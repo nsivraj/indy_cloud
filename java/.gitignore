@@ -38,4 +38,5 @@ bin/
 *.so
 *.a
 *.dylib
-indy_cloud.server.output.log
+indy-cloud.server.output.log
+indy-cloud.pid

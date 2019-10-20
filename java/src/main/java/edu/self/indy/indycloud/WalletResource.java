@@ -1,7 +1,5 @@
 package edu.self.indy.indycloud;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -11,33 +9,43 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.self.indy.indycloud.jpa.Wallet;
+
 @Path("/api/v1/wallets")
 public class WalletResource
 {
-  // '/wallets/[:id/[action/[:actionName/[params/[:actionParams]]]]]'
   @GET
   @Path("{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   public String getWalletByID(@PathParam("id") int id) {
-    String walletId = isWalletIdValid(id);
-
-    if (walletId == null) {
+    if (!isWalletIdValid(id)) {
       return null;
     }
 
-    return walletId;
+    return String.valueOf(id);
+  }
+
+  @POST
+  @Path("createBrandNewWallet")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response createBrandNewWallet(String actionParams) {
+    return operateOnWallet(-1, "createBrandNewWallet", actionParams);
   }
 
   @POST
   @Path("{id}/action/{actionName}")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
   public Response operateOnWallet(
     @PathParam("id") int id,
     @PathParam("actionName") String actionName,
-    String actionParams) throws URISyntaxException
+    String actionParams)
   {
     try {
+      if(!"createBrandNewWallet".equalsIgnoreCase(actionName) && !isWalletIdValid(id)) {
+        throw new RuntimeException("Incorrect wallet id: " + id + ". You must get a valid wallet id!!!!");
+      }
       WalletAction wAction = new WalletAction(id, actionName, actionParams);
       System.out.println("WalletAction: "+wAction);
       String walletActionResponse = WalletActionHandler.execute(wAction);
@@ -56,9 +64,9 @@ public class WalletResource
     return wallet;
   }
 
-  public String isWalletIdValid(int id) {
+  public boolean isWalletIdValid(int id) {
     // TODO: see if the wallet with id really exists
-    return String.valueOf(id);
+    return id != -1;
   }
 
 

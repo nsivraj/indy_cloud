@@ -8,6 +8,7 @@ import java.util.Base64;
 import com.evernym.sdk.vcx.utils.UtilsApi;
 import com.evernym.sdk.vcx.vcx.AlreadyInitializedException;
 import com.evernym.sdk.vcx.vcx.VcxApi;
+import com.evernym.sdk.vcx.wallet.WalletApi;
 
 import edu.self.indy.util.StrUtil;
 
@@ -104,8 +105,47 @@ public class WalletActionHandler {
       String result = UtilsApi.vcxGetMessages(messageStatus, uid_s, pwdids).get();
       return result;
     }
+    else if(wAction.actionName.equalsIgnoreCase("setWalletItem")) {
+      String key = wAction.getParameter("key").toString();
+      key = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(key));
+      String value = wAction.getParameter("value").toString();
+      value = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(value));
+      if(key == null || value == null) {
+        return "-1";
+      } else {
+        int result = WalletApi.addRecordWallet("record_type", key, value).get();
+        return String.valueOf(result);
+      }
+    }
+    else if(wAction.actionName.equalsIgnoreCase("exportWallet")) {
+      //Log.d(TAG, "exportWallet() called with: exportPath = [" + exportPath + "], encryptionKey = [" + encryptionKey
+      //          + "], promise = [" + promise + "]");
+      String exportPath = wAction.getParameter("exportPath").toString();
+      exportPath = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(exportPath));
+      String encryptionKey = wAction.getParameter("encryptionKey").toString();
+      encryptionKey = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(encryptionKey));
+
+      if(exportPath == null || encryptionKey == null) {
+        return "-1";
+      } else {
+        int result = WalletApi.exportWallet(exportPath, encryptionKey).get();
+        return String.valueOf(result);
+      }
+    }
+    else if(wAction.actionName.equalsIgnoreCase("createBrandNewWallet")) {
+      boolean secure = Boolean.valueOf(wAction.getParameter("secure").toString());
+      String walletId = "1";
+      if(secure) {
+        // TODO: If they want a secure wallet then additional security requirements will be enforced
+        walletId = "11";
+      } else {
+        walletId = "10";
+      }
+
+      return walletId;
+    }
     else {
-      return "-1";
+      return "-267896";
     }
   }
 }
