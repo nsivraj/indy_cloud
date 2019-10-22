@@ -1,9 +1,11 @@
 package edu.self.indy.util;
 
-public class StrUtil {
+import java.io.File;
+
+public class Misc {
 
   public static final String undoJSONStringify(String stringified) {
-    String undone = stringified.replace("\\\"", "\"");
+    String undone = stringified.replace("\\\"", "\"").replace("\\\\", "\\");
     if(undone.startsWith("\"") && undone.endsWith("\"")) {
       undone = undone.substring(1, undone.length() - 1);
     } else if(undone.startsWith("\"")) {
@@ -19,7 +21,7 @@ public class StrUtil {
   }
 
   public static final String redoJSONStringify(String json) {
-    String redo = json.replace("\"", "\\\"");
+    String redo = json.replace("\\", "\\\\").replace("\"", "\\\"");
     redo = "\"" + redo + "\"";
     return redo;
   }
@@ -30,5 +32,20 @@ public class StrUtil {
     } else {
       return checkMe;
     }
+  }
+
+  public static final String getStorageConfigPath(long walletId) {
+    return System.getProperty("user.home") + File.separator + ".indy_client" + File.separator + "wallet" + File.separator + walletId;
+  }
+  public static final String getGenesisPath(long walletId, String fileName) {
+    return getFullFilePath(walletId, "genesis_" + fileName + ".txn");
+  }
+
+  public static final String getExportPath(long walletId, String fileName) {
+    return getFullFilePath(walletId, fileName);
+  }
+
+  public static final String getFullFilePath(long walletId, String fileName) {
+    return getStorageConfigPath(walletId) + File.separator + fileName;
   }
 }

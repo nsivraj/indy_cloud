@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WalletAction {
 
-  public int id;
+  public long id;
   public String actionName;
   private JsonNode actionParams;
 
-  public WalletAction(int id, String actionName, String actionParams)
+  public WalletAction(long id, String actionName, String actionParams)
       throws JsonMappingException, JsonProcessingException {
     this.id = id;
     this.actionName = actionName;
@@ -22,7 +22,7 @@ public class WalletAction {
   public JsonNode getParameter(String name) {
     return actionParams.get(name);
   }
-  
+
   @Override
   public String toString() {
     return "id: " + id + " :: actionName: " + actionName + " :: actionParams: " + actionParams;

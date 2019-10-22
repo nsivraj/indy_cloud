@@ -1,16 +1,21 @@
 package edu.self.indy.indycloud;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 
 import edu.self.indy.indycloud.jpa.Wallet;
 import edu.self.indy.indycloud.jpa.WalletRepository;
@@ -19,17 +24,54 @@ import edu.self.indy.indycloud.jpa.WalletRepository;
 public class WalletResource
 {
   @Autowired
+  WalletRepository walletRepository;
+
+  @Autowired
   WalletActionHandler walletActionHandler;
 
   @GET
   @Path("{id}")
   @Produces({ MediaType.APPLICATION_JSON })
-  public String getWalletByID(@PathParam("id") int id) {
+  public String getWalletByID(@PathParam("id") long id) {
     if (!isWalletIdValid(id)) {
       return null;
     }
 
     return String.valueOf(id);
+  }
+
+  @GET
+  @Path("{id}/downloadExport")
+  public Response downloadExport(@PathParam("id") long id) {
+    Wallet wallet = findWalletById(id);
+    if (wallet == null) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("The wallet id '" + id + "' is not a correct wallet id!!!").build();
+    }
+
+    System.out.println("downloadExport file: " + wallet.getExportPath());
+    StreamingOutput downloadStream =  new StreamingOutput()
+    {
+        @Override
+        public void write(java.io.OutputStream output) throws IOException, WebApplicationException
+        {
+            try
+            {
+              java.nio.file.Path path = Paths.get(wallet.getExportPath());
+              byte[] data = Files.readAllBytes(path);
+              output.write(data);
+              output.flush();
+            }
+            catch (Exception e)
+            {
+                throw new WebApplicationException("File Not Found !!");
+            }
+        }
+    };
+
+    return Response
+        .ok(downloadStream, MediaType.APPLICATION_OCTET_STREAM)
+        .header("content-disposition","attachment; filename = " + wallet.getExportPath())
+        .build();
   }
 
   @POST
@@ -45,7 +87,7 @@ public class WalletResource
   @Consumes({ MediaType.APPLICATION_JSON })
   @Produces({ MediaType.APPLICATION_JSON })
   public Response operateOnWallet(
-    @PathParam("id") int id,
+    @PathParam("id") long id,
     @PathParam("actionName") String actionName,
     String actionParams)
   {
@@ -65,15 +107,14 @@ public class WalletResource
     }
   }
 
-  public Wallet findWalletById(int id) {
-    // TODO: find the wallet with id
-    Wallet wallet = null;
+  public Wallet findWalletById(long id) {
+    Wallet wallet = walletRepository.findById(id);
     return wallet;
   }
 
-  public boolean isWalletIdValid(int id) {
-    // TODO: see if the wallet with id really exists
-    return id != -1;
+  public boolean isWalletIdValid(long id) {
+    Wallet wallet = findWalletById(id);
+    return wallet == null ? false : true;
   }
 
 

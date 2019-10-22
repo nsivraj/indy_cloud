@@ -9,13 +9,16 @@ import com.evernym.sdk.vcx.utils.UtilsApi;
 import com.evernym.sdk.vcx.vcx.AlreadyInitializedException;
 import com.evernym.sdk.vcx.vcx.VcxApi;
 import com.evernym.sdk.vcx.wallet.WalletApi;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.self.indy.indycloud.jpa.Wallet;
 import edu.self.indy.indycloud.jpa.WalletRepository;
-import edu.self.indy.util.StrUtil;
+import edu.self.indy.util.Misc;
 
 // [INFO] aqueduct: POST /wallets/-1/action/setVcxLogger/params/%7B%22logLevel%22:%22debug%22,%22uniqueId%22:%2270c385f1-cbbc-2f12-8cb5-8df71ef3799b%22,%22MAX_ALLOWED_FILE_BYTES%22:10000000%7D 76ms 200
 // [INFO] aqueduct: POST /wallets/-1/action/createWalletKey/params/%7B%22lengthOfKey%22:64%7D 93ms 200
@@ -56,18 +59,28 @@ public class WalletActionHandler {
       return "0";
     }
     else if(wAction.actionName.equalsIgnoreCase("createOneTimeInfo")) {
+      /*
+      "storage_config": {
+                "path": path.as_ref().to_str()
+            }
+      */
       String agencyConfig = wAction.getParameter("vcxProvisionConfig").toString();
-      agencyConfig = StrUtil.undoJSONStringify(agencyConfig);
-      String result = UtilsApi.vcxAgentProvisionAsync(agencyConfig).get();
-      return StrUtil.redoJSONStringify(result);
+      agencyConfig = Misc.undoJSONStringify(agencyConfig);
+      String storageConfigPath = Misc.getStorageConfigPath(wAction.id);
+
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode configJSONNode = mapper.readTree(agencyConfig);
+      ((ObjectNode)configJSONNode).put("storage_config", "{\"path\": \"" + storageConfigPath + "\"}");
+      String result = UtilsApi.vcxAgentProvisionAsync(configJSONNode.toString()).get();
+      return Misc.redoJSONStringify(result);
     }
     else if(wAction.actionName.equalsIgnoreCase("getGenesisPathWithConfig")) {
-      String fileName = wAction.getParameter("fileName").toString();
-      fileName = StrUtil.undoJSONStringify(fileName);
+      String genesisFileName = wAction.getParameter("fileName").toString();
+      genesisFileName = Misc.undoJSONStringify(genesisFileName);
       String poolConfig = wAction.getParameter("poolConfig").toString();
-      poolConfig = StrUtil.undoJSONStringify(poolConfig);
+      poolConfig = Misc.undoJSONStringify(poolConfig);
 
-      File genFile = new File(System.getProperty("user.home") + File.separator + ".indy_client" + File.separator + "genesis_" + fileName + ".txn");
+      File genFile = new File(Misc.getGenesisPath(wAction.id, genesisFileName));
       genFile.getParentFile().mkdirs();
       if (genFile.exists()) {
           genFile.delete();
@@ -78,11 +91,14 @@ public class WalletActionHandler {
       fos.flush();
       fos.close();
 
-      return StrUtil.redoJSONStringify(genFile.getAbsolutePath());
+      Wallet wallet = walletRepository.findById(wAction.id);
+      wallet.setGenesisPath(genFile.getAbsolutePath());
+      walletRepository.save(wallet);
+      return Misc.redoJSONStringify(wallet.genesisPath);
     }
     else if(wAction.actionName.equalsIgnoreCase("init")) {
       String poolConfig = wAction.getParameter("vcxInitConfig").toString();
-      //poolConfig = StrUtil.undoJSONStringify(poolConfig);
+      //poolConfig = Misc.undoJSONStringify(poolConfig);
 
       try {
         int retCode = VcxApi.initSovToken();
@@ -105,20 +121,20 @@ public class WalletActionHandler {
     }
     else if(wAction.actionName.equalsIgnoreCase("downloadMessages")) {
       String messageStatus = wAction.getParameter("messageStatus").toString();
-      messageStatus = StrUtil.undoJSONStringify(messageStatus);
+      messageStatus = Misc.undoJSONStringify(messageStatus);
       String uid_s = wAction.getParameter("uid_s").toString();
-      uid_s = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(uid_s));
+      uid_s = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(uid_s));
       String pwdids = wAction.getParameter("pwdids").toString();
-      pwdids = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(pwdids));
+      pwdids = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(pwdids));
 
       String result = UtilsApi.vcxGetMessages(messageStatus, uid_s, pwdids).get();
       return result;
     }
     else if(wAction.actionName.equalsIgnoreCase("setWalletItem")) {
       String key = wAction.getParameter("key").toString();
-      key = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(key));
+      key = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(key));
       String value = wAction.getParameter("value").toString();
-      value = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(value));
+      value = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(value));
       if(key == null || value == null) {
         return "-1";
       } else {
@@ -127,17 +143,26 @@ public class WalletActionHandler {
       }
     }
     else if(wAction.actionName.equalsIgnoreCase("exportWallet")) {
-      //Log.d(TAG, "exportWallet() called with: exportPath = [" + exportPath + "], encryptionKey = [" + encryptionKey
+      //Log.d(TAG, "exportWallet() called with: walletPath = [" + walletPath + "], walletEncryptionKey = [" + walletEncryptionKey
       //          + "], promise = [" + promise + "]");
-      String exportPath = wAction.getParameter("exportPath").toString();
-      exportPath = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(exportPath));
-      String encryptionKey = wAction.getParameter("encryptionKey").toString();
-      encryptionKey = StrUtil.returnNullForEmptyOrNull(StrUtil.undoJSONStringify(encryptionKey));
+      String walletPath = wAction.getParameter("walletPath").toString();
+      walletPath = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(walletPath));
+      String walletEncryptionKey = wAction.getParameter("walletEncryptionKey").toString();
+      walletEncryptionKey = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(walletEncryptionKey));
 
-      if(exportPath == null || encryptionKey == null) {
+      if(walletPath == null || walletEncryptionKey == null) {
         return "-1";
       } else {
-        int result = WalletApi.exportWallet(exportPath, encryptionKey).get();
+        String exportFileName = walletPath.substring(walletPath.lastIndexOf('/') + 1);
+        String exportFilePath = Misc.getExportPath(wAction.id, exportFileName);
+        File exportFile = new File(exportFilePath);
+        exportFile.delete();
+        int result = WalletApi.exportWallet(exportFilePath, walletEncryptionKey).get();
+
+        Wallet wallet = walletRepository.findById(wAction.id);
+        wallet.setExportPath(exportFilePath);
+        walletRepository.save(wallet);
+
         return String.valueOf(result);
       }
     }

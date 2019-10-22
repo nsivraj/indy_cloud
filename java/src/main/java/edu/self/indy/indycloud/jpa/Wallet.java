@@ -9,9 +9,11 @@ import javax.persistence.Id;
 public class Wallet {
   @Id
   @GeneratedValue(strategy=GenerationType.AUTO)
-  private Long id;
-  private String walletName;
-  private Boolean secure;
+  public Long id;
+  public String walletName;
+  public Boolean secure;
+  public String genesisPath;
+  public String exportPath;
 
   protected Wallet() {}
 
@@ -20,11 +22,17 @@ public class Wallet {
       this.secure = secure;
   }
 
+  public Wallet(String walletName, Boolean secure, String genesisPath) {
+      this.walletName = walletName;
+      this.secure = secure;
+      this.genesisPath = genesisPath;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "Wallet[id=%d, walletName='%s', secure='%s']",
-        id, walletName, secure);
+        id, walletName, secure, genesisPath);
   }
 
   public Long getId() {
@@ -37,5 +45,21 @@ public class Wallet {
 
 	public Boolean getSecure() {
 		return secure;
-	}
+  }
+
+  public String getGenesisPath() {
+    return genesisPath;
+  }
+
+  public void setGenesisPath(String genesisPath) {
+    this.genesisPath = genesisPath;
+  }
+
+  public String getExportPath() {
+    return exportPath;
+  }
+
+  public void setExportPath(String exportPath) {
+    this.exportPath = exportPath;
+  }
 }
