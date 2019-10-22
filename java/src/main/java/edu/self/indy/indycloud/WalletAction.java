@@ -25,6 +25,10 @@ public class WalletAction {
 
   @Override
   public String toString() {
-    return "id: " + id + " :: actionName: " + actionName + " :: actionParams: " + actionParams;
+    return toStringWithoutActionParams() + " :: actionParams: " + actionParams;
+  }
+
+  public String toStringWithoutActionParams() {
+    return "id: " + id + " :: actionName: " + actionName;
   }
 }

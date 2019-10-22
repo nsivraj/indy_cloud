@@ -45,6 +45,14 @@ public class Misc {
     return getFullFilePath(walletId, fileName);
   }
 
+  public static final String getLogFilePath(long walletId) {
+    return getFullFilePath(walletId, "connectme.rotating." + walletId + ".log");
+  }
+
+  public static final String getEncryptedLogFilePath(long walletId) {
+    return getFullFilePath(walletId, "connectme.rotating." + walletId + ".log.enc");
+  }
+
   public static final String getFullFilePath(long walletId, String fileName) {
     return getStorageConfigPath(walletId) + File.separator + fileName;
   }

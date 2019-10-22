@@ -96,7 +96,11 @@ public class WalletResource
         throw new RuntimeException("Incorrect wallet id: " + id + ". You must get a valid wallet id!!!!");
       }
       WalletAction wAction = new WalletAction(id, actionName, actionParams);
-      System.out.println("WalletAction: "+wAction);
+      if("writeToVcxLog".equalsIgnoreCase(actionName)) {
+        System.out.println("WalletAction: " + wAction.toStringWithoutActionParams());
+      } else {
+        System.out.println("WalletAction: " + wAction);
+      }
       String walletActionResponse = walletActionHandler.execute(wAction);
       String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + "}";
       System.out.println("cloudResponse: "+cloudResponse);

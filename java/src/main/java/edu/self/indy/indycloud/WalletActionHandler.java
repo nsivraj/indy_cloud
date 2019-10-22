@@ -32,20 +32,7 @@ public class WalletActionHandler {
 
   public String execute(WalletAction wAction) throws Exception {
     if(wAction.actionName.equalsIgnoreCase("setVcxLogger")) {
-      // ContextWrapper cw = new ContextWrapper(reactContext);
-      // RNIndyStaticData.MAX_ALLOWED_FILE_BYTES = MAX_ALLOWED_FILE_BYTES;
-      // RNIndyStaticData.LOG_FILE_PATH = cw.getFilesDir().getAbsolutePath() +
-      //         "/connectme.rotating." + uniqueIdentifier + ".log";
-      // RNIndyStaticData.ENCRYPTED_LOG_FILE_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() +
-      //         "/connectme.rotating." + uniqueIdentifier + ".log.enc";
-      // //get the documents directory:
-      // Log.d(TAG, "Setting vcx logger to: " + RNIndyStaticData.LOG_FILE_PATH);
-
-      // if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      //     RNIndyStaticData.initLoggerFile(cw);
-      // }
-
-      return "\"0\"";
+      return "\"" + Misc.getLogFilePath(wAction.id) + "\"";
     }
     else if(wAction.actionName.equalsIgnoreCase("createWalletKey")) {
       SecureRandom random = new SecureRandom();
@@ -59,11 +46,6 @@ public class WalletActionHandler {
       return "0";
     }
     else if(wAction.actionName.equalsIgnoreCase("createOneTimeInfo")) {
-      /*
-      "storage_config": {
-                "path": path.as_ref().to_str()
-            }
-      */
       String agencyConfig = wAction.getParameter("vcxProvisionConfig").toString();
       agencyConfig = Misc.undoJSONStringify(agencyConfig);
       String storageConfigPath = Misc.getStorageConfigPath(wAction.id);
@@ -177,6 +159,71 @@ public class WalletActionHandler {
       }
 
       return String.valueOf(wallet.getId());
+    }
+    else if(wAction.actionName.equalsIgnoreCase("updateWalletItem")) {
+      String key = wAction.getParameter("key").toString();
+      key = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(key));
+      String data = wAction.getParameter("data").toString();
+      data = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(data));
+      if(key == null || data == null) {
+        return "-1";
+      } else {
+        int result = WalletApi.updateRecordWallet("record_type", key, data).get();
+        return String.valueOf(result);
+      }
+    }
+    else if(wAction.actionName.equalsIgnoreCase("deleteWalletItem")) {
+      String key = wAction.getParameter("key").toString();
+      key = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(key));
+      if(key == null) {
+        return "-1";
+      } else {
+        int result = WalletApi.deleteRecordWallet("record_type", key).get();
+        return String.valueOf(result);
+      }
+    }
+    else if(wAction.actionName.equalsIgnoreCase("getWalletItem")) {
+      String key = wAction.getParameter("key").toString();
+      key = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(key));
+      if(key == null) {
+        return "-1";
+      } else {
+        String result = WalletApi.getRecordWallet("record_type", key, "").get();
+        return result;
+      }
+    }
+    else if(wAction.actionName.equalsIgnoreCase("encryptVcxLog")) {
+      String logFilePath = wAction.getParameter("logFilePath").toString();
+      logFilePath = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(logFilePath));
+      // String encryptionKey = wAction.getParameter("encryptionKey").toString();
+      // encryptionKey = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(encryptionKey));
+
+      // RandomAccessFile logFile = new RandomAccessFile(logFilePath, "r");
+      // byte[] fileBytes = new byte[(int)logFile.length()];
+      // logFile.readFully(fileBytes);
+      // logFile.close();
+
+      // byte[] result = IndyApi.anonCrypt(encryptionKey, fileBytes).get();
+      // String encryptedLogFilePath = Misc.getEncryptedLogFilePath(wAction.id);
+      // RandomAccessFile encLogFile = new RandomAccessFile(encryptedLogFilePath, "rw");
+      // encLogFile.write(result, 0, result.length);
+      // encLogFile.close();
+
+      // return encryptedLogFilePath;
+      return logFilePath;
+    }
+    else if(wAction.actionName.equalsIgnoreCase("writeToVcxLog")) {
+      String logMessage = wAction.getParameter("logMessage").toString();
+      logMessage = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(logMessage));
+
+      /////////////////////////////////////////////////////////////////////////////////
+      // NOTE: Comment out the line below if you do not want the logs
+      //       cluttered with Connect.Me state logging statements
+      /////////////////////////////////////////////////////////////////////////////////
+      //System.out.println(logMessage);
+      /////////////////////////////////////////////////////////////////////////////////
+
+      return "0";
     }
     else {
       return "-267896";
