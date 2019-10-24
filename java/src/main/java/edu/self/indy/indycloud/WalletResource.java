@@ -1,6 +1,7 @@
 package edu.self.indy.indycloud;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -15,19 +16,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.self.indy.indycloud.jpa.Wallet;
 import edu.self.indy.indycloud.jpa.WalletRepository;
-
+import edu.self.indy.util.Misc;
 @Path("/api/v1/wallets")
 public class WalletResource
 {
   @Autowired
   WalletRepository walletRepository;
-
-  @Autowired
-  WalletActionHandler walletActionHandler;
 
   @GET
   @Path("{id}")
@@ -83,6 +83,29 @@ public class WalletResource
   }
 
   @POST
+  @Path("{id}/getColor")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response uploadImage(
+    @PathParam("id") long id,
+    @FormDataParam("get-color-image") InputStream uploadedInputStream,
+    @FormDataParam("get-color-image") FormDataContentDisposition fileDetails) {
+
+    String uploadedFileLocation = Misc.getColorImagePath(id, fileDetails.getFileName());
+    Misc.writeToFile(uploadedInputStream, uploadedFileLocation);
+    System.out.println("get-color-images uploaded to : " + uploadedFileLocation);
+
+    try {
+      String cloudResponse = Misc.getColor(uploadedFileLocation);
+      return Response.ok( cloudResponse ).build();
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    }
+  }
+
+
+  @POST
   @Path("{id}/action/{actionName}")
   @Consumes({ MediaType.APPLICATION_JSON })
   @Produces({ MediaType.APPLICATION_JSON })
@@ -101,7 +124,7 @@ public class WalletResource
       } else {
         System.out.println("WalletAction: " + wAction);
       }
-      String walletActionResponse = walletActionHandler.execute(wAction);
+      String walletActionResponse = wAction.getActionHandler(walletRepository).execute();
       String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + "}";
       System.out.println("cloudResponse: "+cloudResponse);
       return Response.ok( cloudResponse ).build();

@@ -1,6 +1,14 @@
 package edu.self.indy.util;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.imageio.ImageIO;
 
 public class Misc {
 
@@ -55,5 +63,47 @@ public class Misc {
 
   public static final String getFullFilePath(long walletId, String fileName) {
     return getStorageConfigPath(walletId) + File.separator + fileName;
+  }
+
+  public static void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
+    try {
+        OutputStream out = new FileOutputStream(new File(
+              uploadedFileLocation));
+        int read = 0;
+        byte[] bytes = new byte[1024];
+
+        out = new FileOutputStream(new File(uploadedFileLocation));
+        while ((read = uploadedInputStream.read(bytes)) != -1) {
+          out.write(bytes, 0, read);
+        }
+        out.flush();
+        out.close();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+  }
+
+  public static final String getColorImagePath(long walletId, String fileName) {
+    return getFullFilePath(walletId, fileName);
+  }
+
+  public static final String getColor(String colorImage) throws IOException {
+    BufferedImage image = ImageIO.read(new File(colorImage));
+
+    int w = image.getWidth();
+    int h = image.getHeight();
+
+    int[] dataBuffInt = image.getRGB(0, 0, w, h, null, 0, w);
+    int r=0,g=0,b=0;
+    for(int i=0; i<dataBuffInt.length; ++i) {
+      Color c = new Color(dataBuffInt[i]);
+      r += c.getRed() * c.getRed();
+      g += c.getGreen() * c.getGreen();
+      b += c.getBlue() * c.getBlue();
+    }
+
+    return "["+(int)(Math.sqrt(r/dataBuffInt.length))+","+
+               (int)(Math.sqrt(g/dataBuffInt.length))+","+
+               (int)(Math.sqrt(b/dataBuffInt.length))+"]";
   }
 }
