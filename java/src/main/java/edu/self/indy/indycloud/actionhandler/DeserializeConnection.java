@@ -1,30 +1,21 @@
 package edu.self.indy.indycloud.actionhandler;
 
-import com.evernym.sdk.vcx.VcxException;
 import com.evernym.sdk.vcx.connection.ConnectionApi;
+
+import edu.self.indy.util.Misc;
 
 public class DeserializeConnection extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
+    String serializedConnection = walletAction.getParameter("serializedConnection").toString();
+    serializedConnection = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(serializedConnection));
 
-    // TODO call vcx_connection_deserialize and pass serializedConnection
-    // it would return an error code and an integer connection handle in callback
-    //try {
-        ConnectionApi.connectionDeserialize(serializedConnection).get();
-
-        // .exceptionally((t) -> {
-        //     Log.e(TAG, "deserializeConnection: ", t);
-        //     promise.reject("FutureException", t.getMessage());
-        //     return -1;
-        // }).thenAccept(result -> {
-        //     if (result != -1) {
-        //         BridgeUtils.resolveIfValid(promise, result);
-        //     }
-        // });
-    // } catch (VcxException e) {
-    //     promise.reject("VCXException", e.getMessage());
-    //     e.printStackTrace();
-    // }
+    if(serializedConnection == null) {
+      return "-1";
+    } else {
+      int result = ConnectionApi.connectionDeserialize(serializedConnection).get();
+      return String.valueOf(result);
+    }
   }
 }
 
