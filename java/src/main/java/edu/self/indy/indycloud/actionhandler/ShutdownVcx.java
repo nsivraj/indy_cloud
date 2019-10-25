@@ -5,8 +5,8 @@ import com.evernym.sdk.vcx.vcx.VcxApi;
 public class ShutdownVcx extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
-    VcxApi.vcxShutdown(new Boolean(walletAction.getParameter("deletePool").toString()));
+    int result = VcxApi.vcxShutdown(walletAction.getParameter("deletePool").asBoolean());
     // return 0 for success and -1 for error
-    return "0";
+    return String.valueOf(result);
   }
 }

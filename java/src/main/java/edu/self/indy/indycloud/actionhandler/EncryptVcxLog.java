@@ -5,10 +5,11 @@ import edu.self.indy.util.Misc;
 public class EncryptVcxLog extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
-    String logFilePath = walletAction.getParameter("logFilePath").toString();
-    logFilePath = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(logFilePath));
-    // String encryptionKey = walletAction.getParameter("encryptionKey").toString();
-    // encryptionKey = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(encryptionKey));
+    String logFilePath = walletAction.getParameter("logFilePath").asText();
+
+    //logFilePath = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(logFilePath));
+    // String encryptionKey = walletAction.getParameter("encryptionKey").asText();
+    // // encryptionKey = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(encryptionKey));
 
     // RandomAccessFile logFile = new RandomAccessFile(logFilePath, "r");
     // byte[] fileBytes = new byte[(int)logFile.length()];

@@ -4,21 +4,14 @@ import java.io.File;
 
 import com.evernym.sdk.vcx.wallet.WalletApi;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import edu.self.indy.indycloud.jpa.Wallet;
-import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.Misc;
 
 public class ExportWallet extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
-    //Log.d(TAG, "exportWallet() called with: walletPath = [" + walletPath + "], walletEncryptionKey = [" + walletEncryptionKey
-    //          + "], promise = [" + promise + "]");
-    String walletPath = walletAction.getParameter("walletPath").toString();
-    walletPath = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(walletPath));
-    String walletEncryptionKey = walletAction.getParameter("walletEncryptionKey").toString();
-    walletEncryptionKey = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(walletEncryptionKey));
+    String walletPath = walletAction.getParameter("walletPath").asText();
+    String walletEncryptionKey = walletAction.getParameter("walletEncryptionKey").asText();
 
     if(walletPath == null || walletEncryptionKey == null) {
       return "-1";

@@ -3,10 +3,10 @@ package edu.self.indy.indycloud;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.self.indy.indycloud.actionhandler.ActionHandler;
 import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.util.Misc;
 
 public class WalletAction {
 
@@ -18,8 +18,7 @@ public class WalletAction {
       throws JsonMappingException, JsonProcessingException {
     this.id = id;
     this.actionName = actionName;
-    ObjectMapper mapper = new ObjectMapper();
-    this.actionParams = mapper.readTree(actionParams);
+    this.actionParams = Misc.jsonMapper.readTree(actionParams);
 	}
 
   public JsonNode getParameter(String name) {

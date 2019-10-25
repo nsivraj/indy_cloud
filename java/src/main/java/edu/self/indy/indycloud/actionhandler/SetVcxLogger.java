@@ -5,6 +5,6 @@ import edu.self.indy.util.Misc;
 public class SetVcxLogger extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
-    return "\"" + Misc.getLogFilePath(walletAction.id) + "\"";
+    return Misc.addQuotes(Misc.getLogFilePath(walletAction.id));
   }
 }

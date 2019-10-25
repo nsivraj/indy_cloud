@@ -10,32 +10,55 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Misc {
+  public static final ObjectMapper jsonMapper = new ObjectMapper();
 
-  public static final String undoJSONStringify(String stringified) {
-    String undone = stringified.replace("\\\"", "\"").replace("\\\\", "\\");
-    if(undone.startsWith("\"") && undone.endsWith("\"")) {
-      undone = undone.substring(1, undone.length() - 1);
-    } else if(undone.startsWith("\"")) {
-      undone = undone.substring(1);
-    } else if(undone.endsWith("\"")) {
-      undone = undone.substring(0, undone.length() - 1);
-    }
-    //System.out.println("1) undone: " + undone);
-    //ObjectMapper mapper = new ObjectMapper();
-    //JsonNode config = mapper.readValue(agencyConfig, JsonNode.class);
-    //System.out.println("2) agencyConfig: " + config);
-    return undone;
+  // public static final String undoJSONStringify(String stringified) {
+  //   // String undone = stringified.replace("\\\"", "\"").replace("\\\\", "\\");
+  //   // if(undone.startsWith("\"") && undone.endsWith("\"")) {
+  //   //   undone = undone.substring(1, undone.length() - 1);
+  //   // } else if(undone.startsWith("\"")) {
+  //   //   undone = undone.substring(1);
+  //   // } else if(undone.endsWith("\"")) {
+  //   //   undone = undone.substring(0, undone.length() - 1);
+  //   // }
+  //   // //System.out.println("1) undone: " + undone);
+  //   // //JsonNode config = Misc.jsonMapper.readValue(agencyConfig, JsonNode.class);
+  //   // //System.out.println("2) agencyConfig: " + config);
+  //   // return undone;
+  //   return stringified;
+  // }
+
+  // public static final String redoJSONStringify(String json) {
+  //   // String redo = json.replace("\\", "\\\\").replace("\"", "\\\"");
+  //   // redo = "\"" + redo + "\"";
+  //   // return redo;
+  //   return json;
+  // }
+
+  public static final String addQuotes(String toChange) {
+    return "\"" + toChange + "\"";
   }
 
-  public static final String redoJSONStringify(String json) {
-    String redo = json.replace("\\", "\\\\").replace("\"", "\\\"");
-    redo = "\"" + redo + "\"";
-    return redo;
-  }
+  // public static final String removeQuotes(String toChange) {
+  //   if(toChange == null) {
+  //     return toChange;
+  //   } else if(toChange.startsWith("\"") && toChange.endsWith("\"")) {
+  //     return toChange.substring(1, toChange.length() - 1);
+  //   } else if(toChange.startsWith("\"")) {
+  //     return toChange.substring(1);
+  //   } else if(toChange.endsWith("\"")) {
+  //     return toChange.substring(0, toChange.length() - 1);
+  //   } else {
+  //     return toChange;
+  //   }
+  // }
 
   public static final String returnNullForEmptyOrNull(String checkMe) {
-    if("null".equalsIgnoreCase(checkMe) || "".equals(checkMe.trim())) {
+    if(checkMe == null || "null".equalsIgnoreCase(checkMe.toLowerCase().trim()) || "".equals(checkMe.trim())) {
       return null;
     } else {
       return checkMe;
@@ -105,5 +128,15 @@ public class Misc {
     return "["+(int)(Math.sqrt(r/dataBuffInt.length))+","+
                (int)(Math.sqrt(g/dataBuffInt.length))+","+
                (int)(Math.sqrt(b/dataBuffInt.length))+"]";
+  }
+
+  public static final String poolConfigToString(JsonNode poolConfigNode) {
+    StringBuilder poolConfig = new StringBuilder();
+    for(JsonNode poolEntry : poolConfigNode) {
+      poolConfig.append(poolEntry.toString());
+      poolConfig.append("\n");
+    }
+    poolConfig.setLength(Math.max(poolConfig.length() - 1, 0));
+    return poolConfig.toString();
   }
 }

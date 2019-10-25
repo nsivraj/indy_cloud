@@ -125,7 +125,7 @@ public class WalletResource
         System.out.println("WalletAction: " + wAction);
       }
       String walletActionResponse = wAction.getActionHandler(walletRepository).execute();
-      String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + "}";
+      String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + ",\"action\": \"" + actionName + "\"}";
       System.out.println("cloudResponse: "+cloudResponse);
       return Response.ok( cloudResponse ).build();
     } catch(Exception ex) {

@@ -5,8 +5,7 @@ import edu.self.indy.util.Misc;
 public class WriteToVcxLog extends AbstractActionHandler {
   @Override
   public String execute() throws Exception {
-    String logMessage = walletAction.getParameter("logMessage").toString();
-    logMessage = Misc.returnNullForEmptyOrNull(Misc.undoJSONStringify(logMessage));
+    String logMessage = walletAction.getParameter("logMessage").asText();
 
     /////////////////////////////////////////////////////////////////////////////////
     // NOTE: Comment out the line below if you do not want the logs
