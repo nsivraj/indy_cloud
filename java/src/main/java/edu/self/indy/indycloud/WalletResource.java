@@ -32,12 +32,12 @@ public class WalletResource
   @GET
   @Path("{id}")
   @Produces({ MediaType.APPLICATION_JSON })
-  public String getWalletByID(@PathParam("id") long id) {
+  public Response getWalletByID(@PathParam("id") long id) {
     if (!isWalletIdValid(id)) {
-      return null;
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity( "" ).build();
     }
 
-    return String.valueOf(id);
+    return Response.ok( id ).build();
   }
 
   @GET
@@ -96,8 +96,8 @@ public class WalletResource
     System.out.println("get-color-images uploaded to : " + uploadedFileLocation);
 
     try {
-      String cloudResponse = Misc.getColor(uploadedFileLocation);
-      return Response.ok( cloudResponse ).build();
+      String imageColor = Misc.getColor(uploadedFileLocation);
+      return getCloudResponse(Misc.addQuotes(imageColor), "getColor");
     } catch(Exception ex) {
       ex.printStackTrace();
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
@@ -125,13 +125,17 @@ public class WalletResource
         System.out.println("WalletAction: " + wAction);
       }
       String walletActionResponse = wAction.getActionHandler(walletRepository).execute();
-      String cloudResponse = "{\"cloudResponse\": " + walletActionResponse + ",\"action\": \"" + actionName + "\"}";
-      System.out.println("cloudResponse: "+cloudResponse);
-      return Response.ok( cloudResponse ).build();
+      return getCloudResponse(walletActionResponse, actionName);
     } catch(Exception ex) {
       ex.printStackTrace();
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
     }
+  }
+
+  public Response getCloudResponse(String cloudResp, String actionName) {
+    String cloudResponse = "{\"cloudResponse\": " + cloudResp + ",\"action\": \"" + actionName + "\"}";
+    System.out.println("cloudResponse: "+cloudResponse);
+    return Response.ok( cloudResponse ).build();
   }
 
   public Wallet findWalletById(long id) {
