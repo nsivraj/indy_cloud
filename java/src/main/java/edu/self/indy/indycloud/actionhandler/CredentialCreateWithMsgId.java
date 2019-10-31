@@ -13,33 +13,10 @@ public class CredentialCreateWithMsgId extends AbstractActionHandler {
     int connectionHandle = walletAction.getParameter("connectionHandle").asInt();
     String sourceId = walletAction.getParameter("sourceId").asText();
     String messageId = walletAction.getParameter("messageId").asText();
-
-    //String result = ConnectionApi.connectionSerialize(connectionHandle).get();
-    //try {
-        GetCredentialCreateMsgidResult credential = (GetCredentialCreateMsgidResult)CredentialApi.credentialCreateWithMsgid(sourceId, connectionHandle, messageId).get();
-        ObjectNode vcxCredentialCreateResult = Misc.jsonMapper.createObjectNode();
-        vcxCredentialCreateResult.set("credential_handle", Misc.jsonMapper.convertValue(credential.getCredential_handle(), JsonNode.class));
-        //vcxCredentialCreateResult.set("credential_offer", Misc.jsonMapper.convertValue(credential.getOffer(), JsonNode.class));
-        vcxCredentialCreateResult.set("credential_offer", Misc.jsonMapper.readTree(credential.getOffer()));
-        // vcxCredentialCreateResult.set("bool", mapper.convertValue(true, JsonNode.class));
-        // vcxCredentialCreateResult.set("array", mapper.convertValue(Arrays.asList("a", "b", "c"), JsonNode.class));
-
-        //.exceptionally((t) -> {
-        //    Log.e(TAG, "credentialCreateWithMsgId: ", t);
-        //    promise.reject("FutureException", t.getMessage());
-        //    return null;
-        //}).thenAccept(result -> {
-            // GetCredentialCreateMsgidResult typedResult =  result;
-            // WritableMap vcxCredentialCreateResult = Arguments.createMap();
-            // vcxCredentialCreateResult.putInt("credential_handle", typedResult.getCredential_handle());
-            // vcxCredentialCreateResult.putString("credential_offer", typedResult.getOffer());
-            // BridgeUtils.resolveIfValid(promise, vcxCredentialCreateResult);
-        //});
-    // } catch (VcxException e) {
-    //     promise.reject("VCXException", e.getMessage());
-    //     e.printStackTrace();
-    // }
-
+    GetCredentialCreateMsgidResult credential = (GetCredentialCreateMsgidResult)CredentialApi.credentialCreateWithMsgid(sourceId, connectionHandle, messageId).get();
+    ObjectNode vcxCredentialCreateResult = Misc.jsonMapper.createObjectNode();
+    vcxCredentialCreateResult.set("credential_handle", Misc.jsonMapper.convertValue(credential.getCredential_handle(), JsonNode.class));
+    vcxCredentialCreateResult.set("credential_offer", Misc.jsonMapper.readTree(credential.getOffer()));
     return vcxCredentialCreateResult.toString();
   }
 }

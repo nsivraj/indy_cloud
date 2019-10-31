@@ -187,7 +187,7 @@ export class CloudIndy {
 
     const proofResult = {
       proofHandle: cloudResponse.proofHandle,
-      proofRequest: cloudResponse.proofRequest,
+      proofRequest: JSON.stringify(cloudResponse.proofRequest),
     }
 
     return proofResult
@@ -428,16 +428,17 @@ export class CloudIndy {
       paymentHandle,
     })
 
-    return cloudResponse
+    return JSON.stringify(cloudResponse)
   }
 
   static async createPaymentAddress(seed) {
-    RestfulIndy.send('createPaymentAddress', {
+    const { cloudResponse } = await RestfulIndy.send('createPaymentAddress', {
       seed,
     })
 
     // returns void
-    return Promise.resolve()
+    //return Promise.resolve()
+    return cloudResponse
   }
 
   static async getLedgerFees() {
@@ -624,5 +625,67 @@ export class CloudIndy {
     })
 
     return cloudResponse // ''
+  }
+
+TODO: implement these last four functions in their java classes
+
+  static async getTxnAuthorAgreement(): Promise<string> {
+    const { cloudResponse } = await RestfulIndy.send('getTxnAuthorAgreement', {
+
+    })
+
+    return cloudResponse
+  }
+
+  static async setActiveTxnAuthorAgreementMeta(
+    text: string,
+    version: string,
+    hash: string,
+    accMechType: string,
+    timeOfAcceptance: number
+  ): Promise<string> {
+    const { cloudResponse } = await RestfulIndy.send('setActiveTxnAuthorAgreementMeta', {
+      text,
+      version,
+      hash,
+      accMechType,
+      timeOfAcceptance
+    })
+
+    return cloudResponse
+  }
+
+  static async getAcceptanceMechanisms(
+    submitterDid: ?string,
+    timestamp: number,
+    version: ?string
+  ): Promise<string> {
+    const { cloudResponse } = await RestfulIndy.send('getAcceptanceMechanisms', {
+      submitterDid,
+      timestamp,
+      version
+    })
+
+    return cloudResponse
+  }
+
+  static async appendTxnAuthorAgreement(
+    requestJson: string,
+    text: string,
+    version: string,
+    taaDigest: string,
+    mechanism: string,
+    timestamp: number
+  ): Promise<string> {
+    const { cloudResponse } = await RestfulIndy.send('appendTxnAuthorAgreement', {
+      requestJson,
+      text,
+      version,
+      taaDigest,
+      mechanism,
+      timestamp
+    })
+
+    return cloudResponse
   }
 }

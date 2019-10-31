@@ -120,23 +120,29 @@ export class RestfulIndy {
               console.log('RestfulIndy Successfully received: ', responseObj)
             }
             if (action === 'exportWallet') {
-              // const walletPath = params['walletPath']
+              const walletPath = params['walletPath']
               // await RNFetchBlob.config({
               //   // response data will be saved to this path if it has access rights
               //   path: walletPath,
               // })
               //   .fetch(
-              //     'GET',
-              //     `${this.restProtocol}://${this.restHost}:${
-              //       this.restPort
-              //     }/api/v1/wallets/${this.myWalletId}/downloadExport`,
-              //     {
-              //       //some headers
-              //     }
-              //   )
-              //   .then(res => {
-              //     console.log('The file saved to ', res.path())
-              //   })
+              fetch(
+                'GET',
+                `${this.restProtocol}://${this.restHost}:${
+                  this.restPort
+                }/api/v1/wallets/${this.myWalletId}/downloadExport`,
+                {
+                  //some headers
+                }
+              )
+              .then(async res => {
+                const filename = res.headers.get('content-disposition').split('filename=')[1]
+                const blob = await res.blob()
+                fs.writeFile(walletPath, blob, (err) => {
+                  if (err) throw err;
+                  console.log('The file ' + filename + ' saved to: ', walletPath)
+                })
+              })
             } else if (action === 'setVcxLogger') {
               // create the log file
               var vcxLogFilename = responseObj.cloudResponse

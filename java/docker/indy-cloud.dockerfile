@@ -68,6 +68,8 @@ apt-get purge -y python3-pip && \
 apt-get autoremove -y && \
 gcc -v -shared -o /usr/lib/libindycloud.so -Wl,--no-as-needed -lvcx -L/usr/lib -lsovtoken -L/usr/lib
 
+# DT_NEEDED flags: https://linux.die.net/man/1/ld
+#gcc -v -shared -o /usr/lib/libindycloud.so -Wl,--no-as-needed -lvcx -L/usr/lib -lsovtoken -L/usr/lib
 #apt-get install -y libindy=1.12.0 libvcx=0.4.2 libsovtoken=1.0.3 libnullpay=1.12.0 && \
 
 ENTRYPOINT /bin/bash
