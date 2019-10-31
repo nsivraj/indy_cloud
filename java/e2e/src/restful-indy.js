@@ -84,11 +84,12 @@ export class RestfulIndy {
         filename: 'get-color-image.png',
       });
 
-      return fetch(`${this.restProtocol}://${this.restHost}:${
+      return fetch(
+          'POST',
+          `${this.restProtocol}://${this.restHost}:${
           this.restPort
         }/api/v1/wallets/${this.myWalletId}/getColor`,
         {
-          method: 'POST',
           'Content-Type': 'multipart/form-data',
           body: form
         }).then(async resp => {
