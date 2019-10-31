@@ -14,4 +14,12 @@ public abstract class AbstractActionHandler implements ActionHandler {
   public void setWalletRepository(WalletRepository walletRepository) {
     this.walletRepository = walletRepository;
   }
+
+  public WalletAction getWalletAction() {
+    return walletAction;
+  }
+
+  public WalletRepository getWalletRepository() {
+    return walletRepository;
+  }
 }

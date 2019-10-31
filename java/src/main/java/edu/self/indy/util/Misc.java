@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
@@ -88,6 +90,14 @@ public class Misc {
     return getStorageConfigPath(walletId) + File.separator + fileName;
   }
 
+  public static final String getVcxInitConfigFilePath(long walletId) {
+    return getFullFilePath(walletId, "vcxInitConfig.json");
+  }
+  public static final String getVcxInitConfigJson(long walletId) throws IOException {
+    File vcxConfigFile = new File(getVcxInitConfigFilePath(walletId));
+    return readInFileAsString(vcxConfigFile);
+  }
+
   public static void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
     try {
       File uploadedFile = new File(uploadedFileLocation);
@@ -139,4 +149,14 @@ public class Misc {
     poolConfig.setLength(Math.max(poolConfig.length() - 1, 0));
     return poolConfig.toString();
   }
+
+  public static final String readInFileAsString(String fullpath) throws IOException {
+    return readInFileAsString(new File(fullpath));
+  }
+
+  public static final String readInFileAsString(File file) throws IOException {
+    String content = new String ( Files.readAllBytes( Paths.get(file.toURI()) ) );
+    return content;
+  }
+
 }

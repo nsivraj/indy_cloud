@@ -627,8 +627,6 @@ export class CloudIndy {
     return cloudResponse // ''
   }
 
-TODO: implement these last four functions in their java classes
-
   static async getTxnAuthorAgreement(): Promise<string> {
     const { cloudResponse } = await RestfulIndy.send('getTxnAuthorAgreement', {
 
