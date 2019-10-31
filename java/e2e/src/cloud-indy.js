@@ -627,7 +627,7 @@ export class CloudIndy {
     return cloudResponse // ''
   }
 
-  static async getTxnAuthorAgreement(): Promise<string> {
+  static async getTxnAuthorAgreement() {
     const { cloudResponse } = await RestfulIndy.send('getTxnAuthorAgreement', {
 
     })
@@ -636,12 +636,12 @@ export class CloudIndy {
   }
 
   static async setActiveTxnAuthorAgreementMeta(
-    text: string,
-    version: string,
-    hash: string,
-    accMechType: string,
-    timeOfAcceptance: number
-  ): Promise<string> {
+    text,
+    version,
+    hash,
+    accMechType,
+    timeOfAcceptance
+  ) {
     const { cloudResponse } = await RestfulIndy.send('setActiveTxnAuthorAgreementMeta', {
       text,
       version,
@@ -654,10 +654,10 @@ export class CloudIndy {
   }
 
   static async getAcceptanceMechanisms(
-    submitterDid: ?string,
-    timestamp: number,
-    version: ?string
-  ): Promise<string> {
+    submitterDid,
+    timestamp,
+    version
+  ) {
     const { cloudResponse } = await RestfulIndy.send('getAcceptanceMechanisms', {
       submitterDid,
       timestamp,
@@ -668,13 +668,13 @@ export class CloudIndy {
   }
 
   static async appendTxnAuthorAgreement(
-    requestJson: string,
-    text: string,
-    version: string,
-    taaDigest: string,
-    mechanism: string,
-    timestamp: number
-  ): Promise<string> {
+    requestJson,
+    text,
+    version,
+    taaDigest,
+    mechanism,
+    timestamp
+  ) {
     const { cloudResponse } = await RestfulIndy.send('appendTxnAuthorAgreement', {
       requestJson,
       text,
