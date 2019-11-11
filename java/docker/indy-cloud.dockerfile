@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 ARG APT="/usr/bin/apt-get --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef"
-ARG PACKAGES="software-properties-common build-essential sudo less screen tmux vim ca-certificates git curl iproute2 less gnupg2 openjdk-8-jdk"
+ARG PACKAGES="software-properties-common build-essential sudo less screen tmux vim ca-certificates git curl iproute2 less gnupg2 openjdk-8-jdk python wget unzip"
 #ENV DEBIAN_FRONTEND=noninteractive
 
 RUN $APT update && \
@@ -61,15 +61,22 @@ RUN echo 'deb https://repo.sovrin.org/sdk/deb xenial stable' > /etc/apt/sources.
 RUN curl -s https://repo.corp.evernym.com/repo.corp.evenym.com-sig.key | apt-key add - 2>&1 && \
     echo 'deb https://repo.corp.evernym.com/deb evernym-ubuntu main' > /etc/apt/sources.list.d/repo.corp.evernym.com.list
 
+RUN curl https://repo.corp.evernym.com/deb/pool/main/libv/libvcx/libvcx_0.4.53977060-bd81815_amd64.deb -o libvcx_0.4.53977060-bd81815_amd64.deb
+
 RUN apt-get update && \
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash && \
+nvm install --lts=Carbon && \
 apt-get install --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -y python3 python3-setuptools python3-pip python3-wheel && \
-apt-get install -y libindy=1.11.1 libvcx=0.4.1 libsovtoken=1.0.2 libnullpay=1.11.1 && \
+apt-get install -y libindy=1.11.1 libsovtoken=1.0.2 libnullpay=1.11.1 && \
+dpkg -i libvcx_0.4.53977060-bd81815_amd64.deb && \
+apt-get install -f && \
 apt-get purge -y python3-pip && \
 apt-get autoremove -y && \
 gcc -v -shared -o /usr/lib/libindycloud.so -Wl,--no-as-needed -lvcx -L/usr/lib -lsovtoken -L/usr/lib
 
 # DT_NEEDED flags: https://linux.die.net/man/1/ld
 #gcc -v -shared -o /usr/lib/libindycloud.so -Wl,--no-as-needed -lvcx -L/usr/lib -lsovtoken -L/usr/lib
-#apt-get install -y libindy=1.12.0 libvcx=0.4.2 libsovtoken=1.0.3 libnullpay=1.12.0 && \
+#apt-get install -y libindy=1.12.0 libsovtoken=1.0.3 libnullpay=1.12.0 libvcx=0.4.2 && \
+#apt-get install -y libindy=1.11.1 libsovtoken=1.0.2 libnullpay=1.11.1 libvcx=0.4.1 && \
 
 ENTRYPOINT /bin/bash

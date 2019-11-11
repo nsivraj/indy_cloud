@@ -1,14 +1,12 @@
 import 'babel-polyfill'
-import { CloudIndy } from './cloud-indy'
+import { Test1 } from './test1'
+import { Test2 } from './test2'
 
-CloudIndy.createWalletKey(10).then(walletKey => {
-  console.log('walletKey: ', walletKey)
-})
+export class MainTest {
+  static async test() {
+    await Test1.test()
+    await Test2.test()
+  }
+}
 
-CloudIndy.getColor('./test/navel-org.png').then(colorRGB => {
-  console.log("colorRGB: ", colorRGB)
-})
-
-CloudIndy.setVcxLogger('trace', 'edb99697-0c3a-21cf-fe49-0e029181b1c7', 10000000).then(loggerPath => {
-  console.log("loggerPath: ", loggerPath)
-});
+MainTest.test()
