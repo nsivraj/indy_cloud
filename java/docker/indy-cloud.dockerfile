@@ -68,7 +68,7 @@ RUN apt-get update && \
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash && \
 export NVM_DIR="/root/.nvm" && \
 [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh" && \
-nvm install --lts=Carbon && \
+nvm install --lts=carbon && \
 apt-get install --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -y python3 python3-setuptools python3-pip python3-wheel && \
 apt-get install -y libindy=1.11.1 libsovtoken=1.0.2 libnullpay=1.11.1 libvcx=0.4.1 && \
 apt-get install -f && \
