@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 ARG APT="/usr/bin/apt-get --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef"
 ARG PACKAGES="software-properties-common build-essential sudo less screen tmux vim ca-certificates git curl iproute2 less gnupg2 openjdk-8-jdk python wget unzip"
 #ENV DEBIAN_FRONTEND=noninteractive
-ENV NVM_DIR="${HOME}/.nvm"
+ENV NVM_DIR="/root/.nvm"
 
 RUN $APT update && \
     $APT upgrade -y && \
@@ -66,7 +66,7 @@ RUN echo 'deb https://repo.sovrin.org/sdk/deb xenial stable' > /etc/apt/sources.
 
 RUN apt-get update && \
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash && \
-export NVM_DIR="${HOME}/.nvm" && \
+export NVM_DIR="/root/.nvm" && \
 [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh" && \
 nvm install --lts=Carbon && \
 apt-get install --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -y python3 python3-setuptools python3-pip python3-wheel && \
