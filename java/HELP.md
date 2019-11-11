@@ -25,6 +25,11 @@ Using docker on a mac to install linux docker image and setup server
 6) docker ps
 7) docker commit [CONTAINER ID] norm/indy_cloud:[version_N] -- where [CONTAINER ID] comes from 'docker ps' and [version_N] is version1, version2, ... etc.
 
+grep command to see where problems are ocurring
+=========================================================================================================
+This grep command searches for two strings and then only outputs the first 100 chars of the
+log line that contains either string: grep 'PoolService::create\|WalletAction:' indy-cloud.server.output.log| cut -b 1-100
+
 
 Next Ones to implement
 ------------------------------------------------------------------------------------------------------
