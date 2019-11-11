@@ -66,6 +66,7 @@ RUN echo 'deb https://repo.sovrin.org/sdk/deb xenial stable' > /etc/apt/sources.
 
 RUN apt-get update && \
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash && \
+export NVM_DIR="${HOME}/.nvm" && \
 [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh" && \
 nvm install --lts=Carbon && \
 apt-get install --no-install-recommends -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -y python3 python3-setuptools python3-pip python3-wheel && \
