@@ -13,7 +13,9 @@ repositories {
 	maven {
 		url 'https://evernym.mycloudrepo.io/public/repositories/libvcx-java'
 	}
-
+	maven {
+		url 'https://repo.sovrin.org/repository/maven-public'
+	}
 }
 
 dependencies {
@@ -25,6 +27,9 @@ dependencies {
 	implementation group: 'org.json', name: 'json', version: '20160810'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.glassfish.jersey.media:jersey-media-multipart'
+	implementation 'org.hyperledger:indy:1.11.1'
+	implementation 'commons-io:commons-io:2.5'
+	//implementation 'org.json:json:20190722'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
