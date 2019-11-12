@@ -1,0 +1,10 @@
+{
+  "attrs": {
+    "name": "Prescription for Norman",
+    "date": "March 12, 2019",
+    "id": "11020302",
+    "medicine": "Motrin",
+    "doctor": "Dr. Jones"
+  },
+  "price": "5"
+}

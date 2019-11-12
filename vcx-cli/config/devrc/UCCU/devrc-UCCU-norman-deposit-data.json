@@ -1,0 +1,10 @@
+{
+  "attrs": {
+    "name": "Deposit paycheck",
+    "amount": "400.00",
+    "id": "9010302",
+    "date": "Jan 1, 2020",
+    "account": "920200202"
+  },
+  "price": "0"
+}

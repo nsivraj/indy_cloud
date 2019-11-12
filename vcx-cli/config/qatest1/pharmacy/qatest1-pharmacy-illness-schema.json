@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attrNames": ["illness", "symptoms", "id", "advice", "medicine"],
+    "name": "Illness Info",
+    "version": "1.02"
+  },
+  "paymentHandle": 0,
+  "sourceId": "Illness",
+  "schemaId": "4fUDR9R7fjwELRvH9JT6HH:2:Illness Info:1.02"
+}

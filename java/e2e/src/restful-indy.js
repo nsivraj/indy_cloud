@@ -1,4 +1,4 @@
-import { secureSet, secureGet } from './storage'
+import { secureSet, secureGet, secureDelete } from './storage'
 //import RNFetchBlob from 'rn-fetch-blob'
 import fetch from 'node-fetch'
 import FormData from 'form-data'
@@ -85,12 +85,11 @@ export class RestfulIndy {
       });
 
       return fetch(
-          'POST',
           `${this.restProtocol}://${this.restHost}:${
           this.restPort
         }/api/v1/wallets/${this.myWalletId}/getColor`,
         {
-          'Content-Type': 'multipart/form-data',
+          method: 'POST',
           body: form
         }).then(async resp => {
           const responseJSON = await resp.json()
@@ -152,13 +151,19 @@ export class RestfulIndy {
               )
               //const documentDirectory = RNFetchBlob.fs.dirs.DocumentDir
               const documentDirectory = './vcxLogger'
+              if(!fs.existsSync(documentDirectory)) {
+                fs.mkdirSync(documentDirectory)
+              }
               responseObj.cloudResponse = `${documentDirectory}/${vcxLogFilename}`
               //RNFetchBlob.fs.createFile(
-              fs.createFile(
-                responseObj.cloudResponse,
-                'starting',
-                'utf8'
-              )
+              // fs.createFile(
+              //   responseObj.cloudResponse,
+              //   'starting',
+              //   'utf8'
+              // )
+              var writeStream = fs.createWriteStream(responseObj.cloudResponse);
+              writeStream.write('starting');
+              writeStream.end();
             }
 
             return responseObj

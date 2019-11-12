@@ -1,0 +1,11 @@
+{
+  "agency_url": "https://eas01.pps.evernym.com",
+  "agency_did": "UNM2cmvMVoWpk6r3pG5FAq",
+  "agency_verkey": "FvA7e4DuD2f9kYHq6B3n7hE7NQvmpgeFRrox3ELKv9vX",
+  "wallet_name": "d9a98114-2022-a301-9c5b-5ea347e524cd-lab-demo-wallet",
+  "wallet_key": "uc1tAUOgi7Ew9p+8uG9qsZ5iwPzT+7Nc/4gMLSb4rMudrp2YIZgKIq1x1BDDkOdhaLCSvwQ63xxnE90LoDLUsA==",
+  "agent_seed": null,
+  "enterprise_seed": null,
+  "payment_method": "sov",
+  "genesis_path": "./config/demo-pool_transactions_genesis.json"
+}

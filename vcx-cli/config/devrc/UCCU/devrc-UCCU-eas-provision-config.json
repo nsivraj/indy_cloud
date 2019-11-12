@@ -1,0 +1,11 @@
+{
+  "agency_url": "https://eas.pdev.evernym.com",
+  "agency_did": "LTjTWsezEmV4wJYD5Ufxvk",
+  "agency_verkey": "BcCSmgdfChLqmtBkkA26YotWVFBNnyY45WCnQziF4cqN",
+  "wallet_name": "d9a98114-2023-a301-9c5b-5ea348e524cd-UCCU-devrc-wallet",
+  "wallet_key": "uc1tAOOgi7Ew8p+8uG9qsZ5iwPzT+7Nc/4gMLSb3rMydrp2YIZgKIq1x1BDDkOdhaLCSvwQ63xxnE90LoDLUsA==",
+  "agent_seed": null,
+  "enterprise_seed": null,
+  "payment_method": "sov",
+  "genesis_path": "./config/devrc-pool_transactions_genesis.json"
+}

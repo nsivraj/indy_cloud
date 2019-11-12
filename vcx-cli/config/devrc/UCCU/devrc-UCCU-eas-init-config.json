@@ -1,0 +1,18 @@
+{
+  "agency_did": "LTjTWsezEmV4wJYD5Ufxvk",
+  "agency_endpoint": "https://eas.pdev.evernym.com",
+  "agency_verkey": "BcCSmgdfChLqmtBkkA26YotWVFBNnyY45WCnQziF4cqN",
+  "genesis_path": "./config/devrc-pool_transactions_genesis.json",
+  "institution_did": "762P99cbsRL4iotyUJnnq8",
+  "institution_logo_url": "http://www.bemoneysmart.org/uccu/uccu_logos&fonts/UCCU%20Logos_Acronym%20Logo_full%20color.png",
+  "institution_name": "UCCU",
+  "institution_verkey": "4KQnBXSBD1edPP4LgvqkEPSxjz4Bh948JtGEAWeW1msu",
+  "protocol_type": "1.0",
+  "remote_to_sdk_did": "4iaFVfatLZ485g3PGQ55eQ",
+  "remote_to_sdk_verkey": "32VhNvubMthLmPqHEG5wo1pnaN7UHobB1xgWvBPAzLrd",
+  "sdk_to_remote_did": "762P99cbsRL4iotyUJnnq8",
+  "sdk_to_remote_verkey": "4KQnBXSBD1edPP4LgvqkEPSxjz4Bh948JtGEAWeW1msu",
+  "wallet_key": "uc1tAOOgi7Ew8p+8uG9qsZ5iwPzT+7Nc/4gMLSb3rMydrp2YIZgKIq1x1BDDkOdhaLCSvwQ63xxnE90LoDLUsA==",
+  "wallet_name": "d9a98114-2023-a301-9c5b-5ea348e524cd-UCCU-devrc-wallet",
+  "payment_method": "sov"
+}

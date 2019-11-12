@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attrNames": ["name", "amount", "id", "date", "account"],
+    "name": "Deposit Info2",
+    "version": "1.01"
+  },
+  "paymentHandle": 0,
+  "sourceId": "DepositId",
+  "schemaId": "762P99cbsRL4iotyUJnnq8:2:Deposit Info2:1.01"
+}

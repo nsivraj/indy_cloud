@@ -1,0 +1,27 @@
+{
+  "name": "vcx-cli-tools",
+  "version": "0.0.0",
+  "description": "VCX CLI Tools",
+  "scripts": {
+    "main": "node VCX-CLI.js",
+    "maindebug": "VCXCLI_DEBUG=true node VCX-CLI.js"
+  },
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "ffi": "^2.3.0",
+    "ffu": "0.0.1",
+    "fs-extra": "^7.0.0",
+    "http": "0.0.0",
+    "logger": "0.0.1",
+    "make-runnable": "^1.3.6",
+    "nodemailer": "^4.7.0",
+    "qr-image": "^3.2.0",
+    "sleep": "^6.0.0",
+    "socket.io": "^2.2.0",
+    "node-vcx-wrapper": "node-vcx-wrapper_0.3.49012884-be58f63_amd64.tgz"
+  }
+}

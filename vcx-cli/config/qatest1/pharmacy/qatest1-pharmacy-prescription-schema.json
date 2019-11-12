@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attrNames": ["name", "date", "id", "medicine", "doctor"],
+    "name": "Info for Prescription",
+    "version": "1.04"
+  },
+  "paymentHandle": 0,
+  "sourceId": "899889",
+  "schemaId": "4fUDR9R7fjwELRvH9JT6HH:2:Info for Prescription:1.04"
+}

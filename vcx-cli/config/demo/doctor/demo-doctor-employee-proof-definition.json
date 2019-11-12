@@ -1,0 +1,12 @@
+{
+  "attrs": [{
+      "name": "fname"
+    },
+    {
+      "name": "lname"
+    }
+  ],
+  "sourceId": "99998675",
+  "name": "Employee Info Proof",
+  "revocationInterval": {}
+}

@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attrNames": ["name", "date", "id", "vitals", "weight", "height"],
+    "name": "HealthCheck Info2",
+    "version": "1.04"
+  },
+  "paymentHandle": 0,
+  "sourceId": "HealthCheck2",
+  "schemaId": "4fUDR9R7fjwELRvH9JT6HH:2:HealthCheck Info2:1.04"
+}

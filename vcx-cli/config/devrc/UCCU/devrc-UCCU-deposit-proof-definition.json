@@ -1,0 +1,21 @@
+{
+  "attrs": [{
+      "name": "name"
+    },
+    {
+      "name": "id"
+    },
+    {
+      "name": "date"
+    },
+    {
+      "name": "amount"
+    },
+    {
+      "name": "account"
+    }
+  ],
+  "sourceId": "99898675",
+  "name": "Deposit Info Proof",
+  "revocationInterval": {}
+}

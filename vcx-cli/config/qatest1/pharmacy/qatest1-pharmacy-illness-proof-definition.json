@@ -1,0 +1,21 @@
+{
+  "attrs": [{
+      "name": "illness"
+    },
+    {
+      "name": "symptoms"
+    },
+    {
+      "name": "id"
+    },
+    {
+      "name": "medicine"
+    },
+    {
+      "name": "advice"
+    }
+  ],
+  "sourceId": "79888675",
+  "name": "Illness Proof",
+  "revocationInterval": {}
+}

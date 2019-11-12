@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attrNames": ["fname", "lname", "iid", "phonenumber", "dept"],
+    "name": "Secours Info2",
+    "version": "1.02"
+  },
+  "paymentHandle": 0,
+  "sourceId": "EmpId2",
+  "schemaId": "J3DNGdWmn1W9U1NVa3ZRL8:2:Secours Info2:1.02"
+}

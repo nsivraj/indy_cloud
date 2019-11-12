@@ -1,0 +1,21 @@
+{
+  "attrs": [{
+      "name": "name"
+    },
+    {
+      "name": "date"
+    },
+    {
+      "name": "id"
+    },
+    {
+      "name": "medicine"
+    },
+    {
+      "name": "doctor"
+    }
+  ],
+  "sourceId": "79898675",
+  "name": "Prescription Proof",
+  "revocationInterval": {}
+}

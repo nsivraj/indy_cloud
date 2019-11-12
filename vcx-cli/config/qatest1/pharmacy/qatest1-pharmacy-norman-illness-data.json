@@ -1,0 +1,10 @@
+{
+  "attrs": {
+    "illness": "Common Cold",
+    "symptoms": "sneezing, coughing, laughing",
+    "id": "11020302",
+    "advice": "Sleep, Drink organce juice",
+    "medicine": "Asprin"
+  },
+  "price": "5"
+}

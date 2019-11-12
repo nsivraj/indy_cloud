@@ -13,7 +13,15 @@ OR
 java -jar build/libs/indy-cloud-0.0.1-SNAPSHOT.jar > indy_cloud.server.output.log 2>&1 &
 
 
-Using docker on a mac to install linux docker image and setup server
+docker steps for running your own pool
+==========================================================================================================
+docker build --build-arg pool_ip=167.71.155.222 -f ci/indy-pool.dockerfile -t indy_pool .
+docker run -itd -p 167.71.155.222:9701-9708:9701-9708 indy_pool
+docker ps -a
+docker exec -it 4f79fbe2f45e /bin/bash
+
+
+Using docker on a mac or linux to install linux docker image and setup server
 ------------------------------------------------------------------------------------------------------
 1) Install docker for mac -- https://docs.docker.com/v17.12/docker-for-mac/install/
 2) cd java/docker

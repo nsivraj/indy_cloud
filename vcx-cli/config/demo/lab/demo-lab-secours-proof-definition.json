@@ -1,0 +1,12 @@
+{
+  "attrs": [{
+      "name": "fname"
+    },
+    {
+      "name": "lname"
+    }
+  ],
+  "sourceId": "99898675",
+  "name": "Secours Info Proof",
+  "revocationInterval": {}
+}
