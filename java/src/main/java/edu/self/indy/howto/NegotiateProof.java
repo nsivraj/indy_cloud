@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class NegotiateProof {
 
 	public static void main(String[] args) throws Exception {

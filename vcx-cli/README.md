@@ -1,6 +1,6 @@
 ## Build and Run
 
-Get node-vcx-wrapper_0.3.49012884-be58f63_amd64.tgz from https://repo.corp.evernym.com/filely/npm/node-vcx-wrapper_0.3.49012884-be58f63_amd64.tgz
+node-vcx-wrapper_0.3.49012884-be58f63_amd64.tgz
 
 Using docker on a mac to install linux docker image and setup server
 ------------------------------------------------------------------------------------------------------
@@ -22,7 +22,6 @@ docker rmi $(docker images --format '{{.Repository}}:{{.Tag}}' |grep 'vcx_cli')
 
 
 // "node-vcx-wrapper": "node-vcx-wrapper_0.3.49012884-be58f63_amd64.tgz"
-// "node-vcx-wrapper": "https://repo.corp.evernym.com/filely/npm/node-vcx-wrapper_0.4.53979018-bd81815_amd64.tgz"
 
 FOR DEBUGGING ISSUES WITH THE SCRIPTS DO...
 ------------------------------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ import com.evernym.sdk.vcx.LibVcx;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//@SpringBootApplication
+@SpringBootApplication
 public class IndyCloudApplication {
 
 	public static void main(String[] args) {

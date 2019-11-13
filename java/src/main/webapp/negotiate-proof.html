@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Digital Identifiers</title>
+<script>
+  //document.getElementById('issuerStep1').addEventListener('click', issuerStep1);
+  var restProtocol = 'http';
+  var restHost = 'localhost';
+  var restPort = 9000;
+  var step1Answer = '';
+  var step2Answer = '';
+  var step3Answer = '';
+  var step4Answer = '';
+
+  async function issuerStep1() {
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/issuer/step1`
+    )
+    step1Answer = await response.json()
+    console.log("issue step1 answer: ", step1Answer)
+  }
+
+  async function proverStep2() {
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/prover/step2`
+    )
+    step2Answer = await response.json()
+    console.log("prover step2 answer: ", step2Answer)
+  }
+
+  async function issuerStep3() {
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/issuer/step3/${step1Answer.credDefId}`
+    )
+    step3Answer = await response.json()
+    console.log("issuer step3 answer: ", step3Answer)
+  }
+
+  async function proverStep4() {
+    const step4Body = {
+      credOffer: step3Answer.credOffer,
+      credDefJson: step1Answer.credDefJson
+    }
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/prover/step4`, {
+        method: 'POST',
+        body: JSON.stringify(step4Body),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    step4Answer = await response.json()
+    console.log("prover step4 answer: ", step4Answer)
+  }
+</script>
+</head>
+<body>
+<h1>Negotiate Proof</h1>
+<button id="issuerStep1" onclick="issuerStep1()">Issuer: Step1</button>
+</br><button id="proverStep2" onclick="proverStep2()">Prover: Step2</button>
+</br><button id="issuerStep3" onclick="issuerStep3()">Issuer: Step3</button>
+</br><button id="proverStep4" onclick="proverStep4()">Prover: Step4</button>
+</body>
+</html>
