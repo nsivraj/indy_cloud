@@ -29,10 +29,10 @@ import edu.self.indy.howto.Utils;
 public class IssuerResource {
 
   @GET
-  @Path("step1")
+  @Path("step1/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response step1() throws Exception {
+  public Response step1(@PathParam("id") long id) throws Exception {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
@@ -143,10 +143,10 @@ public class IssuerResource {
   // }
 
 	@GET
-  @Path("step3/{credDefId}")
+  @Path("step3/{id}/{credDefId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-	public Response step3(@PathParam("credDefId") String credDefId) throws Exception {
+	public Response step3(@PathParam("id") long id, @PathParam("credDefId") String credDefId) throws Exception {
 
 		System.out.println("step3: Using credDefId that was passed in... " + credDefId);
 

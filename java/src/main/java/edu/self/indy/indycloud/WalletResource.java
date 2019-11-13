@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.self.indy.indycloud.jpa.Wallet;
 import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.Misc;
-@Path("/api/v1/wallets")
+@Path("/v1/wallets")
 public class WalletResource
 {
   @Autowired

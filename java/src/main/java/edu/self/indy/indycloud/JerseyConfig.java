@@ -12,20 +12,18 @@ import edu.self.indy.agency.AgencyResource;
 import edu.self.indy.agency.IssuerResource;
 import edu.self.indy.agency.ProverResource;
 
-//@ApplicationPath("/another-mapping")
-//@Configuration
-@ApplicationPath("/")
+@ApplicationPath("/api")
 @Component
 public class JerseyConfig extends ResourceConfig
 {
     public JerseyConfig()
     {
-        property(ServletProperties.FILTER_FORWARD_ON_404, true);
+        register(MultiPartFeature.class);
         register(WalletResource.class);
         register(AgencyResource.class);
         register(IssuerResource.class);
         register(ProverResource.class);
-        register(MultiPartFeature.class);
+        property(ServletProperties.FILTER_FORWARD_ON_404, true);
     }
 }
 

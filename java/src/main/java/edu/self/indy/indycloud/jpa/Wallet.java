@@ -14,6 +14,7 @@ public class Wallet {
   public Boolean secure;
   public String genesisPath;
   public String exportPath;
+  public String masterSecretId;
 
   protected Wallet() {}
 
@@ -45,6 +46,14 @@ public class Wallet {
 
 	public Boolean getSecure() {
 		return secure;
+  }
+
+  public String getMasterSecretId() {
+    return masterSecretId;
+  }
+
+  public void setMasterSecretId(String masterSecretId) {
+    this.masterSecretId = masterSecretId;
   }
 
   public String getGenesisPath() {

@@ -13,7 +13,7 @@
 
   async function issuerStep1() {
     const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/issuer/step1`
+      `${restProtocol}://${restHost}:${restPort}/api/issuer/step1/0`
     )
     step1Answer = await response.json()
     console.log("issue step1 answer: ", step1Answer)
@@ -21,7 +21,7 @@
 
   async function proverStep2() {
     const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/prover/step2`
+      `${restProtocol}://${restHost}:${restPort}/api/prover/step2/0`
     )
     step2Answer = await response.json()
     console.log("prover step2 answer: ", step2Answer)
@@ -29,7 +29,7 @@
 
   async function issuerStep3() {
     const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/issuer/step3/${step1Answer.credDefId}`
+      `${restProtocol}://${restHost}:${restPort}/api/issuer/step3/${step2Answer.walletId}/${step1Answer.credDefId}`
     )
     step3Answer = await response.json()
     console.log("issuer step3 answer: ", step3Answer)
@@ -41,7 +41,7 @@
       credDefJson: step1Answer.credDefJson
     }
     const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/prover/step4`, {
+      `${restProtocol}://${restHost}:${restPort}/api/prover/step4/${step2Answer.walletId}`, {
         method: 'POST',
         body: JSON.stringify(step4Body),
         headers: {
