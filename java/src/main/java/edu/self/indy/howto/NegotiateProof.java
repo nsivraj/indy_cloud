@@ -1,6 +1,7 @@
 package edu.self.indy.howto;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
+import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
@@ -10,15 +11,16 @@ import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static org.junit.Assert.*;
 
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 
-//@SpringBootApplication
-public class IssueCredential {
+@SpringBootApplication
+public class NegotiateProof {
 
 	public static void main(String[] args) throws Exception {
-		IssueCredential.demo();
+		NegotiateProof.demo();
 	}
 
 	static void demo() throws Exception {
@@ -184,17 +186,125 @@ public class IssueCredential {
 		proverStoreCredential(proverWalletHandle, null, credReqMetadataJson, credential, credDefJson, null).get();
 		//Anoncreds.proverStoreClaim(proverWalletHandle, claimJSON, null).get();
 
-		// 18
-		System.out.println("\n18. Close wallet\n");
+
+
+
+    // 18
+    System.out.println("\n18. Prover Gets Credentials for Proof Request\n");
+    String nonce = generateNonce().get();
+    // NOTE: the proofRequestJson MUST come from the verifier
+		String proofRequestJson = new JSONObject()
+				.put("nonce", nonce)
+				.put("name", "proof_req_1")
+				.put("version", "0.1")
+				.put("requested_attributes", new JSONObject()
+						.put("attr1_referent", new JSONObject().put("name", "name"))
+						.put("attr2_referent", new JSONObject().put("name", "sex"))
+						.put("attr3_referent", new JSONObject().put("name", "phone"))
+				)
+				.put("requested_predicates", new JSONObject()
+						.put("predicate1_referent", new JSONObject()
+								.put("name", "age")
+								.put("p_type", ">=")
+								.put("p_value", 18)
+						)
+				)
+				.toString();
+
+		CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWalletHandle, proofRequestJson, null).get();
+
+		JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+		String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+		JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+		String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+		JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+		assertEquals(0, credentialsForAttribute3.length());
+
+		JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+		String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+		credentialsSearch.close();
+
+
+
+    // 19
+    System.out.println("\n19. Prover Creates Proof\n");
+		String selfAttestedValue = "8-800-300";
+		String requestedCredentialsJson = new JSONObject()
+				.put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
+				.put("requested_attributes", new JSONObject()
+						.put("attr1_referent", new JSONObject()
+								.put("cred_id", credentialIdForAttribute1)
+								.put("revealed", true)
+						)
+						.put("attr2_referent", new JSONObject()
+								.put("cred_id", credentialIdForAttribute2)
+								.put("revealed", false)
+						)
+				)
+				.put("requested_predicates", new JSONObject()
+						.put("predicate1_referent", new JSONObject()
+								.put("cred_id",credentialIdForPredicate)
+						)
+				)
+				.toString();
+
+		String schemas = new JSONObject().put(schemaId, new JSONObject(schemaJson)).toString();
+		String credentialDefs = new JSONObject().put(credDefId,  new JSONObject(credDefJson)).toString();
+		String revocStates = new JSONObject().toString();
+
+		String proofJson = "";
+		try {
+			proofJson = proverCreateProof(proverWalletHandle, proofRequestJson, requestedCredentialsJson,
+        proverMasterSecretId, schemas, credentialDefs, revocStates).get();
+		} catch (Exception e){
+			System.out.println("");
+		}
+
+    System.out.println("The proofJson is:");
+    System.out.println(proofJson);
+		JSONObject proof = new JSONObject(proofJson);
+
+
+
+    // 20
+    System.out.println("\n20. Verifier verify Proof\n");
+		JSONObject revealedAttr1 = proof.getJSONObject("requested_proof").getJSONObject("revealed_attrs").getJSONObject("attr1_referent");
+		assertEquals("Alex", revealedAttr1.getString("raw"));
+
+		assertNotNull(proof.getJSONObject("requested_proof").getJSONObject("unrevealed_attrs").getJSONObject("attr2_referent").getInt("sub_proof_index"));
+
+		assertEquals(selfAttestedValue, proof.getJSONObject("requested_proof").getJSONObject("self_attested_attrs").getString("attr3_referent"));
+
+		String revocRegDefs = new JSONObject().toString();
+		String revocRegs = new JSONObject().toString();
+
+		Boolean valid = verifierVerifyProof(proofRequestJson, proofJson, schemas, credentialDefs, revocRegDefs, revocRegs).get();
+		assertTrue(valid);
+
+
+
+
+
+
+
+
+
+
+
+		// 21
+		System.out.println("\n21. Close wallet\n");
 		issuerWalletHandle.closeWallet().get();
 		//Wallet.deleteWallet(walletName, null).get();
 		proverWalletHandle.closeWallet().get();
 
-		// 19
-		System.out.println("\n19. Close pool\n");
+		// 22
+		System.out.println("\n22. Close pool\n");
 		pool.closePoolLedger().get();
 
-		// 20
+		// 23
 		//System.out.println("\n20. Delete pool ledger config\n");
 		//Pool.deletePoolLedgerConfig(poolName).get();
 	}

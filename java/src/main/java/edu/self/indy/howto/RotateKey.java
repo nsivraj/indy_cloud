@@ -27,57 +27,25 @@ public class RotateKey {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.POOL_NAME, Utils.POOL_CONFIG).exceptionally((t) -> {
+		Pool.createPoolLedgerConfig(Utils.ISSUER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
-		}).thenAccept(result -> {
-				// Need to put this logic in every accept because that is how ugly Java's
-				// promise API is
-				// even if exceptionally is called, then also thenAccept block will be called
-				// we either need to switch to complete method and pass two callbacks as
-				// parameter
-				// till we change to that API, we have to live with this IF condition
-				// also reason to add this if condition is because we already rejected promise
-				// in
-				// exceptionally block, if we call promise.resolve now, then it `thenAccept`
-				// block
-				// would throw an exception that would not be caught here, because this is an
-				// async
-				// block and above try catch would not catch this exception
-				System.out.println("The result from createPoolLedgerConfig is: " + result);
-				//return null;
-		});
+		}).get();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.POOL_NAME, "{}").get();
+		Pool pool = Pool.openPoolLedger(Utils.ISSUER_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
-		Wallet.createWallet(Utils.WALLET_CONFIG, Utils.WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
-		}).thenAccept(result -> {
-				// Need to put this logic in every accept because that is how ugly Java's
-				// promise API is
-				// even if exceptionally is called, then also thenAccept block will be called
-				// we either need to switch to complete method and pass two callbacks as
-				// parameter
-				// till we change to that API, we have to live with this IF condition
-				// also reason to add this if condition is because we already rejected promise
-				// in
-				// exceptionally block, if we call promise.resolve now, then it `thenAccept`
-				// block
-				// would throw an exception that would not be caught here, because this is an
-				// async
-				// block and above try catch would not catch this exception
-				System.out.println("The result from createWallet is: " + result);
-				//return null;
-		});
+		}).get();
 
 		// 4
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
-		Wallet walletHandle = Wallet.openWallet(Utils.WALLET_CONFIG, Utils.WALLET_CREDENTIALS).get();
+		Wallet walletHandle = Wallet.openWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
 
 		// 5
 		System.out.println("\n5. Generating and storing steward DID and Verkey\n");

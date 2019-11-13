@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import edu.self.indy.sample.utils.PoolUtils;
 
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
-//import static org.junit.Assert.*;
+import static org.junit.Assert.*;
 import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
 
 
@@ -114,7 +114,7 @@ class Anoncreds {
 		String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
 		JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
-		//assertEquals(0, credentialsForAttribute3.length());
+		assertEquals(0, credentialsForAttribute3.length());
 
 		JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
 		String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
@@ -158,17 +158,17 @@ class Anoncreds {
 
 		//13. Verifier verify Proof
 		JSONObject revealedAttr1 = proof.getJSONObject("requested_proof").getJSONObject("revealed_attrs").getJSONObject("attr1_referent");
-		//assertEquals("Alex", revealedAttr1.getString("raw"));
+		assertEquals("Alex", revealedAttr1.getString("raw"));
 
-		//assertNotNull(proof.getJSONObject("requested_proof").getJSONObject("unrevealed_attrs").getJSONObject("attr2_referent").getInt("sub_proof_index"));
+		assertNotNull(proof.getJSONObject("requested_proof").getJSONObject("unrevealed_attrs").getJSONObject("attr2_referent").getInt("sub_proof_index"));
 
-		//assertEquals(selfAttestedValue, proof.getJSONObject("requested_proof").getJSONObject("self_attested_attrs").getString("attr3_referent"));
+		assertEquals(selfAttestedValue, proof.getJSONObject("requested_proof").getJSONObject("self_attested_attrs").getString("attr3_referent"));
 
 		String revocRegDefs = new JSONObject().toString();
 		String revocRegs = new JSONObject().toString();
 
 		Boolean valid = verifierVerifyProof(proofRequestJson, proofJson, schemas, credentialDefs, revocRegDefs, revocRegs).get();
-		//assertTrue(valid);
+		assertTrue(valid);
 
 		//14. Close and Delete issuer wallet
 		issuerWallet.closeWallet().get();
