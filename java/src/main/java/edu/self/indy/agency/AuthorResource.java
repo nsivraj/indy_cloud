@@ -28,8 +28,98 @@ import static org.junit.Assert.*;
 import edu.self.indy.howto.Utils;
 import edu.self.indy.util.Misc;
 
-@Path("/issuer")
-public class IssuerResource {
+@Path("/author")
+public class AuthorResource {
+
+  @GET
+  @Path("createWallet/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createAuthorWallet(@PathParam("id") long id) throws Exception {
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+				t.printStackTrace();
+				return null;
+		}).get();
+
+		// 2
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+
+    // 3. Create and Open Author Wallet
+		Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
+			t.printStackTrace();
+			return null;
+		}).get();
+		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		// 5. Create Author DID
+		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+		String authorDid = createMyDidResult.getDid();
+		String authorVerkey = createMyDidResult.getVerkey();
+    System.out.println("Author did: " + authorDid);
+    System.out.println("Author verkey: " + authorVerkey);
+
+		pool.closePoolLedger().get();
+		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+
+		authorWallet.closeWallet().get();
+		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		return Response.ok( "{\"step\": \"author/createWallet\"}" ).build();
+	}
+
+
+  @POST
+  @Path("createSchema/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createSchema(
+    @PathParam("id") long id,
+    String schemaPayload) throws Exception {
+
+		JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
+		String endorserDid = schemaData.get("endorserDid").toString();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+
+		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+		String authorDid = createMyDidResult.getDid();
+
+		String schemaName = "gvt";
+		String schemaVersion = "1.0";
+		String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
+		AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
+						issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
+		String schemaId = createSchemaResult.getSchemaId();
+		String schemaJson = createSchemaResult.getSchemaJson();
+
+		//  Transaction Author builds Schema Request
+		String schemaRequest = buildSchemaRequest(authorDid, schemaJson).get();
+
+		//  Transaction Author appends Endorser's DID into the request
+		String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
+
+		//  Transaction Author signs the request with the added endorser field
+		String schemaRequestWithEndorserSignedByAuthor =
+						multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
+
+		pool.closePoolLedger().get();
+		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+
+		authorWallet.closeWallet().get();
+		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		return Response.ok( "{\"step\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + "}" ).build();
+
+	}
+
 
   @GET
   @Path("step1/{id}")

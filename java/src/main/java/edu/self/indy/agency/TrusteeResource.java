@@ -54,13 +54,11 @@ public class TrusteeResource {
 		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
 
     // 3. Create and Open Trustee Wallet
-    String trusteeWalletConfig = new JSONObject().put("id", "trusteeWallet").toString();
-    String trusteeWalletCredentials = new JSONObject().put("key", "trustee_wallet_key").toString();
-    Wallet.createWallet(trusteeWalletConfig, trusteeWalletCredentials).exceptionally((t) -> {
+    Wallet.createWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).exceptionally((t) -> {
       t.printStackTrace();
       return null;
     }).get();
-    Wallet trusteeWallet = Wallet.openWallet(trusteeWalletConfig, trusteeWalletCredentials).get();
+    Wallet trusteeWallet = Wallet.openWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
 
     // 4. Create Trustee DID
     DidJSONParameters.CreateAndStoreMyDidJSONParameter theirDidJson =
@@ -71,6 +69,85 @@ public class TrusteeResource {
     System.out.println("Trustee did: " + trusteeDid);
     System.out.println("Trustee verkey: " + trusteeVerkey);
 
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+
+    trusteeWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+
     return Response.ok( "{\"step\": \"trustee/createWallet\"}" ).build();
+  }
+
+  @POST
+  @Path("addauthor/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response addAuthorToLedger(
+    @PathParam("id") long id,
+    String authorJSON) throws Exception {
+
+    JsonNode authorData = Misc.jsonMapper.readTree(authorJSON);
+    String trusteeDid = authorData.get("trusteeDid").toString();
+    String authorDid = authorData.get("authorDid").toString();
+    String authorVerkey = authorData.get("authorVerkey").toString();
+
+		// 2
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
+
+    // 3. Open Trustee Wallet
+    Wallet trusteeWallet = Wallet.openWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+
+    // 7. Build Author Nym Request
+    String nymRequest = buildNymRequest(trusteeDid, authorDid, authorVerkey, null, null).get();
+
+    // 8. Trustee Sign Author Nym Request
+    signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+
+    trusteeWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"step\": \"trustee/addauthor\"}" ).build();
+  }
+
+
+  @POST
+  @Path("addendorser/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response addEndorserToLedger(
+    @PathParam("id") long id,
+    String endorserJSON) throws Exception {
+
+    JsonNode endorserData = Misc.jsonMapper.readTree(endorserJSON);
+    String trusteeDid = endorserData.get("trusteeDid").toString();
+    String endorserDid = endorserData.get("endorserDid").toString();
+    String endorserVerkey = endorserData.get("endorserVerkey").toString();
+
+		// 2
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
+
+    // 3. Open Trustee Wallet
+    Wallet trusteeWallet = Wallet.openWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+
+    // 7. Build Author Nym Request
+    String nymRequest = buildNymRequest(trusteeDid, endorserDid, endorserVerkey, null, "ENDORSER").get();
+
+    // 8. Trustee Sign Author Nym Request
+    signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+
+    trusteeWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"step\": \"trustee/addendorser\"}" ).build();
   }
 }

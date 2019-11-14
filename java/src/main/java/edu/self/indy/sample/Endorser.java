@@ -142,15 +142,15 @@ public class Endorser {
         String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
 
         //  Transaction Author signs the request with the added endorser field
-        String schemaRequestWithEndorserAuthorSigned =
+        String schemaRequestWithEndorserSignedByAuthor =
                 multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
 
         //  Transaction Endorser signs the request
-        String schemaRequestWithEndorserSigned =
-                multiSignRequest(endorserWallet, endorserDid, schemaRequestWithEndorserAuthorSigned).get();
+        String schemaRequestSignedByEndorser =
+                multiSignRequest(endorserWallet, endorserDid, schemaRequestWithEndorserSignedByAuthor).get();
 
         //  Transaction Endorser sends the request
-        String response = submitRequest(pool, schemaRequestWithEndorserSigned).get();
+        String response = submitRequest(pool, schemaRequestSignedByEndorser).get();
         JSONObject responseJson = new JSONObject(response);
         assertEquals("REPLY", responseJson.getString("op"));
         //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));

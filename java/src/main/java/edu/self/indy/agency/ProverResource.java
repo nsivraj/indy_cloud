@@ -36,6 +36,49 @@ public class ProverResource {
   @Autowired
   WalletRepository walletRepository;
 
+
+  @GET
+  @Path("createWallet/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createProverWallet(@PathParam("id") long id) throws Exception {
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Utils.PROVER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+				t.printStackTrace();
+				return null;
+		}).get();
+
+		// 2
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+
+    // 3. Create and Open Prover Wallet
+		Wallet.createWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
+			t.printStackTrace();
+			return null;
+		}).get();
+		Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+		// 5. Create Prover DID
+		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+		String proverDid = createMyDidResult.getDid();
+		String proverVerkey = createMyDidResult.getVerkey();
+    System.out.println("Prover did: " + proverDid);
+    System.out.println("Prover verkey: " + proverVerkey);
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+
+    proverWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"step\": \"prover/createWallet\"}" ).build();
+  }
+
+
   @GET
   @Path("step2/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
