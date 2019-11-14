@@ -132,7 +132,37 @@ public class ProverResource {
 		//Wallet.deleteWallet(walletName, null).get();
 		proverWalletHandle.closeWallet().get();
 
-    return Response.ok( "{\"msg\": \"prover: step4 is done\"}" ).build();
+    //return Response.ok( "{\"msg\": \"prover: step4 is done\"}" ).build();
+    return Response.ok(  "{\"credReqJson\": " + credReqJson + ", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"step\": \"step4\"}" ).build();
+  }
+
+
+  @POST
+  @Path("step6/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response step6(
+    @PathParam("id") long id,
+    String credentialJSON) throws Exception {
+
+    JsonNode credentialData = Misc.jsonMapper.readTree(credentialJSON);
+    String credDefJson = credentialData.get("credDefJson").toString();
+    String credReqMetadataJson = credentialData.get("credReqMetadataJson").toString();
+    String credential = credentialData.get("credential").toString();
+
+    Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    // 17
+		System.out.println("\n17. Prover processes and stores Credential\n");
+		String credentialId = proverStoreCredential(proverWalletHandle, null, credReqMetadataJson, credential, credDefJson, null).get();
+		//Anoncreds.proverStoreClaim(proverWalletHandle, claimJSON, null).get();
+
+    System.out.println("\n21. Close wallet\n");
+		//issuerWalletHandle.closeWallet().get();
+		//Wallet.deleteWallet(walletName, null).get();
+		proverWalletHandle.closeWallet().get();
+
+    return Response.ok( "{\"msg\": \"prover: step6 is done\", \"credentialId\": \"" + credentialId + "\"}" ).build();
   }
 
 

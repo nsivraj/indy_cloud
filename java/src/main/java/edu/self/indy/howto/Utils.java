@@ -23,6 +23,6 @@ public class Utils {
 
   public static final String VERIFIER_WALLET_NAME = "VerifierWallet";
   public static final String VERIFIER_WALLET_CONFIG = "{ \"id\":\"" + VERIFIER_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
-  public static final String VERIFIER_WALLET_CREDENTIALS = "{\"key\":\"1dvfYSt4c3ta4d9yJdpjq4emkwsLCBLZxkNFysFD2dZY\", \"key_derivation_method\":\"RAW\"}";
+  public static final String VERIFIER_WALLET_CREDENTIALS = "{\"key\":\"2dufYSt5d2tC4d6yJdpjq4emkwsPCALYxkNFysFD2dZY\", \"key_derivation_method\":\"RAW\"}";
   public static final String VERIFIER_POOL_NAME = "VerifierPool";
 }

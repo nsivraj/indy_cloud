@@ -189,8 +189,8 @@ public class NegotiateProof {
 
 
 
-    // 18
-    System.out.println("\n18. Prover Gets Credentials for Proof Request\n");
+    // 18.5
+    System.out.println("\n18.5. Verifier sends Proof Request to Prover\n");
     String nonce = generateNonce().get();
     // NOTE: the proofRequestJson MUST come from the verifier
 		String proofRequestJson = new JSONObject()
@@ -211,6 +211,8 @@ public class NegotiateProof {
 				)
 				.toString();
 
+    // 18
+    System.out.println("\n18. Prover Gets Credentials for Proof Request\n");
 		CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWalletHandle, proofRequestJson, null).get();
 
 		JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());

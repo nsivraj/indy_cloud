@@ -10,6 +10,8 @@
   var step2Answer = '';
   var step3Answer = '';
   var step4Answer = '';
+  var step5Answer = '';
+  var step6Answer = '';
 
   async function issuerStep1() {
     const response = await fetch(
@@ -52,6 +54,53 @@
     step4Answer = await response.json()
     console.log("prover step4 answer: ", step4Answer)
   }
+
+  async function issuerStep5() {
+    const step5Body = {
+      credOffer: step3Answer.credOffer,
+      credReqJson: step4Answer.credReqJson
+    }
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/api/issuer/step5/${step2Answer.walletId}`, {
+        method: 'POST',
+        body: JSON.stringify(step5Body),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    step5Answer = await response.json()
+    console.log("prover step5 answer: ", step5Answer)
+  }
+
+
+  async function proverStep6() {
+    const step6Body = {
+      credDefJson: step1Answer.credDefJson,
+      credReqMetadataJson: step4Answer.credReqMetadataJson,
+      credential: step5Answer.credential
+    }
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/api/prover/step6/${step2Answer.walletId}`, {
+        method: 'POST',
+        body: JSON.stringify(step6Body),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    step6Answer = await response.json()
+    console.log("prover step6 answer: ", step6Answer)
+  }
+
+  async function verifierStep7() {
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/api/verifier/step7/${step2Answer.walletId}`
+    )
+    step7Answer = await response.json()
+    console.log("issuer step7 answer: ", step7Answer)
+  }
+
 </script>
 </head>
 <body>
@@ -60,5 +109,8 @@
 </br><button id="proverStep2" onclick="proverStep2()">Prover: Step2</button>
 </br><button id="issuerStep3" onclick="issuerStep3()">Issuer: Step3</button>
 </br><button id="proverStep4" onclick="proverStep4()">Prover: Step4</button>
+</br><button id="issuerStep5" onclick="issuerStep5()">Issuer: Step5</button>
+</br><button id="proverStep6" onclick="proverStep6()">Prover: Step6</button>
+</br><button id="verifierStep7" onclick="verifierStep7()">Verifier: Step7</button>
 </body>
 </html>

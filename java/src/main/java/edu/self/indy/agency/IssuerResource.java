@@ -9,6 +9,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
 import org.hyperledger.indy.sdk.did.Did;
@@ -24,6 +26,7 @@ import org.json.JSONObject;
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
+import edu.self.indy.util.Misc;
 
 @Path("/issuer")
 public class IssuerResource {
@@ -148,7 +151,7 @@ public class IssuerResource {
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response step3(@PathParam("id") long id, @PathParam("credDefId") String credDefId) throws Exception {
 
-		System.out.println("step3: Using credDefId that was passed in... " + credDefId);
+		//System.out.println("step3: Using credDefId that was passed in... " + credDefId);
 
 		Wallet issuerWalletHandle = Wallet.openWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
 
@@ -166,4 +169,50 @@ public class IssuerResource {
 		return Response.ok(  "{\"credOffer\": " + credOffer + ", \"step\": \"step3\"}" ).build();
 	}
 
+  @POST
+  @Path("step5/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response step5(
+    @PathParam("id") long id,
+    String credentialRequestJSON) throws Exception {
+    JsonNode credentialOffer = Misc.jsonMapper.readTree(credentialRequestJSON);
+    String credOffer = credentialOffer.get("credOffer").toString();
+    String credReqJson = credentialOffer.get("credReqJson").toString();
+
+		Wallet issuerWalletHandle = Wallet.openWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
+
+		// 16
+		System.out.println("\n16. Issuer (Trust Anchor) creates Credential for Credential Request\n");
+		//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
+		String credValuesJson = new JSONObject()
+				.put("sex", new JSONObject().put("raw", "male").put("encoded", "594465709955896723921094925839488742869205008160769251991705001"))
+				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "1139481716457488690172217916278103335"))
+				.put("height", new JSONObject().put("raw", "175").put("encoded", "175"))
+				.put("age", new JSONObject().put("raw", "28").put("encoded", "28"))
+		.toString();
+
+		AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+				issuerCreateCredential(issuerWalletHandle, credOffer, credReqJson, credValuesJson, null, - 1).get();
+		String credential = createCredentialResult.getCredentialJson();
+		// Encoded value of non-integer attribute is SHA256 converted to decimal
+		// note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
+		// String credAttribsJson = "{\n" +
+		// "               \"sex\":[\"male\",\"5944657099558967239210949258394887428692050081607692519917050011144233115103\"],\n" +
+		// "               \"name\":[\"Alex\",\"99262857098057710338306967609588410025648622308394250666849665532448612202874\"],\n" +
+		// "               \"height\":[\"175\",\"175\"],\n" +
+		// "               \"age\":[\"28\",\"28\"]\n" +
+		// "        }";
+		// AnoncredsResults.IssuerCreateClaimResult createClaimResult = issuerCreateClaim(issuerWalletHandle, claimRequestJSON,
+		// 		credAttribsJson, - 1).get();
+		// String claimJSON = createClaimResult.getClaimJson();
+		// System.out.println("Claim:\n" + claimJSON);
+
+		System.out.println("\n21. Close wallet\n");
+		issuerWalletHandle.closeWallet().get();
+		//Wallet.deleteWallet(walletName, null).get();
+		//proverWalletHandle.closeWallet().get();
+
+		return Response.ok(  "{\"credential\": " + credential + ", \"step\": \"step5\"}" ).build();
+	}
 }
