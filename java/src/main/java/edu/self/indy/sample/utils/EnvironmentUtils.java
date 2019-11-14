@@ -17,7 +17,7 @@ public class EnvironmentUtils {
 	}
 
 	static String getTmpPath() {
-		return FileUtils.getTempDirectoryPath() + "/indy/";
+		return FileUtils.getUserDirectoryPath() + "/indy/";
 	}
 
 	static String getTmpPath(String filename) {

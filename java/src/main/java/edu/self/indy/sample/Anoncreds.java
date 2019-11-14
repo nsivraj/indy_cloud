@@ -6,14 +6,20 @@ import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import edu.self.indy.sample.utils.PoolUtils;
 
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 import static org.junit.Assert.*;
-import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
+//import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
 
+//@SpringBootApplication
+public class Anoncreds {
 
-class Anoncreds {
+  public static void main(String[] args) throws Exception {
+		Anoncreds.demo();
+	}
 
 	static void demo() throws Exception {
 		System.out.println("Anoncreds sample -> started");
@@ -22,7 +28,7 @@ class Anoncreds {
 		String proverDid = "VsKV7grR1BUE29mG2Fm2kX";
 
 		// Set protocol version 2 to work with Indy Node 1.4
-		Pool.setProtocolVersion(PROTOCOL_VERSION).get();
+		//Pool.setProtocolVersion(PROTOCOL_VERSION).get();
 
 		//1. Create and Open Pool
 		String poolName = PoolUtils.createPoolLedgerConfig();
@@ -150,10 +156,12 @@ class Anoncreds {
 		try {
 			proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
 					masterSecretId, schemas, credentialDefs, revocStates).get();
-		} catch (Exception e){
-			System.out.println("");
+		} catch (Exception e) {
+      e.printStackTrace();
+			//System.out.println("");
 		}
 
+    System.out.println("proofJson: " + proofJson);
 		JSONObject proof = new JSONObject(proofJson);
 
 		//13. Verifier verify Proof

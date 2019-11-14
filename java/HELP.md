@@ -15,10 +15,16 @@ java -jar build/libs/indy-cloud-0.0.1-SNAPSHOT.jar > indy_cloud.server.output.lo
 
 docker steps for running your own pool
 ==========================================================================================================
+ssh root@167.71.155.222
+cd /root/forge/personal/code/indy-sdk
 docker build --build-arg pool_ip=167.71.155.222 -f ci/indy-pool.dockerfile -t indy_pool .
 docker run -itd -p 167.71.155.222:9701-9708:9701-9708 indy_pool
-docker ps -a
+docker ps -a;docker images -a
 docker exec -it 4f79fbe2f45e /bin/bash
+docker stop 4f79fbe2f45e
+docker rm $(docker ps -qa --no-trunc --filter "status=exited")
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+docker rmi $(docker images --format '{{.Repository}}:{{.Tag}}' |grep 'indy_pool')
 
 
 Using docker on a mac or linux to install linux docker image and setup server

@@ -8,17 +8,29 @@ public class Utils {
   public static final String DEFAULT_REVOCATION_CONFIG = "{\"support_revocation\":false}";
 
 
-  public static final String ISSUER_WALLET_NAME = "IssuerWallet";
-  public static final String ISSUER_WALLET_CONFIG = "{ \"id\":\"" + ISSUER_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
-  public static final String ISSUER_WALLET_CREDENTIALS = "{\"key\":\"8dvfYSt5d1taSd6yJdpjq4emkwsPDDLYxkNFysFD2cZY\", \"key_derivation_method\":\"RAW\"}";
-  public static final String ISSUER_POOL_NAME = "IssuerPool";
+  public static final String TRUSTEE_WALLET_NAME = "TrusteeWallet";
+  public static final String TRUSTEE_WALLET_CONFIG = "{ \"id\":\"" + TRUSTEE_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
+  public static final String TRUSTEE_WALLET_CREDENTIALS = "{\"key\":\"8dvfYSt5d1taSd5yJapjq4emkwsPDDLYxkNFysFD2cZY\", \"key_derivation_method\":\"RAW\"}";
+  public static final String TRUSTEE_POOL_NAME = "TrusteePool";
+
+
+  public static final String ENDORSER_WALLET_NAME = "EndorserWallet";
+  public static final String ENDORSER_WALLET_CONFIG = "{ \"id\":\"" + ENDORSER_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
+  public static final String ENDORSER_WALLET_CREDENTIALS = "{\"key\":\"8dvfYLt5d1taSd6yJdpjq4emkwsPDDLYxkNFysED2cZY\", \"key_derivation_method\":\"RAW\"}";
+  public static final String ENDORSER_POOL_NAME = "EndorserPool";
+
+
+  public static final String AUTHOR_WALLET_NAME = "AuthorWallet";
+  public static final String AUTHOR_WALLET_CONFIG = "{ \"id\":\"" + AUTHOR_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
+  public static final String AUTHOR_WALLET_CREDENTIALS = "{\"key\":\"8dvfYSt5d1taSd6yJdpjq4emkwsPDDLYxkNFysFD2cZY\", \"key_derivation_method\":\"RAW\"}";
+  public static final String AUTHOR_POOL_NAME = "AuthorPool";
 
 
   public static final String PROVER_WALLET_NAME = "ProverWallet";
   public static final String PROVER_WALLET_CONFIG = "{ \"id\":\"" + PROVER_WALLET_NAME + "\", \"storage_type\":\"" + STORAGE_TYPE + "\"}";
   public static final String PROVER_WALLET_CREDENTIALS = "{\"key\":\"9dvfYSt5d2ta4d6yJdpjq4emkwsPCDLYxkNFysFD2dZY\", \"key_derivation_method\":\"RAW\"}";
   public static final String PROVER_POOL_NAME = "ProverPool";
-  public static final String PROVER_MASTER_SECRET = "master_secret_tobekept";
+  public static final String PROVER_MASTER_SECRET = "6265b3f9-ca0d-454c-b03d-dbad0a314dc8";
 
 
   public static final String VERIFIER_WALLET_NAME = "VerifierWallet";

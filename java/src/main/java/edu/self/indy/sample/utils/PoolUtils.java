@@ -5,14 +5,16 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.pool.PoolJSONParameters;
 
+import edu.self.indy.howto.Utils;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class PoolUtils {
 
-	private static final String DEFAULT_POOL_NAME = "default_pool";
-	public static final int PROTOCOL_VERSION = 2;
+	//private static final String DEFAULT_POOL_NAME = "default_pool";
+	//public static final int PROTOCOL_VERSION = 2;
 
 
 	private static File createGenesisTxnFile(String filename) throws IOException {
@@ -41,11 +43,20 @@ public class PoolUtils {
 		return file;
 	}
 
+  public static final String SERVERONE_POOL_CONFIG = "{\"genesis_txn\": \"/root/indy_cloud/vcx-cli/config/serverone-pool_transactions_genesis.json\"}";
+
 	public static String createPoolLedgerConfig() throws IOException, InterruptedException, java.util.concurrent.ExecutionException, IndyException {
-		File genesisTxnFile = createGenesisTxnFile("temp.txn");
-		PoolJSONParameters.CreatePoolLedgerConfigJSONParameter createPoolLedgerConfigJSONParameter
-				= new PoolJSONParameters.CreatePoolLedgerConfigJSONParameter(genesisTxnFile.getAbsolutePath());
-		Pool.createPoolLedgerConfig(DEFAULT_POOL_NAME, createPoolLedgerConfigJSONParameter.toJson()).get();
-		return DEFAULT_POOL_NAME;
+		//File genesisTxnFile = createGenesisTxnFile("temp.txn");
+		//PoolJSONParameters.CreatePoolLedgerConfigJSONParameter createPoolLedgerConfigJSONParameter
+    //		= new PoolJSONParameters.CreatePoolLedgerConfigJSONParameter(genesisTxnFile.getAbsolutePath());
+
+    Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Utils.ISSUER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+				t.printStackTrace();
+				return null;
+		}).get();
+
+		//Pool.createPoolLedgerConfig(DEFAULT_POOL_NAME, createPoolLedgerConfigJSONParameter.toJson()).get();
+		return Utils.ISSUER_POOL_NAME;
 	}
 }

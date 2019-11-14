@@ -63,8 +63,8 @@ public class VerifierResource {
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
 		Wallet verifierWalletHandle = Wallet.openWallet(Utils.VERIFIER_WALLET_CONFIG, Utils.VERIFIER_WALLET_CREDENTIALS).get();
 
-    // 18.5
-    System.out.println("\n18.5. Verifier sends Proof Request to Prover\n");
+    // 17.5
+    System.out.println("\n17.5. Verifier sends Proof Request to Prover\n");
     String nonce = generateNonce().get();
 		String proofRequestJson = new JSONObject()
 				.put("nonce", nonce)

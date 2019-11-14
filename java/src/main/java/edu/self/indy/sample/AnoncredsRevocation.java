@@ -13,7 +13,7 @@ import edu.self.indy.sample.utils.PoolUtils;
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 //import static org.junit.Assert.*;
 import static edu.self.indy.sample.utils.EnvironmentUtils.getIndyHomePath;
-import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
+//import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
 
 
 class AnoncredsRevocation {
@@ -25,7 +25,7 @@ class AnoncredsRevocation {
 		String proverDid = "VsKV7grR1BUE29mG2Fm2kX";
 
 		// Set protocol version 2 to work with Indy Node 1.4
-		Pool.setProtocolVersion(PROTOCOL_VERSION).get();
+		//Pool.setProtocolVersion(PROTOCOL_VERSION).get();
 
 		//1. Create and Open Pool
 		String poolName = PoolUtils.createPoolLedgerConfig();

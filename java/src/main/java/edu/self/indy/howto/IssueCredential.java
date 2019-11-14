@@ -128,8 +128,8 @@ public class IssueCredential {
 
 		// 13
 		System.out.println("\n13. Prover is creating Master Secret\n");
-		// Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET).get();
-		String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
+		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET).get();
+		//String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
 
 		// 14
 		System.out.println("\n14. Issuer (Trust Anchor) is creating a Credential Offer for Prover\n");

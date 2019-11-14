@@ -12,6 +12,7 @@
   var step4Answer = '';
   var step5Answer = '';
   var step6Answer = '';
+  var step7Answer = '';
 
   async function issuerStep1() {
     const response = await fetch(
@@ -101,6 +102,33 @@
     console.log("issuer step7 answer: ", step7Answer)
   }
 
+  async function proverStep8() {
+    // String proofReqJson = proofRequestData.get("proofReqJson").toString();
+    // String credDefJson = proofRequestData.get("credDefJson").toString();
+    // String credDefId = proofRequestData.get("credDefId").toString();
+    // String schemaId = proofRequestData.get("schemaId").toString();
+    // String schemaJson = proofRequestData.get("schemaJson").toString();
+
+    const step8Body = {
+      proofReqJson: step7Answer.proofRequestJson,
+      credDefJson: step1Answer.credDefJson,
+      credDefId: step1Answer.credDefId,
+      schemaId: step1Answer.schemaId,
+      schemaJson: step1Answer.schemaJson
+    }
+    const response = await fetch(
+      `${restProtocol}://${restHost}:${restPort}/api/prover/step8/${step2Answer.walletId}`, {
+        method: 'POST',
+        body: JSON.stringify(step8Body),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    step8Answer = await response.json()
+    console.log("prover step8 answer: ", step8Answer)
+
+  }
 </script>
 </head>
 <body>
@@ -112,5 +140,6 @@
 </br><button id="issuerStep5" onclick="issuerStep5()">Issuer: Step5</button>
 </br><button id="proverStep6" onclick="proverStep6()">Prover: Step6</button>
 </br><button id="verifierStep7" onclick="verifierStep7()">Verifier: Step7</button>
+</br><button id="proverStep8" onclick="proverStep8()">Prover: Step8</button>
 </body>
 </html>

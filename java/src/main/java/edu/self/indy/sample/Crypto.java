@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import static org.hyperledger.indy.sdk.did.Did.*;
 import static org.hyperledger.indy.sdk.crypto.Crypto.*;
-import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
+//import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
 
 
 class Crypto {
@@ -21,7 +21,7 @@ class Crypto {
 		System.out.println("Crypto sample -> started");
 
 		// Set protocol version 2 to work with Indy Node 1.4
-		Pool.setProtocolVersion(PROTOCOL_VERSION).get();
+		//Pool.setProtocolVersion(PROTOCOL_VERSION).get();
 
 		// 1. Create and Open Pool
 		String poolName = PoolUtils.createPoolLedgerConfig();

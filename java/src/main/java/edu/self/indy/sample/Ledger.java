@@ -11,7 +11,7 @@ import edu.self.indy.sample.utils.PoolUtils;
 import static org.hyperledger.indy.sdk.ledger.Ledger.buildNymRequest;
 import static org.hyperledger.indy.sdk.ledger.Ledger.signAndSubmitRequest;
 //import static org.junit.Assert.assertEquals;
-import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
+//import static edu.self.indy.sample.utils.PoolUtils.PROTOCOL_VERSION;
 
 
 class Ledger {
@@ -22,7 +22,7 @@ class Ledger {
 		String trusteeSeed = "000000000000000000000000Trustee1";
 
 		// Set protocol version 2 to work with Indy Node 1.4
-		Pool.setProtocolVersion(PROTOCOL_VERSION).get();
+		//Pool.setProtocolVersion(PROTOCOL_VERSION).get();
 
 		// 1. Create ledger config from genesis txn file
 		String poolName = PoolUtils.createPoolLedgerConfig();

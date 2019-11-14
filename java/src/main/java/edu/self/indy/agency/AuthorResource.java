@@ -136,7 +136,7 @@ public class IssuerResource {
 		System.out.println("\n22. Close pool\n");
 		pool.closePoolLedger().get();
 
-    return Response.ok( "{\"credDefId\": \"" + credDefId + "\", \"credDefJson\": " + credDefJson + ", \"step\": \"step1\"}" ).build();
+    return Response.ok( "{\"credDefId\": \"" + credDefId + "\", \"schemaId\": \"" + schemaId + "\", \"credDefJson\": " + credDefJson + ", \"schemaJson\": " + schemaJson + ", \"step\": \"step1\"}" ).build();
 	}
 
 	// public Response getCloudResponse(String cloudResp, String stepName) {
