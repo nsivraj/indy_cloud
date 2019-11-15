@@ -25,25 +25,25 @@ public class IssueCredential {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.ISSUER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.ISSUER_POOL_NAME, "{}").get();
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
-		Wallet.createWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 4
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
-		Wallet issuerWalletHandle = Wallet.openWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
+		Wallet issuerWalletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		// 5
 		System.out.println("\n5. Generating and storing steward DID and Verkey\n");

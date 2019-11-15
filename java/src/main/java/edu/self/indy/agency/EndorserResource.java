@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
+import org.hyperledger.indy.sdk.did.DidResults.CreateAndStoreMyDidResult;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
@@ -76,9 +77,12 @@ public class EndorserResource {
   @Path("multiSignRequest/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response multiSignRequest(
+  public Response multiSignARequest(
     @PathParam("id") long id,
     String requestPayload) throws Exception {
+
+    // TODO: fix this next line of code
+    String requestWithEndorserSignedByAuthor = requestPayload;
 
     System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
     Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();

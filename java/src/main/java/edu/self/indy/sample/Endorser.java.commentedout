@@ -32,7 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class Endorser {
 
   public static void main(String[] args) throws Exception {
@@ -42,119 +42,121 @@ public class Endorser {
 
   static void demo() throws Exception {
 
-        System.out.println("Endorser sample -> started");
-        String trusteeSeed = "000000000000000000000000Trustee1";
-        //String trusteeSeed = "100000000000000000000000Trustee1";
+        // System.out.println("Endorser sample -> started");
+        // String trusteeSeed = "000000000000000000000000Trustee1";
+        // //String trusteeSeed = "100000000000000000000000Trustee1";
 
         // Set protocol version 2 to work with Indy Node 1.4
         //Pool.setProtocolVersion(PoolUtils.PROTOCOL_VERSION).get();
 
         // 1. Create and Open Pool
-        String poolName = PoolUtils.createPoolLedgerConfig();
-        Pool pool = Pool.openPoolLedger(poolName, "{}").get();
+        // String poolName = PoolUtils.createPoolLedgerConfig();
+        // Pool pool = Pool.openPoolLedger(poolName, "{}").get();
 
-        // 2. Create and Open Author Wallet
-        String authorWalletConfig = new JSONObject().put("id", "authorWallet").toString();
-        String authorWalletCredentials = new JSONObject().put("key", "author_wallet_key").toString();
-        Wallet.createWallet(authorWalletConfig, authorWalletCredentials).exceptionally((t) -> {
-          t.printStackTrace();
-          return null;
-        }).get();
-        Wallet authorWallet = Wallet.openWallet(authorWalletConfig, authorWalletCredentials).get();
+        // // 2. Create and Open Author Wallet
+        // String authorWalletConfig = new JSONObject().put("id", "authorWallet").toString();
+        // String authorWalletCredentials = new JSONObject().put("key", "author_wallet_key").toString();
+        // Wallet.createWallet(authorWalletConfig, authorWalletCredentials).exceptionally((t) -> {
+        //   t.printStackTrace();
+        //   return null;
+        // }).get();
+        // Wallet authorWallet = Wallet.openWallet(authorWalletConfig, authorWalletCredentials).get();
 
-        // 3. Create and Open Endorser Wallet
-        String endorserWalletConfig = new JSONObject().put("id", "endorserWallet").toString();
-        String endorserWalletCredentials = new JSONObject().put("key", "endorser_wallet_key").toString();
-        Wallet.createWallet(endorserWalletConfig, endorserWalletCredentials).exceptionally((t) -> {
-          t.printStackTrace();
-          return null;
-        }).get();
-        Wallet endorserWallet = Wallet.openWallet(endorserWalletConfig, endorserWalletCredentials).get();
+        // // 3. Create and Open Endorser Wallet
+        // String endorserWalletConfig = new JSONObject().put("id", "endorserWallet").toString();
+        // String endorserWalletCredentials = new JSONObject().put("key", "endorser_wallet_key").toString();
+        // Wallet.createWallet(endorserWalletConfig, endorserWalletCredentials).exceptionally((t) -> {
+        //   t.printStackTrace();
+        //   return null;
+        // }).get();
+        // Wallet endorserWallet = Wallet.openWallet(endorserWalletConfig, endorserWalletCredentials).get();
 
-        // 3. Create and Open Trustee Wallet
-        String trusteeWalletConfig = new JSONObject().put("id", "trusteeWallet").toString();
-        String trusteeWalletCredentials = new JSONObject().put("key", "trustee_wallet_key").toString();
-        Wallet.createWallet(trusteeWalletConfig, trusteeWalletCredentials).exceptionally((t) -> {
-          t.printStackTrace();
-          return null;
-        }).get();
-        Wallet trusteeWallet = Wallet.openWallet(trusteeWalletConfig, trusteeWalletCredentials).get();
+        // // 3. Create and Open Trustee Wallet
+        // String trusteeWalletConfig = new JSONObject().put("id", "trusteeWallet").toString();
+        // String trusteeWalletCredentials = new JSONObject().put("key", "trustee_wallet_key").toString();
+        // Wallet.createWallet(trusteeWalletConfig, trusteeWalletCredentials).exceptionally((t) -> {
+        //   t.printStackTrace();
+        //   return null;
+        // }).get();
+        // Wallet trusteeWallet = Wallet.openWallet(trusteeWalletConfig, trusteeWalletCredentials).get();
 
-        // 3.5. Create and Open Prover Wallet
-        String proverWalletConfig = new JSONObject().put("id", "proverWallet").toString();
-        String proverWalletCredentials = new JSONObject().put("key", "prover_wallet_key").toString();
-        Wallet.createWallet(proverWalletConfig, proverWalletCredentials).exceptionally((t) -> {
-          t.printStackTrace();
-          return null;
-        }).get();
-        Wallet proverWallet = Wallet.openWallet(proverWalletConfig, proverWalletCredentials).get();
+        // // 3.5. Create and Open Prover Wallet
+        // String proverWalletConfig = new JSONObject().put("id", "proverWallet").toString();
+        // String proverWalletCredentials = new JSONObject().put("key", "prover_wallet_key").toString();
+        // Wallet.createWallet(proverWalletConfig, proverWalletCredentials).exceptionally((t) -> {
+        //   t.printStackTrace();
+        //   return null;
+        // }).get();
+        // Wallet proverWallet = Wallet.openWallet(proverWalletConfig, proverWalletCredentials).get();
 
-        // 4. Create Trustee DID
-        DidJSONParameters.CreateAndStoreMyDidJSONParameter theirDidJson =
-                new DidJSONParameters.CreateAndStoreMyDidJSONParameter(null, trusteeSeed, null, null);
-        CreateAndStoreMyDidResult createTheirDidResult = Did.createAndStoreMyDid(trusteeWallet, theirDidJson.toJson()).get();
-        String trusteeDid = createTheirDidResult.getDid();
-        String trusteeVerkey = createTheirDidResult.getVerkey();
-        System.out.println("Trustee did: " + trusteeDid);
-        System.out.println("Trustee verkey: " + trusteeVerkey);
+        // // 4. Create Trustee DID
+        // DidJSONParameters.CreateAndStoreMyDidJSONParameter theirDidJson =
+        //         new DidJSONParameters.CreateAndStoreMyDidJSONParameter(null, trusteeSeed, null, null);
+        // CreateAndStoreMyDidResult createTheirDidResult = Did.createAndStoreMyDid(trusteeWallet, theirDidJson.toJson()).get();
+        // String trusteeDid = createTheirDidResult.getDid();
+        // String trusteeVerkey = createTheirDidResult.getVerkey();
+        // System.out.println("Trustee did: " + trusteeDid);
+        // System.out.println("Trustee verkey: " + trusteeVerkey);
 
-        // 5. Create Author DID
-        CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-        String authorDid = createMyDidResult.getDid();
-        String authorVerkey = createMyDidResult.getVerkey();
+        // // 5. Create Author DID
+        // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+        // String authorDid = createMyDidResult.getDid();
+        // String authorVerkey = createMyDidResult.getVerkey();
 
-        // 6. Create Endorser DID
-        createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
-        String endorserDid = createMyDidResult.getDid();
-        String endorserVerkey = createMyDidResult.getVerkey();
+        // // 6. Create Endorser DID
+        // createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
+        // String endorserDid = createMyDidResult.getDid();
+        // String endorserVerkey = createMyDidResult.getVerkey();
 
-        // 6.5. Create Prover DID
-        createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
-        String proverDid = createMyDidResult.getDid();
-        String proverVerkey = createMyDidResult.getVerkey();
+        // // 6.5. Create Prover DID
+        // createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+        // String proverDid = createMyDidResult.getDid();
+        // String proverVerkey = createMyDidResult.getVerkey();
 
-        // 7. Build Author Nym Request
-        String nymRequest = buildNymRequest(trusteeDid, authorDid, authorVerkey, null, null).get();
 
-        // 8. Trustee Sign Author Nym Request
-        signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
 
-        // 9. Build Endorser Nym Request
-        nymRequest = buildNymRequest(trusteeDid, endorserDid, endorserVerkey, null, "ENDORSER").get();
+        // // 7. Build Author Nym Request
+        // String nymRequest = buildNymRequest(trusteeDid, authorDid, authorVerkey, null, null).get();
 
-        // 10. Trustee Sign Endorser Nym Request
-        signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+        // // 8. Trustee Sign Author Nym Request
+        // signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+
+        // // 9. Build Endorser Nym Request
+        // nymRequest = buildNymRequest(trusteeDid, endorserDid, endorserVerkey, null, "ENDORSER").get();
+
+        // // 10. Trustee Sign Endorser Nym Request
+        // signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
 
         // 11. Create schema with endorser
 
-        String schemaName = "gvt";
-        String schemaVersion = "1.0";
-        String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
-        AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
-                issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
-        String schemaId = createSchemaResult.getSchemaId();
-        String schemaJson = createSchemaResult.getSchemaJson();
+        // String schemaName = "gvt";
+        // String schemaVersion = "1.0";
+        // String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
+        // AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
+        //         issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
+        // String schemaId = createSchemaResult.getSchemaId();
+        // String schemaJson = createSchemaResult.getSchemaJson();
 
-        //  Transaction Author builds Schema Request
-        String schemaRequest = buildSchemaRequest(authorDid, schemaJson).get();
+        // //  Transaction Author builds Schema Request
+        // String schemaRequest = buildSchemaRequest(authorDid, schemaJson).get();
 
-        //  Transaction Author appends Endorser's DID into the request
-        String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
+        // //  Transaction Author appends Endorser's DID into the request
+        // String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
 
-        //  Transaction Author signs the request with the added endorser field
-        String schemaRequestWithEndorserSignedByAuthor =
-                multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
+        // //  Transaction Author signs the request with the added endorser field
+        // String schemaRequestWithEndorserSignedByAuthor =
+        //         multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
 
-        //  Transaction Endorser signs the request
-        String schemaRequestSignedByEndorser =
-                multiSignRequest(endorserWallet, endorserDid, schemaRequestWithEndorserSignedByAuthor).get();
+        // //  Transaction Endorser signs the request
+        // String schemaRequestSignedByEndorser =
+        //         multiSignRequest(endorserWallet, endorserDid, schemaRequestWithEndorserSignedByAuthor).get();
 
-        //  Transaction Endorser sends the request
-        String response = submitRequest(pool, schemaRequestSignedByEndorser).get();
-        JSONObject responseJson = new JSONObject(response);
-        assertEquals("REPLY", responseJson.getString("op"));
-        //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
-        assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
+        // //  Transaction Endorser sends the request
+        // String response = submitRequest(pool, schemaRequestSignedByEndorser).get();
+        // JSONObject responseJson = new JSONObject(response);
+        // assertEquals("REPLY", responseJson.getString("op"));
+        // //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
+        // assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
 
 
 
@@ -162,16 +164,12 @@ public class Endorser {
         String credDefTag = "NameOfTheCred1";
         String credDefConfigJson = new JSONObject().put("support_revocation", false).toString();
         AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
-           issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
-        // AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
-        //     issuerCreateAndStoreCredentialDef(endorserWallet, endorserDid, schemaJson, credDefTag, null, credDefConfigJson).get();
+            issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
         String credDefId = createCredDefResult.getCredDefId();
         String credDefJson = createCredDefResult.getCredDefJson();
         JSONObject credDefJsonObject = new JSONObject(credDefJson);
         //System.out.println("credDefJsonObject :: " + credDefJsonObject.get("tag"));
         assertTrue(credDefTag.equals(credDefJsonObject.get("tag")));
-
-        Thread.sleep(5000);
 
         //13. Prover create Master Secret
         // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
@@ -182,13 +180,10 @@ public class Endorser {
         //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
         //System.out.println("Utils.PROVER_MASTER_SECRET :: " + Utils.PROVER_MASTER_SECRET);
 
-        Thread.sleep(5000);
-
         //14. Issuer Creates Credential Offer
         String credOffer = issuerCreateCredentialOffer(authorWallet, credDefId).get();
-        // String credOffer = issuerCreateCredentialOffer(endorserWallet, credDefId).get();
 
-        Thread.sleep(5000);
+
 
         //15. Prover Creates Credential Request
         AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
@@ -207,15 +202,12 @@ public class Endorser {
 
         AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
             issuerCreateCredential(authorWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
-        // AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
-        //     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
         String credential = createCredentialResult.getCredentialJson();
 
         //17. Prover Stores Credential
         proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
 
 
-        Thread.sleep(5000);
 
 
         //11. Prover Gets Credentials for Proof Request
@@ -255,7 +247,6 @@ public class Endorser {
         credentialsSearch.close();
 
 
-        Thread.sleep(5000);
 
 
 
@@ -339,20 +330,20 @@ public class Endorser {
 
 
 
-        pool.closePoolLedger().get();
-        //Pool.deletePoolLedgerConfig(poolName).get();
+        // pool.closePoolLedger().get();
+        // //Pool.deletePoolLedgerConfig(poolName).get();
 
-        trusteeWallet.closeWallet().get();
-        //Wallet.deleteWallet(trusteeWalletConfig, trusteeWalletCredentials).get();
+        // trusteeWallet.closeWallet().get();
+        // //Wallet.deleteWallet(trusteeWalletConfig, trusteeWalletCredentials).get();
 
-        authorWallet.closeWallet().get();
-        //Wallet.deleteWallet(authorWalletConfig, authorWalletCredentials).get();
+        // authorWallet.closeWallet().get();
+        // //Wallet.deleteWallet(authorWalletConfig, authorWalletCredentials).get();
 
-        endorserWallet.closeWallet().get();
-        //Wallet.deleteWallet(endorserWalletConfig, endorserWalletCredentials).get();
+        // endorserWallet.closeWallet().get();
+        // //Wallet.deleteWallet(endorserWalletConfig, endorserWalletCredentials).get();
 
-        proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(proverWalletConfig, proverWalletCredentials).get();
+        // proverWallet.closeWallet().get();
+        // //Wallet.deleteWallet(proverWalletConfig, proverWalletCredentials).get();
 
         System.out.println("Endorser sample -> completed");
   }

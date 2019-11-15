@@ -37,19 +37,19 @@ public class WriteDIDAndQueryVerkey {
         // 1.
         System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
         Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-        Pool.createPoolLedgerConfig(Utils.ISSUER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+        Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
             t.printStackTrace();
             return null;
         }).get();
 
         // 2
         System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-        Pool pool = Pool.openPoolLedger(Utils.ISSUER_POOL_NAME, "{}").get();
+        Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
         // 3
         System.out.println("\n3. Creates a new secure wallet\n");
         //Wallet.createWallet(POOL_NAME, walletName, "default", null, null).get();
-        Wallet.createWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).exceptionally((t) -> {
+        Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
             t.printStackTrace();
             return null;
         }).get();
@@ -57,7 +57,7 @@ public class WriteDIDAndQueryVerkey {
         // 4
         System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
         //Wallet walletHandle = Wallet.openWallet(walletName, null, null).get();
-        Wallet walletHandle = Wallet.openWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
+        Wallet walletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
         // 5
         System.out.println("\n5. Generating and storing steward DID and Verkey\n");
@@ -116,7 +116,7 @@ public class WriteDIDAndQueryVerkey {
         System.out.println("\n13. Close wallet\n");
         walletHandle.closeWallet().get();
         //Wallet.deleteWallet(walletName, null).get();
-        //Wallet.deleteWallet(Utils.ISSUER_WALLET_CONFIG, Utils.ISSUER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
         // 14
         System.out.println("\n14. Close pool\n");
@@ -124,6 +124,6 @@ public class WriteDIDAndQueryVerkey {
 
         // 15
         //System.out.println("\n15. Delete pool ledger config\n");
-        //Pool.deletePoolLedgerConfig(Utils.ISSUER_POOL_NAME).get();
+        //Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
     }
 }
