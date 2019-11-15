@@ -41,7 +41,7 @@ public class VerifierResource {
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response createProofRequest(@PathParam("id") long id) throws Exception {
 
-    //11. Prover Gets Credentials for Proof Request
+    //11. Verifier creates Proof Request
     String nonce = generateNonce().get();
     String proofRequestJson = new JSONObject()
         .put("nonce", nonce)

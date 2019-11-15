@@ -70,19 +70,20 @@ public class EndorserResource {
     endorserWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"action\": \"endorser/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"endorser/createWallet\", \"endorserDid\": \"" + endorserDid + "\", \"endorserVerkey\": \"" + endorserVerkey + "\"}" ).build();
   }
 
   @POST
-  @Path("multiSignRequest/{id}")
+  @Path("signAndSubmitRequest/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response multiSignARequest(
+  public Response signAndSubmitRequest(
     @PathParam("id") long id,
     String requestPayload) throws Exception {
 
-    // TODO: fix this next line of code
-    String requestWithEndorserSignedByAuthor = requestPayload;
+		JsonNode requestData = Misc.jsonMapper.readTree(requestPayload);
+		String requestSignedByAuthor = requestData.get("requestSignedByAuthor").toString();
+		String endorserDid = requestData.get("endorserDid").asText();
 
     System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
     Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
@@ -90,18 +91,20 @@ public class EndorserResource {
     Wallet endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
 		// 5. Create Endorser DID
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
-		String endorserDid = createMyDidResult.getDid();
-		String endorserVerkey = createMyDidResult.getVerkey();
+		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
+		// String endorserDid = createMyDidResult.getDid();
+		// String endorserVerkey = createMyDidResult.getVerkey();
 
     //  Transaction Endorser signs the request
     String requestSignedByEndorser =
-            multiSignRequest(endorserWallet, endorserDid, requestWithEndorserSignedByAuthor).get();
+            multiSignRequest(endorserWallet, endorserDid, requestSignedByAuthor).get();
 
     //  Transaction Endorser sends the request
     String response = submitRequest(pool, requestSignedByEndorser).get();
+    System.out.println("signAndSubmitRequest response: " + response);
     JSONObject responseJson = new JSONObject(response);
     assertEquals("REPLY", responseJson.getString("op"));
+
     //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
     assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
 
@@ -112,7 +115,7 @@ public class EndorserResource {
     endorserWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"action\": \"endorser/multiSignRequest\"}" ).build();
+    return Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\"}" ).build();
   }
 
 }

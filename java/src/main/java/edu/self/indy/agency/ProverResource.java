@@ -76,7 +76,7 @@ public class ProverResource {
     proverWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"action\": \"prover/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"prover/createWallet\", \"proverDid\": \"" + proverDid + "\", \"proverVerkey\": \"" + proverVerkey + "\"}" ).build();
   }
 
 
@@ -88,8 +88,8 @@ public class ProverResource {
     @PathParam("id") long id,
     String masterSecretPayload) throws Exception {
 
-    JsonNode schemaData = Misc.jsonMapper.readTree(masterSecretPayload);
-    String masterSecretId = schemaData.get("masterSecretId").asText();
+    JsonNode masterSecretData = Misc.jsonMapper.readTree(masterSecretPayload);
+    String masterSecretId = masterSecretData.get("masterSecretId").asText();
 
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
@@ -104,7 +104,7 @@ public class ProverResource {
       return masterSecretId;
     }).get();
     //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
-    //System.out.println("Utils.PROVER_MASTER_SECRET :: " + Utils.PROVER_MASTER_SECRET);
+    //System.out.println("Utils.PROVER_MASTER_SECRET_ID :: " + Utils.PROVER_MASTER_SECRET_ID);
 
     // NOTE: sleep for 5 seconds to give ledger time to persist changes
     Thread.sleep(5000);
@@ -130,6 +130,7 @@ public class ProverResource {
     JsonNode credRequestData = Misc.jsonMapper.readTree(credRequestPayload);
     String credOffer = credRequestData.get("credOffer").toString();
     String credDefJson = credRequestData.get("credDefJson").toString();
+    String proverDid = credRequestData.get("proverDid").asText();
 
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
@@ -137,12 +138,12 @@ public class ProverResource {
     Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
     Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
-		String proverDid = createMyDidResult.getDid();
+		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+		// String proverDid = createMyDidResult.getDid();
 
     //15. Prover Creates Credential Request
     AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
-    proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET).get();
+    proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
     String credReqJson = createCredReqResult.getCredentialRequestJson();
     String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
@@ -268,13 +269,13 @@ public class ProverResource {
         // System.out.println("****** credentialDefs: " + credentialDefs);
         // System.out.println("****** revocStates: " + revocStates);
         // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
-        // System.out.println("****** Utils.PROVER_MASTER_SECRET: " + Utils.PROVER_MASTER_SECRET);
+        // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
         // System.out.println("****** ");
 
         proofJson = proverCreateProof(proverWallet, proofReqJson, requestedCredentialsJson,
-          Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).get();
+          Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
         // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-        //   Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+        //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
         //     t.printStackTrace();
         //     if(t instanceof IndyException) {
         //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
@@ -329,7 +330,7 @@ public class ProverResource {
 
 		// 13
 		System.out.println("\n13. Prover is creating Master Secret\n");
-		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET).get();
+		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET_ID).get();
     //String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
     edu.self.indy.indycloud.jpa.Wallet dbWallet = new edu.self.indy.indycloud.jpa.Wallet(Utils.PROVER_WALLET_NAME, false);
     dbWallet.masterSecretId = proverMasterSecretId;
@@ -385,7 +386,7 @@ public class ProverResource {
 		String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
 		//String claimRequestJSON = proverCreateAndStoreClaimReq(proverWalletHandle, proverDID, claimOfferJSON,
-		//		claimDef, Utils.PROVER_MASTER_SECRET).get();
+		//		claimDef, Utils.PROVER_MASTER_SECRET_ID).get();
 		//System.out.println("Claim Request:\n" + claimRequestJSON);
 
     System.out.println("\n21. Close wallet\n");

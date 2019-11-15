@@ -6,18 +6,126 @@
   var restProtocol = 'http';
   var restHost = 'localhost';
   var restPort = 9000;
-  var step1Answer = '';
-  var step2Answer = '';
-  var step3Answer = '';
-  var step4Answer = '';
-  var step5Answer = '';
-  var step6Answer = '';
-  var step7Answer = '';
+  var agentData = {};
 
-  async function issuerStep1() {
+  async function credentialApi(action) {
+
+    let actionMethod = 'GET'
+    let actionUri = 'api/'
+    let actionBody = ''
+
+    if(action === 'createTrusteeWallet') {
+      actionUri = actionUri + 'trustee/createWallet/0'
+    } else if(action === 'createAuthorWallet') {
+      actionUri = actionUri + 'author/createWallet/0'
+    } else if(action === 'createEndorserWallet') {
+      actionUri = actionUri + 'endorser/createWallet/0'
+    } else if(action === 'createProverWallet') {
+      actionUri = actionUri + 'prover/createWallet/0'
+    } else if(action === 'addAuthor') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'trustee/addAuthor/0'
+      actionBody = JSON.stringify({
+        trusteeDid: agentData.trusteeDid,
+        authorDid: agentData.authorDid,
+        authorVerkey: agentData.authorVerkey
+      })
+    } else if(action === 'addEndorser') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'trustee/addEndorser/0'
+      actionBody = JSON.stringify({
+        trusteeDid: agentData.trusteeDid,
+        endorserDid: agentData.endorserDid,
+        endorserVerkey: agentData.endorserVerkey
+      })
+    } else if(action === 'createSchema') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'author/createSchema/0'
+      actionBody = JSON.stringify({
+        endorserDid: agentData.endorserDid,
+        authorDid: agentData.authorDid
+      })
+    } else if(action === 'signAndSubmitRequest') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'endorser/signAndSubmitRequest/0'
+      actionBody = JSON.stringify({
+        endorserDid: agentData.endorserDid,
+        requestSignedByAuthor: agentData.signedSchemaRequest
+      })
+    } else if(action === 'createCredDef') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'author/createCredDef/0'
+      actionBody = JSON.stringify({
+        schemaJson: agentData.schemaJson,
+        authorDid: agentData.authorDid
+      })
+    }
+
+    const fetchOptions = {
+      method: actionMethod,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    if(actionMethod === 'POST') {
+        fetchOptions.body = actionBody
+    }
+
     const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/issuer/step1/0`
+      `${restProtocol}://${restHost}:${restPort}/${actionUri}`,
+      fetchOptions
     )
+    const answer = await response.json()
+    console.log(action + " answer: ", answer)
+
+    if(action === 'createTrusteeWallet') {
+      agentData.trusteeDid = answer.trusteeDid
+    } else if(action === 'createAuthorWallet') {
+      agentData.authorDid = answer.authorDid
+      agentData.authorVerkey = answer.authorVerkey
+    } else if(action === 'createEndorserWallet') {
+      agentData.endorserDid = answer.endorserDid
+      agentData.endorserVerkey = answer.endorserVerkey
+    } else if(action === 'createProverWallet') {
+      agentData.proverDid = answer.proverDid
+      agentData.proverVerkey = answer.proverVerkey
+    } else if(action === 'addAuthor') {
+
+    } else if(action === 'addEndorser') {
+
+    } else if(action === 'createSchema') {
+      agentData.signedSchemaRequest = answer.signedSchemaRequest
+      agentData.schemaJson = answer.schemaJson
+      agentData.schemaId = answer.schemaId
+    }
+  }
+
+
+</script>
+</head>
+<body>
+<h1>Power Of Digital Credentials</h1>
+<button id="createTrusteeWallet" onclick="credentialApi('createTrusteeWallet')">Trustee: Step1 -- createTrusteeWallet</button>
+</br><button id="createAuthorWallet" onclick="credentialApi('createAuthorWallet')">Author: Step2 -- createAuthorWallet</button>
+</br><button id="createEndorserWallet" onclick="credentialApi('createEndorserWallet')">Endorser: Step3 -- createEndorserWallet</button>
+</br><button id="createProverWallet" onclick="credentialApi('createProverWallet')">Prover: Step4 -- createProverWallet</button>
+</br><button id="addAuthor" onclick="credentialApi('addAuthor')">Trustee: Step5 -- addAuthor</button>
+</br><button id="addEndorser" onclick="credentialApi('addEndorser')">Trustee: Step6 -- addEndorser</button>
+</br><button id="createSchema" onclick="credentialApi('createSchema')">Author: Step7 -- createSchema</button>
+</br><button id="signAndSubmitRequest" onclick="credentialApi('signAndSubmitRequest')">Endorser: Step8 -- signAndSubmitRequest</button>
+</br><button id="createCredDef" onclick="credentialApi('createCredDef')">Author: Step9 -- createCredDef</button>
+</br><button id="createMasterSecret" onclick="credentialApi('createMasterSecret')">Prover: Step10 -- createMasterSecret</button>
+</br><button id="createCredOffer" onclick="credentialApi('createCredOffer')">Author: Step11 -- createCredOffer</button>
+</br><button id="createCredRequest" onclick="credentialApi('createCredRequest')">Prover: Step12 -- createCredRequest</button>
+</br><button id="createCredential" onclick="credentialApi('createCredential')">Author: Step13 -- createCredential</button>
+</br><button id="saveCredential" onclick="credentialApi('saveCredential')">Prover: Step14 -- saveCredential</button>
+</br><button id="createProofRequest" onclick="credentialApi('createProofRequest')">Verifier: Step15 -- createProofRequest</button>
+</br><button id="createProof" onclick="credentialApi('createProof')">Prover: Step16 -- createProof</button>
+</br><button id="verifyProof" onclick="credentialApi('verifyProof')">Verifier: Step17 -- verifyProof</button>
+
+<!--
+
+  async function createTrusteeWallet() {
     step1Answer = await response.json()
     console.log("issue step1 answer: ", step1Answer)
   }
@@ -129,17 +237,8 @@
     console.log("prover step8 answer: ", step8Answer)
 
   }
-</script>
-</head>
-<body>
-<h1>Negotiate Proof</h1>
-<button id="issuerStep1" onclick="issuerStep1()">Issuer: Step1</button>
-</br><button id="proverStep2" onclick="proverStep2()">Prover: Step2</button>
-</br><button id="issuerStep3" onclick="issuerStep3()">Issuer: Step3</button>
-</br><button id="proverStep4" onclick="proverStep4()">Prover: Step4</button>
-</br><button id="issuerStep5" onclick="issuerStep5()">Issuer: Step5</button>
-</br><button id="proverStep6" onclick="proverStep6()">Prover: Step6</button>
-</br><button id="verifierStep7" onclick="verifierStep7()">Verifier: Step7</button>
-</br><button id="proverStep8" onclick="proverStep8()">Prover: Step8</button>
+
+
+-->
 </body>
 </html>

@@ -70,7 +70,7 @@ public class AuthorResource {
 		authorWallet.closeWallet().get();
 		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"action\": \"author/createWallet\"}" ).build();
+		return Response.ok( "{\"action\": \"author/createWallet\", \"authorDid\": \"" + authorDid + "\", \"authorVerkey\": \"" + authorVerkey + "\"}" ).build();
 	}
 
 
@@ -83,15 +83,16 @@ public class AuthorResource {
     String schemaPayload) throws Exception {
 
 		JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
-		String endorserDid = schemaData.get("endorserDid").toString();
+		String endorserDid = schemaData.get("endorserDid").asText();
+		String authorDid = schemaData.get("authorDid").asText();
 
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-		String authorDid = createMyDidResult.getDid();
+		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+		// String authorDid = createMyDidResult.getDid();
 
 		String schemaName = "gvt";
 		String schemaVersion = "1.0";
@@ -117,7 +118,7 @@ public class AuthorResource {
 		authorWallet.closeWallet().get();
 		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + "}" ).build();
+		return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + ", \"schemaJson\": " + schemaJson + ", \"schemaId\": \"" + schemaId + "\"}" ).build();
 	}
 
 
@@ -131,14 +132,15 @@ public class AuthorResource {
 
 		JsonNode credDefData = Misc.jsonMapper.readTree(credDefPayload);
 		String schemaJson = credDefData.get("schemaJson").toString();
+		String authorDid = credDefData.get("authorDid").asText();
 
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-		String authorDid = createMyDidResult.getDid();
+		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+		// String authorDid = createMyDidResult.getDid();
 
 		//12. Author create Credential Definition
 		String credDefTag = "NameOfTheCred1";

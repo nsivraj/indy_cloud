@@ -77,11 +77,11 @@ public class TrusteeResource {
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"action\": \"trustee/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"trustee/createWallet\", \"trusteeDid\": \"" + trusteeDid + "\"}" ).build();
   }
 
   @POST
-  @Path("addauthor/{id}")
+  @Path("addAuthor/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response addAuthorToLedger(
@@ -89,9 +89,9 @@ public class TrusteeResource {
     String authorPayload) throws Exception {
 
     JsonNode authorData = Misc.jsonMapper.readTree(authorPayload);
-    String trusteeDid = authorData.get("trusteeDid").toString();
-    String authorDid = authorData.get("authorDid").toString();
-    String authorVerkey = authorData.get("authorVerkey").toString();
+    String trusteeDid = authorData.get("trusteeDid").asText();
+    String authorDid = authorData.get("authorDid").asText();
+    String authorVerkey = authorData.get("authorVerkey").asText();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
@@ -105,7 +105,8 @@ public class TrusteeResource {
     String nymRequest = buildNymRequest(trusteeDid, authorDid, authorVerkey, null, null).get();
 
     // 8. Trustee Sign Author Nym Request
-    signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+    String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+    System.out.println("addAuthor result: " + nymResult);
 
     pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
@@ -118,7 +119,7 @@ public class TrusteeResource {
 
 
   @POST
-  @Path("addendorser/{id}")
+  @Path("addEndorser/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response addEndorserToLedger(
@@ -126,9 +127,9 @@ public class TrusteeResource {
     String endorserPayload) throws Exception {
 
     JsonNode endorserData = Misc.jsonMapper.readTree(endorserPayload);
-    String trusteeDid = endorserData.get("trusteeDid").toString();
-    String endorserDid = endorserData.get("endorserDid").toString();
-    String endorserVerkey = endorserData.get("endorserVerkey").toString();
+    String trusteeDid = endorserData.get("trusteeDid").asText();
+    String endorserDid = endorserData.get("endorserDid").asText();
+    String endorserVerkey = endorserData.get("endorserVerkey").asText();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
@@ -142,7 +143,8 @@ public class TrusteeResource {
     String nymRequest = buildNymRequest(trusteeDid, endorserDid, endorserVerkey, null, "ENDORSER").get();
 
     // 8. Trustee Sign Author Nym Request
-    signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+    String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
+    System.out.println("addAuthor result: " + nymResult);
 
     pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();

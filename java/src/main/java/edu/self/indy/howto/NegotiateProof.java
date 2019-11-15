@@ -130,7 +130,7 @@ public class NegotiateProof {
 
 		// 13
 		System.out.println("\n13. Prover is creating Master Secret\n");
-		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET).get();
+		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET_ID).get();
 		//String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
 
 		// 14
@@ -150,7 +150,7 @@ public class NegotiateProof {
 		String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
 		//String claimRequestJSON = proverCreateAndStoreClaimReq(proverWalletHandle, proverDID, claimOfferJSON,
-		//		claimDef, Utils.PROVER_MASTER_SECRET).get();
+		//		claimDef, Utils.PROVER_MASTER_SECRET_ID).get();
 		//System.out.println("Claim Request:\n" + claimRequestJSON);
 
 

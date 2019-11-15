@@ -122,8 +122,8 @@ public class Endorser {
         // 10. Trustee Sign Endorser Nym Request
         signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
 
+        
         // 11. Create schema with endorser
-
         String schemaName = "gvt";
         String schemaVersion = "1.0";
         String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
@@ -172,12 +172,12 @@ public class Endorser {
 
         //13. Prover create Master Secret
         // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
-        String proverMasterSecretId = proverCreateMasterSecret(proverWallet, Utils.PROVER_MASTER_SECRET).exceptionally((t) -> {
+        String proverMasterSecretId = proverCreateMasterSecret(proverWallet, Utils.PROVER_MASTER_SECRET_ID).exceptionally((t) -> {
           t.printStackTrace();
-          return Utils.PROVER_MASTER_SECRET;
+          return Utils.PROVER_MASTER_SECRET_ID;
         }).get();
         //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
-        //System.out.println("Utils.PROVER_MASTER_SECRET :: " + Utils.PROVER_MASTER_SECRET);
+        //System.out.println("Utils.PROVER_MASTER_SECRET_ID :: " + Utils.PROVER_MASTER_SECRET_ID);
 
         Thread.sleep(5000);
 
@@ -189,7 +189,7 @@ public class Endorser {
 
         //15. Prover Creates Credential Request
         AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
-            proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET).get();
+            proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
         String credReqJson = createCredReqResult.getCredentialRequestJson();
         String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
@@ -291,13 +291,13 @@ public class Endorser {
             // System.out.println("****** credentialDefs: " + credentialDefs);
             // System.out.println("****** revocStates: " + revocStates);
             // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
-            // System.out.println("****** Utils.PROVER_MASTER_SECRET: " + Utils.PROVER_MASTER_SECRET);
+            // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
             // System.out.println("****** ");
 
             proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-              Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).get();
+              Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
             // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-            //   Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+            //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
             //     t.printStackTrace();
             //     if(t instanceof IndyException) {
             //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
