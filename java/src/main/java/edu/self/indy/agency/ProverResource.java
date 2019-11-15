@@ -76,9 +76,226 @@ public class ProverResource {
     proverWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"prover/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"prover/createWallet\"}" ).build();
   }
 
+
+  @POST
+  @Path("createMasterSecret/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response createMasterSecret(
+    @PathParam("id") long id,
+    String masterSecretPayload) throws Exception {
+
+    JsonNode schemaData = Misc.jsonMapper.readTree(masterSecretPayload);
+    String masterSecretId = schemaData.get("masterSecretId").asText();
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    //13. Prover create Master Secret
+    // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
+    String proverMasterSecretId = proverCreateMasterSecret(proverWallet, masterSecretId).exceptionally((t) -> {
+      t.printStackTrace();
+      return masterSecretId;
+    }).get();
+    //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
+    //System.out.println("Utils.PROVER_MASTER_SECRET :: " + Utils.PROVER_MASTER_SECRET);
+
+    // NOTE: sleep for 5 seconds to give ledger time to persist changes
+    Thread.sleep(5000);
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+
+    proverWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"action\": \"prover/createMasterSecret\", \"masterSecretId\": \"" + proverMasterSecretId + "\"}" ).build();
+  }
+
+
+  @POST
+  @Path("createCredRequest/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response createCredRequest(
+    @PathParam("id") long id,
+    String credRequestPayload) throws Exception {
+
+    JsonNode credRequestData = Misc.jsonMapper.readTree(credRequestPayload);
+    String credOffer = credRequestData.get("credOffer").toString();
+    String credDefJson = credRequestData.get("credDefJson").toString();
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+		String proverDid = createMyDidResult.getDid();
+
+    //15. Prover Creates Credential Request
+    AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
+    proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET).get();
+    String credReqJson = createCredReqResult.getCredentialRequestJson();
+    String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+
+    proverWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"action\": \"prover/createCredRequest\", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"credReqJson\": " + credReqJson + "}" ).build();
+  }
+
+
+  @POST
+  @Path("saveCredential/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response saveCredential(
+    @PathParam("id") long id,
+    String credentialPayload) throws Exception {
+
+    JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
+    String credReqMetadataJson = credentialData.get("credReqMetadataJson").toString();
+    String credDefJson = credentialData.get("credDefJson").toString();
+    String credential = credentialData.get("credential").toString();
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    //17. Prover Stores Credential
+    proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
+
+    // NOTE: sleep for 5 seconds to give ledger time to persist changes
+    Thread.sleep(5000);
+
+    pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+
+    proverWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"action\": \"prover/saveCredential\"}" ).build();
+  }
+
+
+  @POST
+  @Path("createProof/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response createProof(
+    @PathParam("id") long id,
+    String proofRequestPayload) throws Exception {
+
+    JsonNode proofRequestData = Misc.jsonMapper.readTree(proofRequestPayload);
+    String proofReqJson = proofRequestData.get("proofReqJson").toString();
+    String credDefJson = proofRequestData.get("credDefJson").toString();
+    String credDefId = proofRequestData.get("credDefId").asText();
+    String schemaId = proofRequestData.get("schemaId").asText();
+    String schemaJson = proofRequestData.get("schemaJson").toString();
+
+		// 1.
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
+
+    JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+    String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+    JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+    String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+    JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+    assertEquals(0, credentialsForAttribute3.length());
+
+    JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+    String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+    credentialsSearch.close();
+
+
+    //Thread.sleep(1000);
+
+
+
+    //12. Prover Creates Proof
+    String selfAttestedValue = "8-800-300";
+    String requestedCredentialsJson = new JSONObject()
+        .put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
+        .put("requested_attributes", new JSONObject()
+            .put("attr1_referent", new JSONObject()
+                .put("cred_id", credentialIdForAttribute1)
+                .put("revealed", true)
+            )
+            .put("attr2_referent", new JSONObject()
+                .put("cred_id", credentialIdForAttribute2)
+                .put("revealed", false)
+            )
+        )
+        .put("requested_predicates", new JSONObject()
+            .put("predicate1_referent", new JSONObject()
+                .put("cred_id",credentialIdForPredicate)
+            )
+        )
+        .toString();
+
+    String schemas = new JSONObject().put(schemaId, new JSONObject(schemaJson)).toString();
+    String credentialDefs = new JSONObject().put(credDefId,  new JSONObject(credDefJson)).toString();
+    String revocStates = new JSONObject().toString();
+
+    String proofJson = null;
+    int attemptToCreateProof = 0;
+    do {
+      attemptToCreateProof++;
+      try {
+        // System.out.println("****** proofRequestJson: " + proofRequestJson);
+        // System.out.println("****** schemas: " + schemas);
+        // System.out.println("****** credentialDefs: " + credentialDefs);
+        // System.out.println("****** revocStates: " + revocStates);
+        // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
+        // System.out.println("****** Utils.PROVER_MASTER_SECRET: " + Utils.PROVER_MASTER_SECRET);
+        // System.out.println("****** ");
+
+        proofJson = proverCreateProof(proverWallet, proofReqJson, requestedCredentialsJson,
+          Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).get();
+        // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
+        //   Utils.PROVER_MASTER_SECRET, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+        //     t.printStackTrace();
+        //     if(t instanceof IndyException) {
+        //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
+        //       System.out.println("t.getMessage() :: " + ((IndyException)t).getMessage());
+        //       System.out.println("t.getSdkBacktrace() :: " + ((IndyException)t).getSdkBacktrace());
+        //     }
+        //     return null;
+        //   }).get();
+      } catch (Exception e) {
+        e.printStackTrace();
+        Thread.sleep(1500);
+        //System.out.println("");
+      }
+    } while(proofJson == null && attemptToCreateProof < 3);
+
+    System.out.println("The proofJson is:");
+    System.out.println(proofJson);
+    //JSONObject proof = new JSONObject(proofJson);
+
+    return Response.ok( "{\"action\": \"prover/createProof\", \"proof\": " + proofJson + "}" ).build();
+  }
 
   @GET
   @Path("step2/{id}")
@@ -177,7 +394,7 @@ public class ProverResource {
 		proverWalletHandle.closeWallet().get();
 
     //return Response.ok( "{\"msg\": \"prover: step4 is done\"}" ).build();
-    return Response.ok(  "{\"credReqJson\": " + credReqJson + ", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"step\": \"step4\"}" ).build();
+    return Response.ok(  "{\"credReqJson\": " + credReqJson + ", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"action\": \"step4\"}" ).build();
   }
 
 
@@ -206,7 +423,7 @@ public class ProverResource {
 		//Wallet.deleteWallet(walletName, null).get();
 		proverWalletHandle.closeWallet().get();
 
-    return Response.ok( "{\"step\": \"step6\", \"credentialId\": \"" + credentialId + "\"}" ).build();
+    return Response.ok( "{\"action\": \"step6\", \"credentialId\": \"" + credentialId + "\"}" ).build();
   }
 
 
@@ -295,6 +512,6 @@ public class ProverResource {
     //JSONObject proof = new JSONObject(proofJson);
 
 
-    return Response.ok( "{\"step\": \"step8\", \"proof\": " + proofJson + "}" ).build();
+    return Response.ok( "{\"action\": \"step8\", \"proof\": " + proofJson + "}" ).build();
   }
 }

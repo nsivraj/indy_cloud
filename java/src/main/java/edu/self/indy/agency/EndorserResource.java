@@ -70,7 +70,7 @@ public class EndorserResource {
     endorserWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"endorser/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"endorser/createWallet\"}" ).build();
   }
 
   @POST
@@ -112,7 +112,7 @@ public class EndorserResource {
     endorserWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"endorser/multiSignRequest\"}" ).build();
+    return Response.ok( "{\"action\": \"endorser/multiSignRequest\"}" ).build();
   }
 
 }

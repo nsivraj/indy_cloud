@@ -70,7 +70,7 @@ public class AuthorResource {
 		authorWallet.closeWallet().get();
 		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"step\": \"author/createWallet\"}" ).build();
+		return Response.ok( "{\"action\": \"author/createWallet\"}" ).build();
 	}
 
 
@@ -117,8 +117,129 @@ public class AuthorResource {
 		authorWallet.closeWallet().get();
 		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"step\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + "}" ).build();
+		return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + "}" ).build();
+	}
 
+
+  @POST
+  @Path("createCredDef/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createCredentialDef(
+    @PathParam("id") long id,
+    String credDefPayload) throws Exception {
+
+		JsonNode credDefData = Misc.jsonMapper.readTree(credDefPayload);
+		String schemaJson = credDefData.get("schemaJson").toString();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+
+		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+		String authorDid = createMyDidResult.getDid();
+
+		//12. Author create Credential Definition
+		String credDefTag = "NameOfTheCred1";
+		String credDefConfigJson = new JSONObject().put("support_revocation", false).toString();
+		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
+			 issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
+		// AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
+		//     issuerCreateAndStoreCredentialDef(endorserWallet, endorserDid, schemaJson, credDefTag, null, credDefConfigJson).get();
+		String credDefId = createCredDefResult.getCredDefId();
+		String credDefJson = createCredDefResult.getCredDefJson();
+		JSONObject credDefJsonObject = new JSONObject(credDefJson);
+		//System.out.println("credDefJsonObject :: " + credDefJsonObject.get("tag"));
+		assertTrue(credDefTag.equals(credDefJsonObject.get("tag")));
+
+		// NOTE: sleep for 5 seconds to give ledger time to persist changes
+		Thread.sleep(5000);
+
+		pool.closePoolLedger().get();
+		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+
+		authorWallet.closeWallet().get();
+		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		return Response.ok( "{\"action\": \"author/createCredDef\", \"credDefId\": \"" + credDefId + "\", \"credDefJson\": " + credDefJson + "}" ).build();
+	}
+
+
+  @POST
+  @Path("createCredOffer/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createCredOffer(
+    @PathParam("id") long id,
+    String credOfferPayload) throws Exception {
+
+		JsonNode credOfferData = Misc.jsonMapper.readTree(credOfferPayload);
+		String credDefId = credOfferData.get("credDefId").toString();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+
+		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		//14. Issuer Creates Credential Offer
+		String credOffer = issuerCreateCredentialOffer(authorWallet, credDefId).get();
+		// String credOffer = issuerCreateCredentialOffer(endorserWallet, credDefId).get();
+
+		// NOTE: sleep for 5 seconds to give ledger time to persist changes
+		Thread.sleep(5000);
+
+		pool.closePoolLedger().get();
+		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+
+		authorWallet.closeWallet().get();
+		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		return Response.ok( "{\"action\": \"author/createCredOffer\", \"credOffer\": " + credOffer + "}" ).build();
+	}
+
+
+  @POST
+  @Path("createCredential/{id}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+	public Response createCredential(
+    @PathParam("id") long id,
+    String credentialPayload) throws Exception {
+
+		JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
+		String credOffer = credentialData.get("credOffer").toString();
+		String credReqJson = credentialData.get("credReqJson").toString();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+
+		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		//16. Issuer create Credential
+		//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
+		String credValuesJson = new JSONObject()
+				.put("sex", new JSONObject().put("raw", "male").put("encoded", "594465709955896723921094925839488742869205008160769251991705001"))
+				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "1139481716457488690172217916278103335"))
+				.put("height", new JSONObject().put("raw", "175").put("encoded", "175"))
+				.put("age", new JSONObject().put("raw", "28").put("encoded", "28"))
+		.toString();
+
+		AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+				issuerCreateCredential(authorWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
+		// AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+		//     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
+		String credential = createCredentialResult.getCredentialJson();
+
+		pool.closePoolLedger().get();
+		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+
+		authorWallet.closeWallet().get();
+		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+
+		return Response.ok( "{\"action\": \"author/createCredential\", \"credential\": " + credential + "}" ).build();
 	}
 
 
@@ -227,11 +348,11 @@ public class AuthorResource {
 		System.out.println("\n22. Close pool\n");
 		pool.closePoolLedger().get();
 
-    return Response.ok( "{\"credDefId\": \"" + credDefId + "\", \"schemaId\": \"" + schemaId + "\", \"credDefJson\": " + credDefJson + ", \"schemaJson\": " + schemaJson + ", \"step\": \"step1\"}" ).build();
+    return Response.ok( "{\"credDefId\": \"" + credDefId + "\", \"schemaId\": \"" + schemaId + "\", \"credDefJson\": " + credDefJson + ", \"schemaJson\": " + schemaJson + ", \"action\": \"step1\"}" ).build();
 	}
 
 	// public Response getCloudResponse(String cloudResp, String stepName) {
-  //   String cloudResponse = "{\"cloudResponse\": " + cloudResp + ",\"step\": \"" + stepName + "\"}";
+  //   String cloudResponse = "{\"cloudResponse\": " + cloudResp + ",\"action\": \"" + stepName + "\"}";
   //   System.out.println("cloudResponse: "+cloudResponse);
   //   return Response.ok( cloudResponse ).build();
   // }
@@ -257,7 +378,7 @@ public class AuthorResource {
 		//Wallet.deleteWallet(walletName, null).get();
 		//proverWalletHandle.closeWallet().get();
 
-		return Response.ok(  "{\"credOffer\": " + credOffer + ", \"step\": \"step3\"}" ).build();
+		return Response.ok(  "{\"credOffer\": " + credOffer + ", \"action\": \"step3\"}" ).build();
 	}
 
   @POST
@@ -304,6 +425,6 @@ public class AuthorResource {
 		//Wallet.deleteWallet(walletName, null).get();
 		//proverWalletHandle.closeWallet().get();
 
-		return Response.ok(  "{\"credential\": " + credential + ", \"step\": \"step5\"}" ).build();
+		return Response.ok(  "{\"credential\": " + credential + ", \"action\": \"step5\"}" ).build();
 	}
 }

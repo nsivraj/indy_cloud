@@ -46,10 +46,7 @@ public class Endorser {
         // String trusteeSeed = "000000000000000000000000Trustee1";
         // //String trusteeSeed = "100000000000000000000000Trustee1";
 
-        // Set protocol version 2 to work with Indy Node 1.4
-        //Pool.setProtocolVersion(PoolUtils.PROTOCOL_VERSION).get();
-
-        // 1. Create and Open Pool
+        // // 1. Create and Open Pool
         // String poolName = PoolUtils.createPoolLedgerConfig();
         // Pool pool = Pool.openPoolLedger(poolName, "{}").get();
 
@@ -127,7 +124,7 @@ public class Endorser {
         // // 10. Trustee Sign Endorser Nym Request
         // signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
 
-        // 11. Create schema with endorser
+        // // 11. Create schema with endorser
 
         // String schemaName = "gvt";
         // String schemaVersion = "1.0";
@@ -164,12 +161,16 @@ public class Endorser {
         String credDefTag = "NameOfTheCred1";
         String credDefConfigJson = new JSONObject().put("support_revocation", false).toString();
         AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
-            issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
+           issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
+        // AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
+        //     issuerCreateAndStoreCredentialDef(endorserWallet, endorserDid, schemaJson, credDefTag, null, credDefConfigJson).get();
         String credDefId = createCredDefResult.getCredDefId();
         String credDefJson = createCredDefResult.getCredDefJson();
         JSONObject credDefJsonObject = new JSONObject(credDefJson);
         //System.out.println("credDefJsonObject :: " + credDefJsonObject.get("tag"));
         assertTrue(credDefTag.equals(credDefJsonObject.get("tag")));
+
+        Thread.sleep(5000);
 
         //13. Prover create Master Secret
         // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
@@ -180,10 +181,13 @@ public class Endorser {
         //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
         //System.out.println("Utils.PROVER_MASTER_SECRET :: " + Utils.PROVER_MASTER_SECRET);
 
+        Thread.sleep(5000);
+
         //14. Issuer Creates Credential Offer
         String credOffer = issuerCreateCredentialOffer(authorWallet, credDefId).get();
+        // String credOffer = issuerCreateCredentialOffer(endorserWallet, credDefId).get();
 
-
+        Thread.sleep(5000);
 
         //15. Prover Creates Credential Request
         AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
@@ -202,12 +206,15 @@ public class Endorser {
 
         AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
             issuerCreateCredential(authorWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
+        // AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+        //     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
         String credential = createCredentialResult.getCredentialJson();
 
         //17. Prover Stores Credential
         proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
 
 
+        Thread.sleep(5000);
 
 
         //11. Prover Gets Credentials for Proof Request
@@ -247,6 +254,7 @@ public class Endorser {
         credentialsSearch.close();
 
 
+        Thread.sleep(5000);
 
 
 

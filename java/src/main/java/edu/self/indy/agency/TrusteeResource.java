@@ -77,7 +77,7 @@ public class TrusteeResource {
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"trustee/createWallet\"}" ).build();
+    return Response.ok( "{\"action\": \"trustee/createWallet\"}" ).build();
   }
 
   @POST
@@ -86,9 +86,9 @@ public class TrusteeResource {
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response addAuthorToLedger(
     @PathParam("id") long id,
-    String authorJSON) throws Exception {
+    String authorPayload) throws Exception {
 
-    JsonNode authorData = Misc.jsonMapper.readTree(authorJSON);
+    JsonNode authorData = Misc.jsonMapper.readTree(authorPayload);
     String trusteeDid = authorData.get("trusteeDid").toString();
     String authorDid = authorData.get("authorDid").toString();
     String authorVerkey = authorData.get("authorVerkey").toString();
@@ -113,7 +113,7 @@ public class TrusteeResource {
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"trustee/addauthor\"}" ).build();
+    return Response.ok( "{\"action\": \"trustee/addauthor\"}" ).build();
   }
 
 
@@ -123,9 +123,9 @@ public class TrusteeResource {
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response addEndorserToLedger(
     @PathParam("id") long id,
-    String endorserJSON) throws Exception {
+    String endorserPayload) throws Exception {
 
-    JsonNode endorserData = Misc.jsonMapper.readTree(endorserJSON);
+    JsonNode endorserData = Misc.jsonMapper.readTree(endorserPayload);
     String trusteeDid = endorserData.get("trusteeDid").toString();
     String endorserDid = endorserData.get("endorserDid").toString();
     String endorserVerkey = endorserData.get("endorserVerkey").toString();
@@ -150,6 +150,6 @@ public class TrusteeResource {
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
 
-    return Response.ok( "{\"step\": \"trustee/addendorser\"}" ).build();
+    return Response.ok( "{\"action\": \"trustee/addendorser\"}" ).build();
   }
 }

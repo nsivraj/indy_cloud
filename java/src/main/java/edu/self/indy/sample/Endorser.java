@@ -32,7 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class Endorser {
 
   public static void main(String[] args) throws Exception {
@@ -45,9 +45,6 @@ public class Endorser {
         System.out.println("Endorser sample -> started");
         String trusteeSeed = "000000000000000000000000Trustee1";
         //String trusteeSeed = "100000000000000000000000Trustee1";
-
-        // Set protocol version 2 to work with Indy Node 1.4
-        //Pool.setProtocolVersion(PoolUtils.PROTOCOL_VERSION).get();
 
         // 1. Create and Open Pool
         String poolName = PoolUtils.createPoolLedgerConfig();
