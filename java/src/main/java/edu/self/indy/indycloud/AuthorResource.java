@@ -155,6 +155,7 @@ public class AuthorResource {
 		JsonNode credDefData = Misc.jsonMapper.readTree(credDefPayload);
 		String schemaJson = credDefData.get("schemaJson").toString();
 		String authorDid = credDefData.get("authorDid").asText();
+		String credDefTag = credDefData.get("credDefTag").asText();
 
 		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
 		String storageConfigPath = Misc.getStorageConfigPath(walletId);
@@ -171,7 +172,7 @@ public class AuthorResource {
 		// String authorDid = createMyDidResult.getDid();
 
 		//12. Author create Credential Definition
-		String credDefTag = "NameOfTheCred1";
+		//String credDefTag = "NameOfTheCred1";
 		String credDefConfigJson = new JSONObject().put("support_revocation", false).toString();
 		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredDefResult =
 			 issuerCreateAndStoreCredentialDef(authorWallet, authorDid, schemaJson, credDefTag, null, credDefConfigJson).get();
@@ -263,8 +264,8 @@ public class AuthorResource {
 		//16. Issuer create Credential
 		//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
 		String credValuesJson = new JSONObject()
-				.put("sex", new JSONObject().put("raw", "male").put("encoded", "594465709955896723921094925839488742869205008160769251991705001"))
-				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "1139481716457488690172217916278103335"))
+				.put("sex", new JSONObject().put("raw", "male").put("encoded", "849383848382949383294939293929239393"))
+				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "9694859482717283848483282383838383"))
 				.put("height", new JSONObject().put("raw", "175").put("encoded", "175"))
 				.put("age", new JSONObject().put("raw", "28").put("encoded", "28"))
 		.toString();
