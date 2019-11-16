@@ -98,6 +98,9 @@ public class AuthorResource {
 		JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
 		String endorserDid = schemaData.get("endorserDid").asText();
 		String authorDid = schemaData.get("authorDid").asText();
+		String schemaName = schemaData.get("schemaName").asText();
+		String schemaVersion = schemaData.get("schemaVersion").asText();
+		String schemaAttributes = schemaData.get("schemaAttributes").toString();
 
 		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
 		String storageConfigPath = Misc.getStorageConfigPath(walletId);
@@ -113,9 +116,9 @@ public class AuthorResource {
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
 		// String authorDid = createMyDidResult.getDid();
 
-		String schemaName = "gvt";
-		String schemaVersion = "1.0";
-		String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
+		//String schemaName = "gvt";
+		//String schemaVersion = "1.0";
+		//String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
 		AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
 						issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
 		String schemaId = createSchemaResult.getSchemaId();
