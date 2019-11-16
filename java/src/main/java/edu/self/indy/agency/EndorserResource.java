@@ -39,16 +39,16 @@ public class EndorserResource {
 	public Response createEndorserWallet(@PathParam("id") long id) throws Exception {
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-				t.printStackTrace();
-				return null;
-		}).get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		// 		t.printStackTrace();
+		// 		return null;
+		// }).get();
 
 		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
 
     // 3. Create and Open Endorser Wallet
 		Wallet.createWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).exceptionally((t) -> {
@@ -64,7 +64,7 @@ public class EndorserResource {
     System.out.println("Endorser did: " + endorserDid);
     System.out.println("Endorser verkey: " + endorserVerkey);
 
-    pool.closePoolLedger().get();
+    //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
 
     endorserWallet.closeWallet().get();
@@ -85,9 +85,18 @@ public class EndorserResource {
 		String requestSignedByAuthor = requestData.get("requestSignedByAuthor").toString();
 		String endorserDid = requestData.get("endorserDid").asText();
 
+    // 1.
     System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
     Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+    		t.printStackTrace();
+    		return null;
+    }).get();
+
+    // 2
+    System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
     Pool pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+
     Wallet endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
 		// 5. Create Endorser DID
@@ -110,7 +119,7 @@ public class EndorserResource {
 
 
     pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
+    Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
 
     endorserWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();

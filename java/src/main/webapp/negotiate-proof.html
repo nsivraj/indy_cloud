@@ -6,7 +6,9 @@
   var restProtocol = 'http';
   var restHost = 'localhost';
   var restPort = 9000;
-  var agentData = {};
+  var agentData = {
+    masterSecretId: '6265b3f9-ca0d-454c-b03d-dbad0a314dc8'
+  };
 
   async function credentialApi(action) {
 
@@ -15,12 +17,16 @@
     let actionBody = ''
 
     if(action === 'createTrusteeWallet') {
+      actionMethod = 'GET'
       actionUri = actionUri + 'trustee/createWallet/0'
     } else if(action === 'createAuthorWallet') {
+      actionMethod = 'GET'
       actionUri = actionUri + 'author/createWallet/0'
     } else if(action === 'createEndorserWallet') {
+      actionMethod = 'GET'
       actionUri = actionUri + 'endorser/createWallet/0'
     } else if(action === 'createProverWallet') {
+      actionMethod = 'GET'
       actionUri = actionUri + 'prover/createWallet/0'
     } else if(action === 'addAuthor') {
       actionMethod = 'POST'
@@ -58,6 +64,63 @@
       actionBody = JSON.stringify({
         schemaJson: agentData.schemaJson,
         authorDid: agentData.authorDid
+      })
+    } else if(action === 'createMasterSecret') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'prover/createMasterSecret/0'
+      actionBody = JSON.stringify({
+        masterSecretId: agentData.masterSecretId
+      })
+    } else if(action === 'createCredOffer') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'author/createCredOffer/0'
+      actionBody = JSON.stringify({
+        credDefId: agentData.credDefId
+      })
+    } else if(action === 'createCredRequest') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'prover/createCredRequest/0'
+      actionBody = JSON.stringify({
+        credOffer: agentData.credOffer,
+        credDefJson: agentData.credDefJson,
+        proverDid: agentData.proverDid
+      })
+    } else if(action === 'createCredential') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'author/createCredential/0'
+      actionBody = JSON.stringify({
+        credOffer: agentData.credOffer,
+        credReqJson: agentData.credReqJson
+      })
+    } else if(action === 'saveCredential') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'prover/saveCredential/0'
+      actionBody = JSON.stringify({
+        credential: agentData.credential,
+        credDefJson: agentData.credDefJson,
+        credReqMetadataJson: agentData.credReqMetadataJson
+      })
+    } else if(action === 'createProofRequest') {
+      actionMethod = 'GET'
+      actionUri = actionUri + 'verifier/createProofRequest/0'
+    } else if(action === 'createProof') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'prover/createProof/0'
+      actionBody = JSON.stringify({
+        proofReqJson: agentData.proofRequestJson,
+        credDefJson: agentData.credDefJson,
+        schemaId: agentData.schemaId,
+        schemaJson: agentData.schemaJson,
+        credDefId: agentData.credDefId
+      })
+    } else if(action === 'verifyProof') {
+      actionMethod = 'POST'
+      actionUri = actionUri + 'verifier/verifyProof/0'
+      actionBody = JSON.stringify({
+        proofJson: agentData.proofJson,
+        proofRequestJson: agentData.proofRequestJson,
+        schemas: agentData.schemas,
+        credentialDefs: agentData.credentialDefs
       })
     }
 
@@ -97,6 +160,26 @@
       agentData.signedSchemaRequest = answer.signedSchemaRequest
       agentData.schemaJson = answer.schemaJson
       agentData.schemaId = answer.schemaId
+    } else if(action === 'createCredDef') {
+      agentData.credDefId = answer.credDefId
+      agentData.credDefJson = answer.credDefJson
+    } else if(action === 'createCredOffer') {
+      agentData.credOffer = answer.credOffer
+    } else if(action === 'createCredRequest') {
+      agentData.credReqMetadataJson = answer.credReqMetadataJson
+      agentData.credReqJson = answer.credReqJson
+    } else if(action === 'createCredential') {
+      agentData.credential = answer.credential
+    } else if(action === 'saveCredential') {
+
+    } else if(action === 'createProofRequest') {
+      agentData.proofRequestJson = answer.proofRequestJson
+    } else if(action === 'createProof') {
+      agentData.proofJson = answer.proofJson
+      agentData.schemas = answer.schemas
+      agentData.credentialDefs = answer.credentialDefs
+    } else if(action === 'verifyProof') {
+      agentData.proved = answer.proved
     }
   }
 
@@ -123,122 +206,5 @@
 </br><button id="createProof" onclick="credentialApi('createProof')">Prover: Step16 -- createProof</button>
 </br><button id="verifyProof" onclick="credentialApi('verifyProof')">Verifier: Step17 -- verifyProof</button>
 
-<!--
-
-  async function createTrusteeWallet() {
-    step1Answer = await response.json()
-    console.log("issue step1 answer: ", step1Answer)
-  }
-
-  async function proverStep2() {
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/prover/step2/0`
-    )
-    step2Answer = await response.json()
-    console.log("prover step2 answer: ", step2Answer)
-  }
-
-  async function issuerStep3() {
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/issuer/step3/${step2Answer.walletId}/${step1Answer.credDefId}`
-    )
-    step3Answer = await response.json()
-    console.log("issuer step3 answer: ", step3Answer)
-  }
-
-  async function proverStep4() {
-    const step4Body = {
-      credOffer: step3Answer.credOffer,
-      credDefJson: step1Answer.credDefJson
-    }
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/prover/step4/${step2Answer.walletId}`, {
-        method: 'POST',
-        body: JSON.stringify(step4Body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    step4Answer = await response.json()
-    console.log("prover step4 answer: ", step4Answer)
-  }
-
-  async function issuerStep5() {
-    const step5Body = {
-      credOffer: step3Answer.credOffer,
-      credReqJson: step4Answer.credReqJson
-    }
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/issuer/step5/${step2Answer.walletId}`, {
-        method: 'POST',
-        body: JSON.stringify(step5Body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    step5Answer = await response.json()
-    console.log("prover step5 answer: ", step5Answer)
-  }
-
-
-  async function proverStep6() {
-    const step6Body = {
-      credDefJson: step1Answer.credDefJson,
-      credReqMetadataJson: step4Answer.credReqMetadataJson,
-      credential: step5Answer.credential
-    }
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/prover/step6/${step2Answer.walletId}`, {
-        method: 'POST',
-        body: JSON.stringify(step6Body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    step6Answer = await response.json()
-    console.log("prover step6 answer: ", step6Answer)
-  }
-
-  async function verifierStep7() {
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/verifier/step7/${step2Answer.walletId}`
-    )
-    step7Answer = await response.json()
-    console.log("issuer step7 answer: ", step7Answer)
-  }
-
-  async function proverStep8() {
-    // String proofReqJson = proofRequestData.get("proofReqJson").toString();
-    // String credDefJson = proofRequestData.get("credDefJson").toString();
-    // String credDefId = proofRequestData.get("credDefId").toString();
-    // String schemaId = proofRequestData.get("schemaId").toString();
-    // String schemaJson = proofRequestData.get("schemaJson").toString();
-
-    const step8Body = {
-      proofReqJson: step7Answer.proofRequestJson,
-      credDefJson: step1Answer.credDefJson,
-      credDefId: step1Answer.credDefId,
-      schemaId: step1Answer.schemaId,
-      schemaJson: step1Answer.schemaJson
-    }
-    const response = await fetch(
-      `${restProtocol}://${restHost}:${restPort}/api/prover/step8/${step2Answer.walletId}`, {
-        method: 'POST',
-        body: JSON.stringify(step8Body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    step8Answer = await response.json()
-    console.log("prover step8 answer: ", step8Answer)
-
-  }
-
-
--->
 </body>
 </html>

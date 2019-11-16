@@ -45,16 +45,16 @@ public class ProverResource {
 	public Response createProverWallet(@PathParam("id") long id) throws Exception {
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.PROVER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-				t.printStackTrace();
-				return null;
-		}).get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool.createPoolLedgerConfig(Utils.PROVER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		// 		t.printStackTrace();
+		// 		return null;
+		// }).get();
 
 		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
 
     // 3. Create and Open Prover Wallet
 		Wallet.createWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
@@ -70,7 +70,7 @@ public class ProverResource {
     System.out.println("Prover did: " + proverDid);
     System.out.println("Prover verkey: " + proverVerkey);
 
-    pool.closePoolLedger().get();
+    //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
@@ -92,9 +92,9 @@ public class ProverResource {
     String masterSecretId = masterSecretData.get("masterSecretId").asText();
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
     Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     //13. Prover create Master Secret
@@ -107,9 +107,9 @@ public class ProverResource {
     //System.out.println("Utils.PROVER_MASTER_SECRET_ID :: " + Utils.PROVER_MASTER_SECRET_ID);
 
     // NOTE: sleep for 5 seconds to give ledger time to persist changes
-    Thread.sleep(5000);
+    //Thread.sleep(5000);
 
-    pool.closePoolLedger().get();
+    //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
@@ -132,28 +132,40 @@ public class ProverResource {
     String credDefJson = credRequestData.get("credDefJson").toString();
     String proverDid = credRequestData.get("proverDid").asText();
 
-		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWallet = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createCredRequest")).build();
 
-		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
-		// String proverDid = createMyDidResult.getDid();
+    try {
+      // 1.
+      // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+      // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+      // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+      proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-    //15. Prover Creates Credential Request
-    AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
-    proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
-    String credReqJson = createCredReqResult.getCredentialRequestJson();
-    String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
+      // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+      // String proverDid = createMyDidResult.getDid();
 
-    pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      //15. Prover Creates Credential Request
+      AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
+      proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
+      String credReqJson = createCredReqResult.getCredentialRequestJson();
+      String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
-    proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      //pool.closePoolLedger().get();
+      //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      resp = Response.ok( "{\"action\": \"prover/createCredRequest\", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"credReqJson\": " + credReqJson + "}" ).build();
 
-    return Response.ok( "{\"action\": \"prover/createCredRequest\", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"credReqJson\": " + credReqJson + "}" ).build();
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(proverWallet != null) {
+        proverWallet.closeWallet().get();
+        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      }
+    }
+
+    return resp;
   }
 
 
@@ -171,9 +183,9 @@ public class ProverResource {
     String credential = credentialData.get("credential").toString();
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
     Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     //17. Prover Stores Credential
@@ -182,7 +194,7 @@ public class ProverResource {
     // NOTE: sleep for 5 seconds to give ledger time to persist changes
     Thread.sleep(5000);
 
-    pool.closePoolLedger().get();
+    //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
@@ -208,9 +220,9 @@ public class ProverResource {
     String schemaJson = proofRequestData.get("schemaJson").toString();
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
     Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
@@ -295,7 +307,13 @@ public class ProverResource {
     System.out.println(proofJson);
     //JSONObject proof = new JSONObject(proofJson);
 
-    return Response.ok( "{\"action\": \"prover/createProof\", \"proof\": " + proofJson + "}" ).build();
+    //pool.closePoolLedger().get();
+    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+
+    proverWallet.closeWallet().get();
+    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+
+    return Response.ok( "{\"action\": \"prover/createProof\", \"proofJson\": " + proofJson + ", \"credentialDefs\": " + credentialDefs + ", \"schemas\": " + schemas + "}" ).build();
   }
 
   @GET
@@ -342,8 +360,8 @@ public class ProverResource {
 		proverWalletHandle.closeWallet().get();
 
 		// 22
-		System.out.println("\n22. Close pool\n");
-		pool.closePoolLedger().get();
+		//System.out.println("\n22. Close pool\n");
+		//pool.closePoolLedger().get();
 
     return Response.ok( "{\"msg\": \"prover: step2 is done\", \"walletId\": " + dbWallet.id + "}" ).build();
   }

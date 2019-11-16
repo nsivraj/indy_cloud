@@ -38,39 +38,37 @@ public class AuthorResource {
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createAuthorWallet(@PathParam("id") long id) throws Exception {
 
-		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		Wallet authorWallet = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("author :: createWallet")).build();
+
+		try {
+			// 3. Create and Open Author Wallet
+			Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
-		}).get();
+			}).get();
+			authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+			// 5. Create Author DID
+			CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+			String authorDid = createMyDidResult.getDid();
+			String authorVerkey = createMyDidResult.getVerkey();
+			System.out.println("Author did: " + authorDid);
+			System.out.println("Author verkey: " + authorVerkey);
 
-    // 3. Create and Open Author Wallet
-		Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
-			t.printStackTrace();
-			return null;
-		}).get();
-		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+			resp = Response.ok( "{\"action\": \"author/createWallet\", \"authorDid\": \"" + authorDid + "\", \"authorVerkey\": \"" + authorVerkey + "\"}" ).build();
 
-		// 5. Create Author DID
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-		String authorDid = createMyDidResult.getDid();
-		String authorVerkey = createMyDidResult.getVerkey();
-    System.out.println("Author did: " + authorDid);
-    System.out.println("Author verkey: " + authorVerkey);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(authorWallet != null) {
+        authorWallet.closeWallet().get();
+        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      }
+    }
 
-		pool.closePoolLedger().get();
-		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
-
-		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-
-		return Response.ok( "{\"action\": \"author/createWallet\", \"authorDid\": \"" + authorDid + "\", \"authorVerkey\": \"" + authorVerkey + "\"}" ).build();
+    return resp;
 	}
 
 
@@ -86,9 +84,9 @@ public class AuthorResource {
 		String endorserDid = schemaData.get("endorserDid").asText();
 		String authorDid = schemaData.get("authorDid").asText();
 
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
@@ -112,7 +110,7 @@ public class AuthorResource {
 		String schemaRequestWithEndorserSignedByAuthor =
 						multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
 
-		pool.closePoolLedger().get();
+		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
@@ -134,9 +132,9 @@ public class AuthorResource {
 		String schemaJson = credDefData.get("schemaJson").toString();
 		String authorDid = credDefData.get("authorDid").asText();
 
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
@@ -158,7 +156,7 @@ public class AuthorResource {
 		// NOTE: sleep for 5 seconds to give ledger time to persist changes
 		Thread.sleep(5000);
 
-		pool.closePoolLedger().get();
+		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
@@ -177,11 +175,11 @@ public class AuthorResource {
     String credOfferPayload) throws Exception {
 
 		JsonNode credOfferData = Misc.jsonMapper.readTree(credOfferPayload);
-		String credDefId = credOfferData.get("credDefId").toString();
+		String credDefId = credOfferData.get("credDefId").asText();
 
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
@@ -192,7 +190,7 @@ public class AuthorResource {
 		// NOTE: sleep for 5 seconds to give ledger time to persist changes
 		Thread.sleep(5000);
 
-		pool.closePoolLedger().get();
+		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
@@ -214,9 +212,9 @@ public class AuthorResource {
 		String credOffer = credentialData.get("credOffer").toString();
 		String credReqJson = credentialData.get("credReqJson").toString();
 
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
 		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
@@ -235,7 +233,7 @@ public class AuthorResource {
 		//     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
 		String credential = createCredentialResult.getCredentialJson();
 
-		pool.closePoolLedger().get();
+		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();

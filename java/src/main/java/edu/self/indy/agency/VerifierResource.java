@@ -109,16 +109,16 @@ public class VerifierResource {
   public Response step7(@PathParam("id") long id) throws Exception {
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.VERIFIER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-				t.printStackTrace();
-				return null;
-		}).get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool.createPoolLedgerConfig(Utils.VERIFIER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		// 		t.printStackTrace();
+		// 		return null;
+		// }).get();
 
-		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.VERIFIER_POOL_NAME, "{}").get();
+		// // 2
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool pool = Pool.openPoolLedger(Utils.VERIFIER_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
@@ -158,8 +158,8 @@ public class VerifierResource {
     //proverWalletHandle.closeWallet().get();
 
     // 22
-    System.out.println("\n22. Close pool\n");
-    pool.closePoolLedger().get();
+    //System.out.println("\n22. Close pool\n");
+    //pool.closePoolLedger().get();
 
     return Response.ok( "{\"msg\": \"verifier: step7 is done\", \"proofRequestJson\": " + proofRequestJson + "}" ).build();
   }

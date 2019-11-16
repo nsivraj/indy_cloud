@@ -44,16 +44,16 @@ public class TrusteeResource {
   public Response createTrusteeWallet(@PathParam("id") long id) throws Exception {
 
 		// 1.
-		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-				t.printStackTrace();
-				return null;
-		}).get();
+		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		// Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		// 		t.printStackTrace();
+		// 		return null;
+		// }).get();
 
 		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
+		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		// Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
 
     // 3. Create and Open Trustee Wallet
     Wallet.createWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).exceptionally((t) -> {
@@ -71,7 +71,7 @@ public class TrusteeResource {
     System.out.println("Trustee did: " + trusteeDid);
     System.out.println("Trustee verkey: " + trusteeVerkey);
 
-    pool.closePoolLedger().get();
+    //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
 
     trusteeWallet.closeWallet().get();
@@ -94,8 +94,14 @@ public class TrusteeResource {
     String authorVerkey = authorData.get("authorVerkey").asText();
 
 		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+				t.printStackTrace();
+				return null;
+		}).get();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
 
     // 3. Open Trustee Wallet
@@ -109,7 +115,7 @@ public class TrusteeResource {
     System.out.println("addAuthor result: " + nymResult);
 
     pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+    Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
 
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
@@ -132,8 +138,14 @@ public class TrusteeResource {
     String endorserVerkey = endorserData.get("endorserVerkey").asText();
 
 		// 2
-		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+				t.printStackTrace();
+				return null;
+		}).get();
+
+		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		Pool pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
 
     // 3. Open Trustee Wallet
@@ -147,7 +159,7 @@ public class TrusteeResource {
     System.out.println("addAuthor result: " + nymResult);
 
     pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+    Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
 
     trusteeWallet.closeWallet().get();
     //Wallet.deleteWallet(Utils.TRUSTEE_WALLET_CONFIG, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
