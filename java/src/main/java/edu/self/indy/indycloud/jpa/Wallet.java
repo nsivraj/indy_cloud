@@ -3,6 +3,7 @@ package edu.self.indy.indycloud.jpa;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Column;
 import javax.persistence.Id;
 
 @Entity
@@ -15,6 +16,8 @@ public class Wallet {
   public String genesisPath;
   public String exportPath;
   public String masterSecretId;
+  @Column(name = "WALLET_DID", unique=true)
+  public String walletDID;
 
   protected Wallet() {}
 
@@ -46,6 +49,14 @@ public class Wallet {
 
 	public Boolean getSecure() {
 		return secure;
+  }
+
+  public String getWalletDID() {
+    return walletDID;
+  }
+
+  public void setWalletDID(String walletDID) {
+    this.walletDID = walletDID;
   }
 
   public String getMasterSecretId() {

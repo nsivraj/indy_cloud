@@ -1,4 +1,4 @@
-package edu.self.indy.agency;
+package edu.self.indy.indycloud;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
@@ -24,61 +25,75 @@ import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
+import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.Misc;
+import edu.self.indy.util.MiscDB;
 
 @Path("/endorser")
 public class EndorserResource {
 
+  @Autowired
+  WalletRepository walletRepository;
+
   @GET
-  @Path("createWallet/{id}")
+  @Path("createWallet/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createEndorserWallet(@PathParam("id") long id) throws Exception {
+	public Response createEndorserWallet(@PathParam("walletId") long walletId) throws Exception {
 
-		// 1.
-		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-		// 		t.printStackTrace();
-		// 		return null;
-		// }).get();
+    Wallet endorserWallet = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: createWallet")).build();
 
-		// 2
-		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+    try {
 
-    // 3. Create and Open Endorser Wallet
-		Wallet.createWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).exceptionally((t) -> {
-			t.printStackTrace();
-			return null;
-		}).get();
-		Wallet endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
 
-		// 5. Create Endorser DID
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
-		String endorserDid = createMyDidResult.getDid();
-		String endorserVerkey = createMyDidResult.getVerkey();
-    System.out.println("Endorser did: " + endorserDid);
-    System.out.println("Endorser verkey: " + endorserVerkey);
+      // 3. Create and Open Endorser Wallet
+      Wallet.createWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-    //pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
+      // 5. Create Endorser DID
+      CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
+      String endorserDid = createMyDidResult.getDid();
+      String endorserVerkey = createMyDidResult.getVerkey();
+      System.out.println("Endorser did: " + endorserDid);
+      System.out.println("Endorser verkey: " + endorserVerkey);
 
-    endorserWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
+      dbWallet.walletDID = endorserDid;
+      dbWallet = walletRepository.save(dbWallet);
 
-    return Response.ok( "{\"action\": \"endorser/createWallet\", \"endorserDid\": \"" + endorserDid + "\", \"endorserVerkey\": \"" + endorserVerkey + "\"}" ).build();
+      resp = Response.ok( "{\"action\": \"endorser/createWallet\", \"endorserDid\": \"" + endorserDid + "\", \"endorserVerkey\": \"" + endorserVerkey + "\"}" ).build();
+
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(endorserWallet != null) {
+        endorserWallet.closeWallet().get();
+        //Wallet.deleteWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      }
+    }
+
+    return resp;
   }
 
+
   @POST
-  @Path("signAndSubmitRequest/{id}")
+  @Path("signAndSubmitRequest/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response signAndSubmitRequest(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String requestPayload) throws Exception {
 
 		JsonNode requestData = Misc.jsonMapper.readTree(requestPayload);
@@ -88,21 +103,24 @@ public class EndorserResource {
     Wallet endorserWallet = null;
     Pool pool = null;
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: signAndSubmitRequest")).build();
-    
+
     try {
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
+
       // 1.
       System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
       Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-          t.printStackTrace();
-          return null;
-      }).get();
+      Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).get();
 
       // 2
       System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
       pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
 
-      endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
       // 5. Create Endorser DID
       // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();

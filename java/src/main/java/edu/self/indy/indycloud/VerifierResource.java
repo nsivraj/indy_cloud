@@ -1,4 +1,4 @@
-package edu.self.indy.agency;
+package edu.self.indy.indycloud;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Consumes;
@@ -34,12 +34,14 @@ import edu.self.indy.util.Misc;
 @Path("/verifier")
 public class VerifierResource {
 
+	@Autowired
+  WalletRepository walletRepository;
 
   @GET
-  @Path("createProofRequest/{id}")
+  @Path("createProofRequest/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response createProofRequest(@PathParam("id") long id) throws Exception {
+  public Response createProofRequest(@PathParam("walletId") long walletId) throws Exception {
 
     //11. Verifier creates Proof Request
     String nonce = generateNonce().get();
@@ -67,11 +69,11 @@ public class VerifierResource {
 
 
   @POST
-  @Path("verifyProof/{id}")
+  @Path("verifyProof/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response verifyProof(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String proofPayload) throws Exception {
 
     JsonNode proofData = Misc.jsonMapper.readTree(proofPayload);
@@ -101,12 +103,12 @@ public class VerifierResource {
     return Response.ok( "{\"action\": \"verifier/createProofRequest\", \"proved\": " + valid + "}" ).build();
   }
 
-
+  /*
   @GET
-  @Path("step7/{id}")
+  @Path("step7/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response step7(@PathParam("id") long id) throws Exception {
+  public Response step7(@PathParam("walletId") long walletId) throws Exception {
 
 		// 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
@@ -163,4 +165,6 @@ public class VerifierResource {
 
     return Response.ok( "{\"msg\": \"verifier: step7 is done\", \"proofRequestJson\": " + proofRequestJson + "}" ).build();
   }
+  */
+
 }

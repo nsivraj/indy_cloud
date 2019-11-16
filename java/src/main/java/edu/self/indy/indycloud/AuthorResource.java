@@ -1,4 +1,4 @@
-package edu.self.indy.agency;
+package edu.self.indy.indycloud;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
@@ -24,30 +25,40 @@ import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
+import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.Misc;
+import edu.self.indy.util.MiscDB;
 
 @Path("/author")
 public class AuthorResource {
 
+	@Autowired
+  WalletRepository walletRepository;
+
   @GET
-  @Path("createWallet/{id}")
+  @Path("createWallet/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createAuthorWallet(@PathParam("id") long id) throws Exception {
+	public Response createAuthorWallet(@PathParam("walletId") long walletId) throws Exception {
 
 		Wallet authorWallet = null;
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("author :: createWallet")).build();
 
 		try {
+			JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
+
 			// 3. Create and Open Author Wallet
-			Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
-				t.printStackTrace();
-				return null;
-			}).get();
-			authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+			Wallet.createWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+			authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 			// 5. Create Author DID
 			CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
@@ -55,6 +66,10 @@ public class AuthorResource {
 			String authorVerkey = createMyDidResult.getVerkey();
 			System.out.println("Author did: " + authorDid);
 			System.out.println("Author verkey: " + authorVerkey);
+
+			edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
+      dbWallet.walletDID = authorDid;
+      dbWallet = walletRepository.save(dbWallet);
 
 			resp = Response.ok( "{\"action\": \"author/createWallet\", \"authorDid\": \"" + authorDid + "\", \"authorVerkey\": \"" + authorVerkey + "\"}" ).build();
 
@@ -64,7 +79,7 @@ public class AuthorResource {
     } finally {
       if(authorWallet != null) {
         authorWallet.closeWallet().get();
-        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
       }
     }
 
@@ -73,22 +88,28 @@ public class AuthorResource {
 
 
   @POST
-  @Path("createSchema/{id}")
+  @Path("createSchema/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createSchema(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String schemaPayload) throws Exception {
 
 		JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
 		String endorserDid = schemaData.get("endorserDid").asText();
 		String authorDid = schemaData.get("authorDid").asText();
 
-		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		String storageConfigPath = Misc.getStorageConfigPath(walletId);
+		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+		String walletConfig = walletConfigData.toString();
+		System.out.println("The walletConfig is: " + walletConfig);
+
+	// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
 		// String authorDid = createMyDidResult.getDid();
 
@@ -114,29 +135,35 @@ public class AuthorResource {
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + ", \"schemaJson\": " + schemaJson + ", \"schemaId\": \"" + schemaId + "\"}" ).build();
 	}
 
 
   @POST
-  @Path("createCredDef/{id}")
+  @Path("createCredDef/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createCredentialDef(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credDefPayload) throws Exception {
 
 		JsonNode credDefData = Misc.jsonMapper.readTree(credDefPayload);
 		String schemaJson = credDefData.get("schemaJson").toString();
 		String authorDid = credDefData.get("authorDid").asText();
 
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		String storageConfigPath = Misc.getStorageConfigPath(walletId);
+		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+		String walletConfig = walletConfigData.toString();
+		System.out.println("The walletConfig is: " + walletConfig);
+
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
 		// String authorDid = createMyDidResult.getDid();
 
@@ -160,28 +187,34 @@ public class AuthorResource {
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createCredDef\", \"credDefId\": \"" + credDefId + "\", \"credDefJson\": " + credDefJson + "}" ).build();
 	}
 
 
   @POST
-  @Path("createCredOffer/{id}")
+  @Path("createCredOffer/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createCredOffer(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credOfferPayload) throws Exception {
 
 		JsonNode credOfferData = Misc.jsonMapper.readTree(credOfferPayload);
 		String credDefId = credOfferData.get("credDefId").asText();
 
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		String storageConfigPath = Misc.getStorageConfigPath(walletId);
+		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+		String walletConfig = walletConfigData.toString();
+		System.out.println("The walletConfig is: " + walletConfig);
+
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		//14. Issuer Creates Credential Offer
 		String credOffer = issuerCreateCredentialOffer(authorWallet, credDefId).get();
@@ -194,29 +227,35 @@ public class AuthorResource {
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createCredOffer\", \"credOffer\": " + credOffer + "}" ).build();
 	}
 
 
   @POST
-  @Path("createCredential/{id}")
+  @Path("createCredential/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createCredential(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credentialPayload) throws Exception {
 
 		JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
 		String credOffer = credentialData.get("credOffer").toString();
 		String credReqJson = credentialData.get("credReqJson").toString();
 
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		String storageConfigPath = Misc.getStorageConfigPath(walletId);
+		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+		String walletConfig = walletConfigData.toString();
+		System.out.println("The walletConfig is: " + walletConfig);
+
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
 		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		//16. Issuer create Credential
 		//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
@@ -237,17 +276,18 @@ public class AuthorResource {
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createCredential\", \"credential\": " + credential + "}" ).build();
 	}
 
 
+	/*
   @GET
-  @Path("step1/{id}")
+  @Path("step1/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response step1(@PathParam("id") long id) throws Exception {
+  public Response step1(@PathParam("walletId") long walletId) throws Exception {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
@@ -358,10 +398,10 @@ public class AuthorResource {
   // }
 
 	@GET
-  @Path("step3/{id}/{credDefId}")
+  @Path("step3/{walletId}/{credDefId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-	public Response step3(@PathParam("id") long id, @PathParam("credDefId") String credDefId) throws Exception {
+	public Response step3(@PathParam("walletId") long walletId, @PathParam("credDefId") String credDefId) throws Exception {
 
 		//System.out.println("step3: Using credDefId that was passed in... " + credDefId);
 
@@ -382,11 +422,11 @@ public class AuthorResource {
 	}
 
   @POST
-  @Path("step5/{id}")
+  @Path("step5/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response step5(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credentialRequestJSON) throws Exception {
     JsonNode credentialOffer = Misc.jsonMapper.readTree(credentialRequestJSON);
     String credOffer = credentialOffer.get("credOffer").toString();
@@ -427,4 +467,5 @@ public class AuthorResource {
 
 		return Response.ok(  "{\"credential\": " + credential + ", \"action\": \"step5\"}" ).build();
 	}
+	*/
 }

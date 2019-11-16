@@ -1,4 +1,4 @@
-package edu.self.indy.agency;
+package edu.self.indy.indycloud;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Consumes;
@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
@@ -31,71 +32,87 @@ import static org.junit.Assert.*;
 import edu.self.indy.howto.Utils;
 import edu.self.indy.indycloud.jpa.WalletRepository;
 import edu.self.indy.util.Misc;
+import edu.self.indy.util.MiscDB;
 
 @Path("/prover")
 public class ProverResource {
+
   @Autowired
   WalletRepository walletRepository;
 
-
   @GET
-  @Path("createWallet/{id}")
+  @Path("createWallet/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createProverWallet(@PathParam("id") long id) throws Exception {
+	public Response createProverWallet(@PathParam("walletId") long walletId) throws Exception {
 
-		// 1.
-		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool.createPoolLedgerConfig(Utils.PROVER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-		// 		t.printStackTrace();
-		// 		return null;
-		// }).get();
+    Wallet proverWallet = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createWallet")).build();
 
-		// 2
-		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+    try {
 
-    // 3. Create and Open Prover Wallet
-		Wallet.createWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
-			t.printStackTrace();
-			return null;
-		}).get();
-		Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
 
-		// 5. Create Prover DID
-		CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
-		String proverDid = createMyDidResult.getDid();
-		String proverVerkey = createMyDidResult.getVerkey();
-    System.out.println("Prover did: " + proverDid);
-    System.out.println("Prover verkey: " + proverVerkey);
+      // 3. Create and Open Prover Wallet
+      Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
+        t.printStackTrace();
+        return null;
+      }).get();
+      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-    //pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      // 5. Create Prover DID
+      CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+      String proverDid = createMyDidResult.getDid();
+      String proverVerkey = createMyDidResult.getVerkey();
+      System.out.println("Prover did: " + proverDid);
+      System.out.println("Prover verkey: " + proverVerkey);
 
-    proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
+      dbWallet.walletDID = proverDid;
+      dbWallet = walletRepository.save(dbWallet);
 
-    return Response.ok( "{\"action\": \"prover/createWallet\", \"proverDid\": \"" + proverDid + "\", \"proverVerkey\": \"" + proverVerkey + "\"}" ).build();
+      resp = Response.ok( "{\"action\": \"prover/createWallet\", \"proverDid\": \"" + proverDid + "\", \"proverVerkey\": \"" + proverVerkey + "\"}" ).build();
+
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(proverWallet != null) {
+        proverWallet.closeWallet().get();
+        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+      }
+    }
+
+    return resp;
   }
 
 
   @POST
-  @Path("createMasterSecret/{id}")
+  @Path("createMasterSecret/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response createMasterSecret(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String masterSecretPayload) throws Exception {
 
     JsonNode masterSecretData = Misc.jsonMapper.readTree(masterSecretPayload);
     String masterSecretId = masterSecretData.get("masterSecretId").asText();
 
-		// 1.
+    JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+    String storageConfigPath = Misc.getStorageConfigPath(walletId);
+    ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+    String walletConfig = walletConfigData.toString();
+    System.out.println("The walletConfig is: " + walletConfig);
+
+    // 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
     // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     //13. Prover create Master Secret
     // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
@@ -113,18 +130,18 @@ public class ProverResource {
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     return Response.ok( "{\"action\": \"prover/createMasterSecret\", \"masterSecretId\": \"" + proverMasterSecretId + "\"}" ).build();
   }
 
 
   @POST
-  @Path("createCredRequest/{id}")
+  @Path("createCredRequest/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response createCredRequest(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credRequestPayload) throws Exception {
 
     JsonNode credRequestData = Misc.jsonMapper.readTree(credRequestPayload);
@@ -136,11 +153,17 @@ public class ProverResource {
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createCredRequest")).build();
 
     try {
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
+
       // 1.
       // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
       // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
       // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-      proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
       // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
       // String proverDid = createMyDidResult.getDid();
@@ -161,7 +184,7 @@ public class ProverResource {
     } finally {
       if(proverWallet != null) {
         proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
       }
     }
 
@@ -170,11 +193,11 @@ public class ProverResource {
 
 
   @POST
-  @Path("saveCredential/{id}")
+  @Path("saveCredential/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response saveCredential(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credentialPayload) throws Exception {
 
     JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
@@ -182,11 +205,17 @@ public class ProverResource {
     String credDefJson = credentialData.get("credDefJson").toString();
     String credential = credentialData.get("credential").toString();
 
+    JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+    String storageConfigPath = Misc.getStorageConfigPath(walletId);
+    ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+    String walletConfig = walletConfigData.toString();
+    System.out.println("The walletConfig is: " + walletConfig);
+
 		// 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
 		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
     // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     //17. Prover Stores Credential
     proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
@@ -198,18 +227,18 @@ public class ProverResource {
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
     return Response.ok( "{\"action\": \"prover/saveCredential\"}" ).build();
   }
 
 
   @POST
-  @Path("createProof/{id}")
+  @Path("createProof/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response createProof(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String proofRequestPayload) throws Exception {
 
     JsonNode proofRequestData = Misc.jsonMapper.readTree(proofRequestPayload);
@@ -224,11 +253,17 @@ public class ProverResource {
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createProof")).build();
 
     try {
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
+
       // 1.
       // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
       // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
       // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-      proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
       CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
 
@@ -314,7 +349,7 @@ public class ProverResource {
     } finally {
       if(proverWallet != null) {
         proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
       }
       // if(pool != null) {
       //   //pool.closePoolLedger().get();
@@ -326,11 +361,12 @@ public class ProverResource {
   }
 
 
+  /*
   @GET
-  @Path("step2/{id}")
+  @Path("step2/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response step2(@PathParam("id") long id) throws Exception {
+  public Response step2(@PathParam("walletId") long walletId) throws Exception {
 
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
@@ -377,14 +413,14 @@ public class ProverResource {
   }
 
   @POST
-  @Path("step4/{id}")
+  @Path("step4/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response step4(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credentialOfferJSON) throws Exception {
     //System.out.println("Received credentialOfferJSON... " + credentialOfferJSON);
-    edu.self.indy.indycloud.jpa.Wallet dbWallet = findWalletById(id);
+    edu.self.indy.indycloud.jpa.Wallet dbWallet = findWalletById(walletId);
 
     JsonNode credentialOffer = Misc.jsonMapper.readTree(credentialOfferJSON);
 
@@ -428,11 +464,11 @@ public class ProverResource {
 
 
   @POST
-  @Path("step6/{id}")
+  @Path("step6/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response step6(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String credentialJSON) throws Exception {
 
     JsonNode credentialData = Misc.jsonMapper.readTree(credentialJSON);
@@ -456,21 +492,21 @@ public class ProverResource {
   }
 
 
-  public edu.self.indy.indycloud.jpa.Wallet findWalletById(long id) {
-    edu.self.indy.indycloud.jpa.Wallet wallet = walletRepository.findById(id);
+  public edu.self.indy.indycloud.jpa.Wallet findWalletById(long walletId) {
+    edu.self.indy.indycloud.jpa.Wallet wallet = walletRepository.findById(walletId);
     return wallet;
   }
 
 
   @POST
-  @Path("step8/{id}")
+  @Path("step8/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response step8(
-    @PathParam("id") long id,
+    @PathParam("walletId") long walletId,
     String proofRequestJSON) throws Exception {
 
-      edu.self.indy.indycloud.jpa.Wallet dbWallet = findWalletById(id);
+      edu.self.indy.indycloud.jpa.Wallet dbWallet = findWalletById(walletId);
 
       JsonNode proofRequestData = Misc.jsonMapper.readTree(proofRequestJSON);
       String proofReqJson = proofRequestData.get("proofReqJson").toString();
@@ -543,4 +579,7 @@ public class ProverResource {
 
     return Response.ok( "{\"action\": \"step8\", \"proof\": " + proofJson + "}" ).build();
   }
+
+  */
+
 }
