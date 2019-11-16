@@ -85,46 +85,59 @@ public class EndorserResource {
 		String requestSignedByAuthor = requestData.get("requestSignedByAuthor").toString();
 		String endorserDid = requestData.get("endorserDid").asText();
 
-    // 1.
-    System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-    Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
-    		t.printStackTrace();
-    		return null;
-    }).get();
+    Wallet endorserWallet = null;
+    Pool pool = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: signAndSubmitRequest")).build();
+    
+    try {
+      // 1.
+      System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+      Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+      Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+          t.printStackTrace();
+          return null;
+      }).get();
 
-    // 2
-    System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-    Pool pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+      // 2
+      System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+      pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
 
-    Wallet endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      endorserWallet = Wallet.openWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-		// 5. Create Endorser DID
-		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
-		// String endorserDid = createMyDidResult.getDid();
-		// String endorserVerkey = createMyDidResult.getVerkey();
+      // 5. Create Endorser DID
+      // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
+      // String endorserDid = createMyDidResult.getDid();
+      // String endorserVerkey = createMyDidResult.getVerkey();
 
-    //  Transaction Endorser signs the request
-    String requestSignedByEndorser =
-            multiSignRequest(endorserWallet, endorserDid, requestSignedByAuthor).get();
+      //  Transaction Endorser signs the request
+      String requestSignedByEndorser =
+              multiSignRequest(endorserWallet, endorserDid, requestSignedByAuthor).get();
 
-    //  Transaction Endorser sends the request
-    String response = submitRequest(pool, requestSignedByEndorser).get();
-    System.out.println("signAndSubmitRequest response: " + response);
-    JSONObject responseJson = new JSONObject(response);
-    assertEquals("REPLY", responseJson.getString("op"));
+      //  Transaction Endorser sends the request
+      String response = submitRequest(pool, requestSignedByEndorser).get();
+      System.out.println("signAndSubmitRequest response: " + response);
+      JSONObject responseJson = new JSONObject(response);
+      assertEquals("REPLY", responseJson.getString("op"));
 
-    //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
-    assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
+      //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
+      assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
 
+      resp = Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\"}" ).build();
+    } catch(Exception ex) {
+			ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(endorserWallet != null) {
+        endorserWallet.closeWallet().get();
+        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      }
+      if(pool != null) {
+        pool.closePoolLedger().get();
+        Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
+      }
+    }
 
-    pool.closePoolLedger().get();
-    Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
-
-    endorserWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.ENDORSER_WALLET_CONFIG, Utils.ENDORSER_WALLET_CREDENTIALS).get();
-
-    return Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\"}" ).build();
+    return resp;
   }
 
 }

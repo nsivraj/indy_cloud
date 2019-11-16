@@ -154,7 +154,7 @@ public class AuthorResource {
 		assertTrue(credDefTag.equals(credDefJsonObject.get("tag")));
 
 		// NOTE: sleep for 5 seconds to give ledger time to persist changes
-		Thread.sleep(5000);
+		//Thread.sleep(5000);
 
 		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
@@ -188,7 +188,7 @@ public class AuthorResource {
 		// String credOffer = issuerCreateCredentialOffer(endorserWallet, credDefId).get();
 
 		// NOTE: sleep for 5 seconds to give ledger time to persist changes
-		Thread.sleep(5000);
+		//Thread.sleep(5000);
 
 		//pool.closePoolLedger().get();
 		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();

@@ -192,7 +192,7 @@ public class ProverResource {
     proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
 
     // NOTE: sleep for 5 seconds to give ledger time to persist changes
-    Thread.sleep(5000);
+    //Thread.sleep(5000);
 
     //pool.closePoolLedger().get();
     //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
@@ -219,102 +219,112 @@ public class ProverResource {
     String schemaId = proofRequestData.get("schemaId").asText();
     String schemaJson = proofRequestData.get("schemaJson").toString();
 
-		// 1.
-		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWallet = null;
+    //Pool pool = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createProof")).build();
 
-    CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
+    try {
+      // 1.
+      // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+      // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+      // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+      proverWallet = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-    JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
-    String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+      CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
 
-    JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
-    String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+      JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+      String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-    JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
-    assertEquals(0, credentialsForAttribute3.length());
+      JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+      String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-    JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
-    String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+      JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+      assertEquals(0, credentialsForAttribute3.length());
 
-    credentialsSearch.close();
+      JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+      String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
+      credentialsSearch.close();
 
-    //Thread.sleep(1000);
+      //12. Prover Creates Proof
+      String selfAttestedValue = "8-800-300";
+      String requestedCredentialsJson = new JSONObject()
+          .put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
+          .put("requested_attributes", new JSONObject()
+              .put("attr1_referent", new JSONObject()
+                  .put("cred_id", credentialIdForAttribute1)
+                  .put("revealed", true)
+              )
+              .put("attr2_referent", new JSONObject()
+                  .put("cred_id", credentialIdForAttribute2)
+                  .put("revealed", false)
+              )
+          )
+          .put("requested_predicates", new JSONObject()
+              .put("predicate1_referent", new JSONObject()
+                  .put("cred_id",credentialIdForPredicate)
+              )
+          )
+          .toString();
 
+      String schemas = new JSONObject().put(schemaId, new JSONObject(schemaJson)).toString();
+      String credentialDefs = new JSONObject().put(credDefId,  new JSONObject(credDefJson)).toString();
+      String revocStates = new JSONObject().toString();
 
+      String proofJson = null;
+      //int attemptToCreateProof = 0;
+      //do {
+      //  attemptToCreateProof++;
+        //try {
+          // System.out.println("****** proofRequestJson: " + proofRequestJson);
+          // System.out.println("****** schemas: " + schemas);
+          // System.out.println("****** credentialDefs: " + credentialDefs);
+          // System.out.println("****** revocStates: " + revocStates);
+          // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
+          // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
+          // System.out.println("****** ");
 
-    //12. Prover Creates Proof
-    String selfAttestedValue = "8-800-300";
-    String requestedCredentialsJson = new JSONObject()
-        .put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
-        .put("requested_attributes", new JSONObject()
-            .put("attr1_referent", new JSONObject()
-                .put("cred_id", credentialIdForAttribute1)
-                .put("revealed", true)
-            )
-            .put("attr2_referent", new JSONObject()
-                .put("cred_id", credentialIdForAttribute2)
-                .put("revealed", false)
-            )
-        )
-        .put("requested_predicates", new JSONObject()
-            .put("predicate1_referent", new JSONObject()
-                .put("cred_id",credentialIdForPredicate)
-            )
-        )
-        .toString();
+          proofJson = proverCreateProof(proverWallet, proofReqJson, requestedCredentialsJson,
+            Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
+          // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
+          //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+          //     t.printStackTrace();
+          //     if(t instanceof IndyException) {
+          //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
+          //       System.out.println("t.getMessage() :: " + ((IndyException)t).getMessage());
+          //       System.out.println("t.getSdkBacktrace() :: " + ((IndyException)t).getSdkBacktrace());
+          //     }
+          //     return null;
+          //   }).get();
+        // } catch (Exception e) {
+        //   e.printStackTrace();
+        //   //Thread.sleep(1500);
+        //   //System.out.println("");
+        // }
+      //} while(proofJson == null && attemptToCreateProof < 3);
 
-    String schemas = new JSONObject().put(schemaId, new JSONObject(schemaJson)).toString();
-    String credentialDefs = new JSONObject().put(credDefId,  new JSONObject(credDefJson)).toString();
-    String revocStates = new JSONObject().toString();
+      System.out.println("The proofJson is:");
+      System.out.println(proofJson);
+      //JSONObject proof = new JSONObject(proofJson);
 
-    String proofJson = null;
-    int attemptToCreateProof = 0;
-    do {
-      attemptToCreateProof++;
-      try {
-        // System.out.println("****** proofRequestJson: " + proofRequestJson);
-        // System.out.println("****** schemas: " + schemas);
-        // System.out.println("****** credentialDefs: " + credentialDefs);
-        // System.out.println("****** revocStates: " + revocStates);
-        // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
-        // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
-        // System.out.println("****** ");
-
-        proofJson = proverCreateProof(proverWallet, proofReqJson, requestedCredentialsJson,
-          Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
-        // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-        //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
-        //     t.printStackTrace();
-        //     if(t instanceof IndyException) {
-        //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
-        //       System.out.println("t.getMessage() :: " + ((IndyException)t).getMessage());
-        //       System.out.println("t.getSdkBacktrace() :: " + ((IndyException)t).getSdkBacktrace());
-        //     }
-        //     return null;
-        //   }).get();
-      } catch (Exception e) {
-        e.printStackTrace();
-        Thread.sleep(1500);
-        //System.out.println("");
+      resp = Response.ok( "{\"action\": \"prover/createProof\", \"proofJson\": " + proofJson + ", \"credentialDefs\": " + credentialDefs + ", \"schemas\": " + schemas + "}" ).build();
+    } catch(Exception ex) {
+			ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(proverWallet != null) {
+        proverWallet.closeWallet().get();
+        //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
       }
-    } while(proofJson == null && attemptToCreateProof < 3);
+      // if(pool != null) {
+      //   //pool.closePoolLedger().get();
+      //   //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      // }
+    }
 
-    System.out.println("The proofJson is:");
-    System.out.println(proofJson);
-    //JSONObject proof = new JSONObject(proofJson);
-
-    //pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
-
-    proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
-
-    return Response.ok( "{\"action\": \"prover/createProof\", \"proofJson\": " + proofJson + ", \"credentialDefs\": " + credentialDefs + ", \"schemas\": " + schemas + "}" ).build();
+    return resp;
   }
+
 
   @GET
   @Path("step2/{id}")

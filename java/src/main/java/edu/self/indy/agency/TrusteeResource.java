@@ -113,6 +113,8 @@ public class TrusteeResource {
     // 8. Trustee Sign Author Nym Request
     String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
     System.out.println("addAuthor result: " + nymResult);
+    JSONObject nymResultJson = new JSONObject(nymResult);
+    assertEquals("REPLY", nymResultJson.getString("op"));
 
     pool.closePoolLedger().get();
     Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
@@ -156,7 +158,9 @@ public class TrusteeResource {
 
     // 8. Trustee Sign Author Nym Request
     String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
-    System.out.println("addAuthor result: " + nymResult);
+    System.out.println("addEndorser result: " + nymResult);
+    JSONObject nymResultJson = new JSONObject(nymResult);
+    assertEquals("REPLY", nymResultJson.getString("op"));
 
     pool.closePoolLedger().get();
     Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();

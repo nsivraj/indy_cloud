@@ -10,9 +10,9 @@ sourceCompatibility = '1.8'
 
 repositories {
 	mavenCentral()
-	maven {
-		url 'https://evernym.mycloudrepo.io/public/repositories/libvcx-java'
-	}
+	// maven {
+	// 	url 'https://evernym.mycloudrepo.io/public/repositories/libvcx-java'
+	// }
 	maven {
 		url 'https://repo.sovrin.org/repository/maven-public'
 	}
@@ -21,13 +21,13 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-jersey'
-	implementation 'com.evernym:vcx:0.4.55832442'
+	//implementation 'com.evernym:vcx:0.4.55832442'
 	implementation 'net.java.dev.jna:jna:4.5.0'
 	implementation 'net.sourceforge.streamsupport:android-retrofuture:1.6.2'
 	implementation group: 'org.json', name: 'json', version: '20190722'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.glassfish.jersey.media:jersey-media-multipart'
-	implementation 'org.hyperledger:indy:1.11.1'
+	implementation 'org.hyperledger:indy:1.12.0'
 	implementation 'commons-io:commons-io:2.5'
 	implementation 'junit:junit:4.12'
 	//implementation 'org.json:json:20190722'

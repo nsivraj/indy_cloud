@@ -31,7 +31,7 @@ public class JerseyConfig extends ResourceConfig
         property(ServletProperties.FILTER_FORWARD_ON_404, true);
 
         // this is probably going to be deprecated
-        register(WalletResource.class);
+        //register(WalletResource.class);
     }
 }
 
