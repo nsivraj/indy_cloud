@@ -135,9 +135,13 @@ public class TrusteeResource {
       String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
       System.out.println("addAuthor result: " + nymResult);
       JSONObject nymResultJson = new JSONObject(nymResult);
-      assertEquals("REPLY", nymResultJson.getString("op"));
+      //assertEquals("REPLY", nymResultJson.getString("op"));
 
-      resp = Response.ok( "{\"action\": \"trustee/addauthor\"}" ).build();
+      if("REPLY".equals(nymResultJson.getString("op"))) {
+        resp = Response.ok( "{\"action\": \"trustee/addAuthor\"}" ).build();
+      } else {
+        resp = Response.ok( "{\"action\": \"trustee/addAuthor\", \"result\": " + nymResult + "}" ).build();
+      }
     } catch(Exception ex) {
       ex.printStackTrace();
       resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
@@ -200,10 +204,13 @@ public class TrusteeResource {
       String nymResult = signAndSubmitRequest(pool, trusteeWallet, trusteeDid, nymRequest).get();
       System.out.println("addEndorser result: " + nymResult);
       JSONObject nymResultJson = new JSONObject(nymResult);
-      assertEquals("REPLY", nymResultJson.getString("op"));
+      //assertEquals("REPLY", nymResultJson.getString("op"));
 
-      resp = Response.ok( "{\"action\": \"trustee/addendorser\"}" ).build();
-
+      if("REPLY".equals(nymResultJson.getString("op"))) {
+        resp = Response.ok( "{\"action\": \"trustee/addEndorser\"}" ).build();
+      } else {
+        resp = Response.ok( "{\"action\": \"trustee/addEndorser\", \"result\": " + nymResult + "}" ).build();
+      }
     } catch(Exception ex) {
       ex.printStackTrace();
       resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();

@@ -58,10 +58,7 @@ public class ProverResource {
       System.out.println("The walletConfig is: " + walletConfig);
 
       // 3. Create and Open Prover Wallet
-      Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
-        t.printStackTrace();
-        return null;
-      }).get();
+      Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
       proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
       // 5. Create Prover DID

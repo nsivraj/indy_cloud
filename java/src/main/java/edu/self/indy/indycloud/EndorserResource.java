@@ -135,12 +135,15 @@ public class EndorserResource {
       String response = submitRequest(pool, requestSignedByEndorser).get();
       System.out.println("signAndSubmitRequest response: " + response);
       JSONObject responseJson = new JSONObject(response);
-      assertEquals("REPLY", responseJson.getString("op"));
+      //assertEquals("REPLY", responseJson.getString("op"));
 
       //System.out.println("responseJson.getJSONObject(\"result\").getJSONObject(\"txnMetadata\") :: " + responseJson.getJSONObject("result").getJSONObject("txnMetadata"));
-      assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
-
-      resp = Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\"}" ).build();
+      //assertFalse(responseJson.getJSONObject("result").getJSONObject("txnMetadata").isNull("seqNo"));
+      if("REPLY".equals(responseJson.getString("op"))) {
+        resp = Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\"}" ).build();
+      } else {
+        resp = Response.ok( "{\"action\": \"endorser/signAndSubmitRequest\", \"result\": " + responseJson + "}" ).build();
+      }
     } catch(Exception ex) {
 			ex.printStackTrace();
       resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();

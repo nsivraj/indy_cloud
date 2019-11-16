@@ -2,82 +2,97 @@
 <head>
 <title>Digital Identifiers</title>
 <script>
-  function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
+  // function setCookie(cname, cvalue, exdays) {
+  //   var d = new Date();
+  //   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  //   var expires = "expires="+d.toUTCString();
+  //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  // }
 
-  function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-  }
+  // function getCookie(cname) {
+  //   var name = cname + "=";
+  //   var ca = document.cookie.split(';');
+  //   for(var i = 0; i < ca.length; i++) {
+  //     var c = ca[i];
+  //     while (c.charAt(0) == ' ') {
+  //       c = c.substring(1);
+  //     }
+  //     if (c.indexOf(name) == 0) {
+  //       return c.substring(name.length, c.length);
+  //     }
+  //   }
+  //   return "";
+  // }
 
-  function deleteCookie(cname) {
-    document.cookie = cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
-    allWalletIds = [];
-    trusteeWalletId = 0;
-    authorWalletId = 0;
-    endorserWalletId = 0;
-    proverWalletId = 0;
-    verifierWalletId = 0;
+  // function deleteCookie(cname) {
+  //   document.cookie = cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+  //   allWalletIds = [];
+  //   trusteeWalletId = 0;
+  //   authorWalletId = 0;
+  //   endorserWalletId = 0;
+  //   proverWalletId = 0;
+  //   verifierWalletId = 0;
 
-  }
+  // }
 
-  function saveWalletId(walletId, who) {
-    let idIndex = -1;
-    if(who === 'trustee') idIndex = 0;
-    else if(who === 'author') idIndex = 1;
-    else if(who === 'endorser') idIndex = 2;
-    else if(who === 'prover') idIndex = 3;
-    else if(who === 'verifier') idIndex = 4;
+  // function saveWalletId(walletId, who) {
+  //   let idIndex = -1;
+  //   if(who === 'trustee') idIndex = 0;
+  //   else if(who === 'author') idIndex = 1;
+  //   else if(who === 'endorser') idIndex = 2;
+  //   else if(who === 'prover') idIndex = 3;
+  //   else if(who === 'verifier') idIndex = 4;
 
-    let _walletIds = getWalletIds();
-    _walletIds[idIndex] = walletId;
-    setCookie('walletIds', _walletIds.toString(), 1000);
-    console.log('saved walletIds: ', _walletIds);
-  }
+  //   let _walletIds = getWalletIds();
+  //   _walletIds[idIndex] = walletId;
+  //   setCookie('walletIds', _walletIds.toString(), 1000);
+  //   console.log('saved walletIds: ', _walletIds);
+  // }
 
-  function getWalletIds() {
-    let _walletIds = getCookie('walletIds');
-    console.log('walletIds from cookie: ', _walletIds);
-    if (_walletIds != "") {
-      _walletIds = _walletIds.split(',');
-      for(var i=0; i<_walletIds.length; i++) { _walletIds[i] = parseInt(_walletIds[i], 10); }
-    } else {
-      _walletIds = [0,0,0,0,0];
-    }
-    console.log('found walletIds: ', _walletIds);
-    return _walletIds;
+  // function getWalletIds() {
+  //   let _walletIds = getCookie('walletIds');
+  //   console.log('walletIds from cookie: ', _walletIds);
+  //   if (_walletIds != "") {
+  //     _walletIds = _walletIds.split(',');
+  //     for(var i=0; i<_walletIds.length; i++) { _walletIds[i] = parseInt(_walletIds[i], 10); }
+  //   } else {
+  //     _walletIds = [0,0,0,0,0];
+  //   }
+  //   console.log('found walletIds: ', _walletIds);
+  //   return _walletIds;
+  // }
+
+  function deleteAgentData() {
+    localStorage.removeItem('agentData');
   }
 
   //document.getElementById('issuerStep1').addEventListener('click', issuerStep1);
   //document.cookie = "username=John Doe; expires=Thu, 18 Dec 2013 12:00:00 UTC; path=/";
-  var allWalletIds = getWalletIds();
+  //var allWalletIds = getWalletIds();
+
   var restProtocol = 'http';
   var restHost = 'localhost';
   var restPort = 9000;
-  var trusteeWalletId = allWalletIds[0];
-  var authorWalletId = allWalletIds[1];
-  var endorserWalletId = allWalletIds[2];
-  var proverWalletId = allWalletIds[3];
-  var verifierWalletId = allWalletIds[4];
-  var agentData = {
-    masterSecretId: '6265b3f9-ca0d-454c-b03d-dbad0a314dc8'
-  };
+  var agentData = localStorage.getItem('agentData');
+  if(agentData == null) {
+    agentData = {
+      masterSecretId: '6265b3f9-ca0d-454c-b03d-dbad0a314dc8',
+      trusteeWalletId: 0,
+      authorWalletId: 0,
+      endorserWalletId: 0,
+      proverWalletId: 0,
+      verifierWalletId: 0
+    };
+  } else {
+    agentData = JSON.parse(agentData);
+  }
+  console.log('Using agentData: ', agentData);
 
-
+  // agentData.trusteeWalletId = allWalletIds[0];
+  // agentData.authorWalletId = allWalletIds[1];
+  // agentData.endorserWalletId = allWalletIds[2];
+  // agentData.proverWalletId = allWalletIds[3];
+  // agentData.verifierWalletId = allWalletIds[4];
 
   async function credentialApi(action) {
 
@@ -87,19 +102,19 @@
 
     if(action === 'createTrusteeWallet') {
       actionMethod = 'GET'
-      actionUri = actionUri + 'trustee/createWallet/' + trusteeWalletId
+      actionUri = actionUri + 'trustee/createWallet/' + agentData.trusteeWalletId
     } else if(action === 'createAuthorWallet') {
       actionMethod = 'GET'
-      actionUri = actionUri + 'author/createWallet/' + authorWalletId
+      actionUri = actionUri + 'author/createWallet/' + agentData.authorWalletId
     } else if(action === 'createEndorserWallet') {
       actionMethod = 'GET'
-      actionUri = actionUri + 'endorser/createWallet/' + endorserWalletId
+      actionUri = actionUri + 'endorser/createWallet/' + agentData.endorserWalletId
     } else if(action === 'createProverWallet') {
       actionMethod = 'GET'
-      actionUri = actionUri + 'prover/createWallet/' + proverWalletId
+      actionUri = actionUri + 'prover/createWallet/' + agentData.proverWalletId
     } else if(action === 'addAuthor') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'trustee/addAuthor/' + trusteeWalletId
+      actionUri = actionUri + 'trustee/addAuthor/' + agentData.trusteeWalletId
       actionBody = JSON.stringify({
         trusteeDid: agentData.trusteeDid,
         authorDid: agentData.authorDid,
@@ -107,7 +122,7 @@
       })
     } else if(action === 'addEndorser') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'trustee/addEndorser/' + trusteeWalletId
+      actionUri = actionUri + 'trustee/addEndorser/' + agentData.trusteeWalletId
       actionBody = JSON.stringify({
         trusteeDid: agentData.trusteeDid,
         endorserDid: agentData.endorserDid,
@@ -115,40 +130,43 @@
       })
     } else if(action === 'createSchema') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'author/createSchema/' + authorWalletId
+      actionUri = actionUri + 'author/createSchema/' + agentData.authorWalletId
       actionBody = JSON.stringify({
         endorserDid: agentData.endorserDid,
-        authorDid: agentData.authorDid
+        authorDid: agentData.authorDid,
+        schemaName: document.getElementById('schemaName').value,
+        schemaVersion: document.getElementById('schemaVersion').value,
+        schemaAttributes: document.getElementById('schemaAttributes').value.split(",")
       })
     } else if(action === 'signAndSubmitRequest') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'endorser/signAndSubmitRequest/' + endorserWalletId
+      actionUri = actionUri + 'endorser/signAndSubmitRequest/' + agentData.endorserWalletId
       actionBody = JSON.stringify({
         endorserDid: agentData.endorserDid,
         requestSignedByAuthor: agentData.signedSchemaRequest
       })
     } else if(action === 'createCredDef') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'author/createCredDef/' + authorWalletId
+      actionUri = actionUri + 'author/createCredDef/' + agentData.authorWalletId
       actionBody = JSON.stringify({
         schemaJson: agentData.schemaJson,
         authorDid: agentData.authorDid
       })
     } else if(action === 'createMasterSecret') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'prover/createMasterSecret/' + proverWalletId
+      actionUri = actionUri + 'prover/createMasterSecret/' + agentData.proverWalletId
       actionBody = JSON.stringify({
         masterSecretId: agentData.masterSecretId
       })
     } else if(action === 'createCredOffer') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'author/createCredOffer/' + authorWalletId
+      actionUri = actionUri + 'author/createCredOffer/' + agentData.authorWalletId
       actionBody = JSON.stringify({
         credDefId: agentData.credDefId
       })
     } else if(action === 'createCredRequest') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'prover/createCredRequest/' + proverWalletId
+      actionUri = actionUri + 'prover/createCredRequest/' + agentData.proverWalletId
       actionBody = JSON.stringify({
         credOffer: agentData.credOffer,
         credDefJson: agentData.credDefJson,
@@ -156,14 +174,14 @@
       })
     } else if(action === 'createCredential') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'author/createCredential/' + authorWalletId
+      actionUri = actionUri + 'author/createCredential/' + agentData.authorWalletId
       actionBody = JSON.stringify({
         credOffer: agentData.credOffer,
         credReqJson: agentData.credReqJson
       })
     } else if(action === 'saveCredential') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'prover/saveCredential/' + proverWalletId
+      actionUri = actionUri + 'prover/saveCredential/' + agentData.proverWalletId
       actionBody = JSON.stringify({
         credential: agentData.credential,
         credDefJson: agentData.credDefJson,
@@ -171,10 +189,10 @@
       })
     } else if(action === 'createProofRequest') {
       actionMethod = 'GET'
-      actionUri = actionUri + 'verifier/createProofRequest/' + verifierWalletId
+      actionUri = actionUri + 'verifier/createProofRequest/' + agentData.verifierWalletId
     } else if(action === 'createProof') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'prover/createProof/' + proverWalletId
+      actionUri = actionUri + 'prover/createProof/' + agentData.proverWalletId
       actionBody = JSON.stringify({
         proofReqJson: agentData.proofRequestJson,
         credDefJson: agentData.credDefJson,
@@ -184,7 +202,7 @@
       })
     } else if(action === 'verifyProof') {
       actionMethod = 'POST'
-      actionUri = actionUri + 'verifier/verifyProof/' + verifierWalletId
+      actionUri = actionUri + 'verifier/verifyProof/' + agentData.verifierWalletId
       actionBody = JSON.stringify({
         proofJson: agentData.proofJson,
         proofRequestJson: agentData.proofRequestJson,
@@ -196,12 +214,12 @@
               action === 'signupForWalletAsProver' ||
               action === 'signupForWalletAsVerifier' ||
               action === 'signupForWalletAsEndorser') {
-      if((trusteeWalletId != 0 && action === 'signupForWalletAsTrustee') ||
-         (authorWalletId != 0 && action === 'signupForWalletAsAuthor') ||
-         (proverWalletId != 0 && action === 'signupForWalletAsProver') ||
-         (verifierWalletId != 0 && action === 'signupForWalletAsVerifier') ||
-         (endorserWalletId != 0 && action === 'signupForWalletAsEndorser')) {
-        console.log("The action '" + action + "' has already been invoked. Verify the walletIds: ", getWalletIds());
+      if((agentData.trusteeWalletId != 0 && action === 'signupForWalletAsTrustee') ||
+         (agentData.authorWalletId != 0 && action === 'signupForWalletAsAuthor') ||
+         (agentData.proverWalletId != 0 && action === 'signupForWalletAsProver') ||
+         (agentData.verifierWalletId != 0 && action === 'signupForWalletAsVerifier') ||
+         (agentData.endorserWalletId != 0 && action === 'signupForWalletAsEndorser')) {
+        console.log("The action '" + action + "' has already been invoked. Verify the walletIds: ", agentData);
         return;
       } else {
         actionMethod = 'POST'
@@ -271,21 +289,18 @@
       } else if(action === 'verifyProof') {
         agentData.proved = answer.proved
       } else if(action === 'signupForWalletAsTrustee') {
-        trusteeWalletId = answer.walletId
-        saveWalletId(trusteeWalletId, 'trustee')
+        agentData.trusteeWalletId = answer.walletId
       } else if(action === 'signupForWalletAsAuthor') {
-        authorWalletId = answer.walletId
-        saveWalletId(authorWalletId, 'author')
+        agentData.authorWalletId = answer.walletId
       } else if(action === 'signupForWalletAsEndorser') {
-        endorserWalletId = answer.walletId
-        saveWalletId(endorserWalletId, 'endorser')
+        agentData.endorserWalletId = answer.walletId
       } else if(action === 'signupForWalletAsProver') {
-        proverWalletId = answer.walletId
-        saveWalletId(proverWalletId, 'prover')
+        agentData.proverWalletId = answer.walletId
       } else if(action === 'signupForWalletAsVerifier') {
-        verifierWalletId = answer.walletId
-        saveWalletId(verifierWalletId, 'verifier')
+        agentData.verifierWalletId = answer.walletId
       }
+
+      localStorage.setItem("agentData", JSON.stringify(agentData));
     }
   }
 
@@ -309,6 +324,9 @@
 </hr>
 <h2>Do these steps in order</h2>
 </br><button id="createSchema" onclick="credentialApi('createSchema')">Author: Step7 -- createSchema</button>
+</br>Schema Name: <input type="text" id="schemaName" name="schemaName" value="gvt">
+</br>Schema Version: <input type="text" id="schemaVersion" name="schemaVersion" value="1.0">
+</br>Schema Attributes: <input type="text" id="schemaAttributes" name="schemaAttributes" value="name,age,sex,height">
 </br><button id="signAndSubmitRequest" onclick="credentialApi('signAndSubmitRequest')">Endorser: Step8 -- signAndSubmitRequest</button>
 </br><button id="createCredDef" onclick="credentialApi('createCredDef')">Author: Step9 -- createCredDef</button>
 </br><button id="createMasterSecret" onclick="credentialApi('createMasterSecret')">Prover: Step10 -- createMasterSecret</button>
@@ -319,7 +337,7 @@
 </br><button id="createProofRequest" onclick="credentialApi('createProofRequest')">Verifier: Step15 -- createProofRequest</button>
 </br><button id="createProof" onclick="credentialApi('createProof')">Prover: Step16 -- createProof</button>
 </br><button id="verifyProof" onclick="credentialApi('verifyProof')">Verifier: Step17 -- verifyProof</button>
-<h2>Delete saved walletIds</h2>
-</br><button id="deleteWalletIdsCookie" onclick="deleteCookie('walletIds')">User: deleteWalletIdsCookie</button>
+<h2>Delete saved agentData</h2>
+</br><button id="deleteAgentData" onclick="deleteAgentData()">User: deleteAgentData</button>
 </body>
 </html>
