@@ -87,61 +87,61 @@ public class AuthorResource {
 	}
 
 
-  @POST
-  @Path("createSchema/{walletId}")
-  @Produces({ MediaType.APPLICATION_JSON })
-  @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createSchema(
-    @PathParam("walletId") long walletId,
-    String schemaPayload) throws Exception {
+  // @POST
+  // @Path("createSchema/{walletId}")
+  // @Produces({ MediaType.APPLICATION_JSON })
+  // @Consumes({ MediaType.APPLICATION_JSON })
+	// public Response createSchema(
+  //   @PathParam("walletId") long walletId,
+  //   String schemaPayload) throws Exception {
 
-		JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
-		String endorserDid = schemaData.get("endorserDid").asText();
-		String authorDid = schemaData.get("authorDid").asText();
-		String schemaName = schemaData.get("schemaName").asText();
-		String schemaVersion = schemaData.get("schemaVersion").asText();
-		String schemaAttributes = schemaData.get("schemaAttributes").toString();
+	// 	JsonNode schemaData = Misc.jsonMapper.readTree(schemaPayload);
+	// 	String endorserDid = schemaData.get("endorserDid").asText();
+	// 	String authorDid = schemaData.get("authorDid").asText();
+	// 	String schemaName = schemaData.get("schemaName").asText();
+	// 	String schemaVersion = schemaData.get("schemaVersion").asText();
+	// 	String schemaAttributes = schemaData.get("schemaAttributes").toString();
 
-		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
-		String storageConfigPath = Misc.getStorageConfigPath(walletId);
-		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
-		String walletConfig = walletConfigData.toString();
-		System.out.println("The walletConfig is: " + walletConfig);
+	// 	JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+	// 	String storageConfigPath = Misc.getStorageConfigPath(walletId);
+	// 	((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+	// 	String walletConfig = walletConfigData.toString();
+	// 	System.out.println("The walletConfig is: " + walletConfig);
 
-	// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+	// // System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+	// 	// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
+	// 	// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-		// String authorDid = createMyDidResult.getDid();
+	// 	Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+	// 	// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
+	// 	// String authorDid = createMyDidResult.getDid();
 
-		//String schemaName = "gvt";
-		//String schemaVersion = "1.0";
-		//String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
-		AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
-						issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
-		String schemaId = createSchemaResult.getSchemaId();
-		String schemaJson = createSchemaResult.getSchemaJson();
+	// 	//String schemaName = "gvt";
+	// 	//String schemaVersion = "1.0";
+	// 	//String schemaAttributes = new JSONArray().put("name").put("age").put("sex").put("height").toString();
+	// 	AnoncredsResults.IssuerCreateSchemaResult createSchemaResult =
+	// 					issuerCreateSchema(authorDid, schemaName, schemaVersion, schemaAttributes).get();
+	// 	String schemaId = createSchemaResult.getSchemaId();
+	// 	String schemaJson = createSchemaResult.getSchemaJson();
 
-		//  Transaction Author builds Schema Request
-		String schemaRequest = buildSchemaRequest(authorDid, schemaJson).get();
+	// 	//  Transaction Author builds Schema Request
+	// 	String schemaRequest = buildSchemaRequest(authorDid, schemaJson).get();
 
-		//  Transaction Author appends Endorser's DID into the request
-		String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
+	// 	//  Transaction Author appends Endorser's DID into the request
+	// 	String schemaRequestWithEndorser = appendRequestEndorser(schemaRequest, endorserDid).get();
 
-		//  Transaction Author signs the request with the added endorser field
-		String schemaRequestWithEndorserSignedByAuthor =
-						multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
+	// 	//  Transaction Author signs the request with the added endorser field
+	// 	String schemaRequestWithEndorserSignedByAuthor =
+	// 					multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
 
-		//pool.closePoolLedger().get();
-		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+	// 	//pool.closePoolLedger().get();
+	// 	//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
 
-		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+	// 	authorWallet.closeWallet().get();
+	// 	//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + ", \"schemaJson\": " + schemaJson + ", \"schemaId\": \"" + schemaId + "\"}" ).build();
-	}
+	// 	return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + ", \"schemaJson\": " + schemaJson + ", \"schemaId\": \"" + schemaId + "\"}" ).build();
+	// }
 
 
   @POST
