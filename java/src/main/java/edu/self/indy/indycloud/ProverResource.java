@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
-import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
 import edu.self.indy.util.MiscDB;
 
@@ -38,54 +38,54 @@ import edu.self.indy.util.MiscDB;
 public class ProverResource {
 
   @Autowired
-  WalletRepository walletRepository;
+  JPAWalletRepository walletRepository;
 
-  @GET
-  @Path("createWallet/{walletId}")
-  @Produces({ MediaType.APPLICATION_JSON })
-  @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createProverWallet(@PathParam("walletId") long walletId) throws Exception {
+  // @GET
+  // @Path("createWallet/{walletId}")
+  // @Produces({ MediaType.APPLICATION_JSON })
+  // @Consumes({ MediaType.APPLICATION_JSON })
+	// public Response createProverWallet(@PathParam("walletId") long walletId) throws Exception {
 
-    Wallet proverWallet = null;
-    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createWallet")).build();
+  //   Wallet proverWallet = null;
+  //   Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createWallet")).build();
 
-    try {
+  //   try {
 
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
-      String storageConfigPath = Misc.getStorageConfigPath(walletId);
-      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
-      String walletConfig = walletConfigData.toString();
-      System.out.println("The walletConfig is: " + walletConfig);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+  //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
+  //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+  //     String walletConfig = walletConfigData.toString();
+  //     System.out.println("The walletConfig is: " + walletConfig);
 
-      // 3. Create and Open Prover Wallet
-      Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
-      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //     // 3. Create and Open Prover Wallet
+  //     Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //     proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
 
-      // 5. Create Prover DID
-      CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
-      String proverDid = createMyDidResult.getDid();
-      String proverVerkey = createMyDidResult.getVerkey();
-      System.out.println("Prover did: " + proverDid);
-      System.out.println("Prover verkey: " + proverVerkey);
+  //     // 5. Create Prover DID
+  //     CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
+  //     String proverDid = createMyDidResult.getDid();
+  //     String proverVerkey = createMyDidResult.getVerkey();
+  //     System.out.println("Prover did: " + proverDid);
+  //     System.out.println("Prover verkey: " + proverVerkey);
 
-      edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
-      dbWallet.walletDID = proverDid;
-      dbWallet = walletRepository.save(dbWallet);
+  //     edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
+  //     dbWallet.walletDID = proverDid;
+  //     dbWallet = walletRepository.save(dbWallet);
 
-      resp = Response.ok( "{\"action\": \"prover/createWallet\", \"proverDid\": \"" + proverDid + "\", \"proverVerkey\": \"" + proverVerkey + "\"}" ).build();
+  //     resp = Response.ok( "{\"action\": \"prover/createWallet\", \"proverDid\": \"" + proverDid + "\", \"proverVerkey\": \"" + proverVerkey + "\"}" ).build();
 
-    } catch(Exception ex) {
-      ex.printStackTrace();
-      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
-    } finally {
-      if(proverWallet != null) {
-        proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
-      }
-    }
+  //   } catch(Exception ex) {
+  //     ex.printStackTrace();
+  //     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+  //   } finally {
+  //     if(proverWallet != null) {
+  //       proverWallet.closeWallet().get();
+  //       //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //     }
+  //   }
 
-    return resp;
-  }
+  //   return resp;
+  // }
 
 
   @POST

@@ -54,7 +54,7 @@ export class RestfulIndy {
       const response = await fetch(
         `${this.restProtocol}://${this.restHost}:${
           this.restPort
-        }/api/v1/wallets/createBrandNewWallet`,
+        }/api/v1/wallets/signupForWallet`,
         {
           method: 'POST',
           headers: {

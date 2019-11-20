@@ -28,14 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
-import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
 
 @Path("/verifier")
 public class VerifierResource {
 
 	@Autowired
-  WalletRepository walletRepository;
+  JPAWalletRepository walletRepository;
 
   @GET
   @Path("createProofRequest/{walletId}")

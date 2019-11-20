@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
-import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
 import edu.self.indy.util.MiscDB;
 
@@ -38,54 +38,54 @@ import edu.self.indy.util.MiscDB;
 public class EndorserResource {
 
   @Autowired
-  WalletRepository walletRepository;
+  JPAWalletRepository walletRepository;
 
-  @GET
-  @Path("createWallet/{walletId}")
-  @Produces({ MediaType.APPLICATION_JSON })
-  @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createEndorserWallet(@PathParam("walletId") long walletId) throws Exception {
+  // @GET
+  // @Path("createWallet/{walletId}")
+  // @Produces({ MediaType.APPLICATION_JSON })
+  // @Consumes({ MediaType.APPLICATION_JSON })
+	// public Response createEndorserWallet(@PathParam("walletId") long walletId) throws Exception {
 
-    Wallet endorserWallet = null;
-    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: createWallet")).build();
+  //   Wallet endorserWallet = null;
+  //   Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: createWallet")).build();
 
-    try {
+  //   try {
 
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
-      String storageConfigPath = Misc.getStorageConfigPath(walletId);
-      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
-      String walletConfig = walletConfigData.toString();
-      System.out.println("The walletConfig is: " + walletConfig);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+  //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
+  //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+  //     String walletConfig = walletConfigData.toString();
+  //     System.out.println("The walletConfig is: " + walletConfig);
 
-      // 3. Create and Open Endorser Wallet
-      Wallet.createWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
-      endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //     // 3. Create and Open Endorser Wallet
+  //     Wallet.createWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //     endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
 
-      // 5. Create Endorser DID
-      CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
-      String endorserDid = createMyDidResult.getDid();
-      String endorserVerkey = createMyDidResult.getVerkey();
-      System.out.println("Endorser did: " + endorserDid);
-      System.out.println("Endorser verkey: " + endorserVerkey);
+  //     // 5. Create Endorser DID
+  //     CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
+  //     String endorserDid = createMyDidResult.getDid();
+  //     String endorserVerkey = createMyDidResult.getVerkey();
+  //     System.out.println("Endorser did: " + endorserDid);
+  //     System.out.println("Endorser verkey: " + endorserVerkey);
 
-      edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
-      dbWallet.walletDID = endorserDid;
-      dbWallet = walletRepository.save(dbWallet);
+  //     edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
+  //     dbWallet.walletDID = endorserDid;
+  //     dbWallet = walletRepository.save(dbWallet);
 
-      resp = Response.ok( "{\"action\": \"endorser/createWallet\", \"endorserDid\": \"" + endorserDid + "\", \"endorserVerkey\": \"" + endorserVerkey + "\"}" ).build();
+  //     resp = Response.ok( "{\"action\": \"endorser/createWallet\", \"endorserDid\": \"" + endorserDid + "\", \"endorserVerkey\": \"" + endorserVerkey + "\"}" ).build();
 
-    } catch(Exception ex) {
-      ex.printStackTrace();
-      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
-    } finally {
-      if(endorserWallet != null) {
-        endorserWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
-      }
-    }
+  //   } catch(Exception ex) {
+  //     ex.printStackTrace();
+  //     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+  //   } finally {
+  //     if(endorserWallet != null) {
+  //       endorserWallet.closeWallet().get();
+  //       //Wallet.deleteWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //     }
+  //   }
 
-    return resp;
-  }
+  //   return resp;
+  // }
 
 
   @POST

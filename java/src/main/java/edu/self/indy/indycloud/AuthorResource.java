@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 
 import edu.self.indy.howto.Utils;
-import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
 import edu.self.indy.util.MiscDB;
 
@@ -38,54 +38,7 @@ import edu.self.indy.util.MiscDB;
 public class AuthorResource {
 
 	@Autowired
-  WalletRepository walletRepository;
-
-  @GET
-  @Path("createWallet/{walletId}")
-  @Produces({ MediaType.APPLICATION_JSON })
-  @Consumes({ MediaType.APPLICATION_JSON })
-	public Response createAuthorWallet(@PathParam("walletId") long walletId) throws Exception {
-
-		Wallet authorWallet = null;
-    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("author :: createWallet")).build();
-
-		try {
-			JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
-      String storageConfigPath = Misc.getStorageConfigPath(walletId);
-      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
-      String walletConfig = walletConfigData.toString();
-      System.out.println("The walletConfig is: " + walletConfig);
-
-			// 3. Create and Open Author Wallet
-			Wallet.createWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-			authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-
-			// 5. Create Author DID
-			CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
-			String authorDid = createMyDidResult.getDid();
-			String authorVerkey = createMyDidResult.getVerkey();
-			System.out.println("Author did: " + authorDid);
-			System.out.println("Author verkey: " + authorVerkey);
-
-			edu.self.indy.indycloud.jpa.Wallet dbWallet = MiscDB.findWalletById(walletRepository, walletId);
-      dbWallet.walletDID = authorDid;
-      dbWallet = walletRepository.save(dbWallet);
-
-			resp = Response.ok( "{\"action\": \"author/createWallet\", \"authorDid\": \"" + authorDid + "\", \"authorVerkey\": \"" + authorVerkey + "\"}" ).build();
-
-		} catch(Exception ex) {
-			ex.printStackTrace();
-      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
-    } finally {
-      if(authorWallet != null) {
-        authorWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
-      }
-    }
-
-    return resp;
-	}
-
+  JPAWalletRepository walletRepository;
 
   // @POST
   // @Path("createSchema/{walletId}")

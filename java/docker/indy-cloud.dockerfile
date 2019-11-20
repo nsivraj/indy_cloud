@@ -43,3 +43,4 @@ gcc -v -shared -o /usr/lib/libindycloud.so -Wl,--no-as-needed -lvcx -L/usr/lib -
 #apt-get install -y libindy=1.11.1 libsovtoken=1.0.2 libnullpay=1.11.1 libvcx=0.4.1 && \
 
 ENTRYPOINT /bin/bash
+#CMD tail -f /dev/null

@@ -7,7 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 
 @Entity
-public class Wallet {
+public class JPAWallet {
   @Id
   @GeneratedValue(strategy=GenerationType.AUTO)
   public Long id;
@@ -15,18 +15,18 @@ public class Wallet {
   public Boolean secure;
   public String genesisPath;
   public String exportPath;
-  public String masterSecretId;
+  //public String masterSecretId;
   @Column(name = "WALLET_DID", unique=true)
   public String walletDID;
 
-  protected Wallet() {}
+  protected JPAWallet() {}
 
-  public Wallet(String walletName, Boolean secure) {
+  public JPAWallet(String walletName, Boolean secure) {
       this.walletName = walletName;
       this.secure = secure;
   }
 
-  public Wallet(String walletName, Boolean secure, String genesisPath) {
+  public JPAWallet(String walletName, Boolean secure, String genesisPath) {
       this.walletName = walletName;
       this.secure = secure;
       this.genesisPath = genesisPath;
@@ -59,13 +59,13 @@ public class Wallet {
     this.walletDID = walletDID;
   }
 
-  public String getMasterSecretId() {
-    return masterSecretId;
-  }
+  // public String getMasterSecretId() {
+  //   return masterSecretId;
+  // }
 
-  public void setMasterSecretId(String masterSecretId) {
-    this.masterSecretId = masterSecretId;
-  }
+  // public void setMasterSecretId(String masterSecretId) {
+  //   this.masterSecretId = masterSecretId;
+  // }
 
   public String getGenesisPath() {
     return genesisPath;

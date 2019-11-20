@@ -10,19 +10,19 @@ import javax.ws.rs.ext.Provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.self.indy.indycloud.jpa.WalletRepository;
+import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.MiscDB;
 
 @Provider
 public class WalletFilter implements ContainerRequestFilter {
 
   @Autowired
-  WalletRepository walletRepository;
+  JPAWalletRepository walletRepository;
 
   @Override
   public void filter(ContainerRequestContext ctx) throws IOException {
     String uriPath = ctx.getUriInfo().getRequestUri().getPath();
-    if(uriPath.contains("createBrandNewWallet")) {
+    if(uriPath.contains("signupForWallet")) {
       return;
     }
 

@@ -75,11 +75,11 @@ public class WalletResource
   }
 
   @POST
-  @Path("createBrandNewWallet")
+  @Path("signupForWallet")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response createBrandNewWallet(String actionParams) {
-    return operateOnWallet(-1, "createBrandNewWallet", actionParams);
+  public Response signupForWallet(String actionParams) {
+    return operateOnWallet(-1, "signupForWallet", actionParams);
   }
 
   @POST
@@ -115,7 +115,7 @@ public class WalletResource
     String actionParams)
   {
     try {
-      if(!"createBrandNewWallet".equalsIgnoreCase(actionName) && !isWalletIdValid(id)) {
+      if(!"signupForWallet".equalsIgnoreCase(actionName) && !isWalletIdValid(id)) {
         throw new RuntimeException("Incorrect wallet id: " + id + ". You must get a valid wallet id!!!!");
       }
       WalletAction wAction = new WalletAction(id, actionName, actionParams);
