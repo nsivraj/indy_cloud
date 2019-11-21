@@ -1,6 +1,8 @@
 .gradle
-/build/
+build/
 !gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**
+!**/src/test/**
 
 ### STS ###
 .apt_generated
@@ -16,7 +18,7 @@
 *.iws
 *.iml
 *.ipr
-/out/
+out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -25,4 +27,16 @@
 /nbdist/
 /.nb-gradle/
 
+### VS Code ###
+.vscode/
+
 .DS_Store
+
+bin/
+
+*.so
+*.a
+*.dylib
+indy-cloud.server.output*
+indy-cloud.pid
+indycloud_DB.*

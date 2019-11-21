@@ -92,7 +92,7 @@ public class WalletResource
 	public Response createWallet(
     @PathParam("walletId") long walletId,
     String newWalletPayload) throws Exception {
-      return createWallet(walletId, newWalletPayload, null);
+      return createWallet(walletId, newWalletPayload, null, walletRepository);
 	}
 
 
@@ -100,7 +100,7 @@ public class WalletResource
     long walletId,
     String newWalletPayload,
     String trusteeSeed,
-    JPAWalletRepository walletRepository) {
+    JPAWalletRepository walletRepository) throws Exception {
 
 		Wallet newWallet = null;
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("wallets :: createWallet")).build();
