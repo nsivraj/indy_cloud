@@ -1,4 +1,4 @@
-package edu.self.indy.howto;
+package edu.self.indy.util;
 
 public class Utils {
   public static final int PROTOCOL_VERSION = 2;

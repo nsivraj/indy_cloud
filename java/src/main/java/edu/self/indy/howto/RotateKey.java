@@ -1,17 +1,11 @@
 package edu.self.indy.howto;
 
+import edu.self.indy.util.Utils;
 import org.hyperledger.indy.sdk.did.Did;
-import org.hyperledger.indy.sdk.did.DidJSONParameters;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONObject;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import edu.self.indy.sample.utils.PoolUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 //import static org.junit.Assert.assertEquals;

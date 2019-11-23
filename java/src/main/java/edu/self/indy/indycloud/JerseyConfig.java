@@ -26,6 +26,7 @@ public class JerseyConfig extends ResourceConfig
         property(ServletProperties.FILTER_FORWARD_ON_404, true);
         register(WalletResource.class);
         register(WalletFilter.class);
+        register(CORSResponseFilter.class);
     }
 }
 

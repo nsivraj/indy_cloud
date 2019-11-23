@@ -32,8 +32,11 @@ Using docker on a mac or linux to install linux docker image and setup server
 1) Install docker for mac -- https://docs.docker.com/v17.12/docker-for-mac/install/
 2) cd java/docker
 3) docker build -f indy-cloud.dockerfile -t ${USER}/indy_cloud .
-4) docker run -v /Users/norm/forge/work/code/indy_cloud:/root/indy_cloud -p 9000:9000 -p 9001:9001 -it ${USER}/indy_cloud /bin/bash OR docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 80:80 -p 81:81 -it ${USER}/indy_cloud /bin/bash
-docker run -v /Users/norm/forge/work/code/indy_cloud:/root/indy_cloud -p 9000:9000 -p 9001:9001 -t -d ${USER}/indy_cloud OR docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 80:80 -p 81:81 -t -d ${USER}/indy_cloud
+4) Use one of these docker run commands:
+    a) docker run -v /Users/norm/forge/work/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 9000:9000 -p 9001:9001 -it ${USER}/indy_cloud /bin/bash
+    b) docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 80:80 -p 81:81 -it ${USER}/indy_cloud /bin/bash
+    c) docker run -v /Users/norm/forge/work/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 9000:9000 -p 9001:9001 -t -d ${USER}/indy_cloud
+    d) docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 80:80 -p 81:81 -t -d ${USER}/indy_cloud
 5) Once inside the container then do:
     a) cd /root/indy_cloud/java
     b) ./run.sh

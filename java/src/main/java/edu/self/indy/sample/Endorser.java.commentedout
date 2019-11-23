@@ -22,7 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import edu.self.indy.howto.Utils;
+import edu.self.indy.util.Utils;
 import edu.self.indy.sample.utils.PoolUtils;
 
 import java.util.Arrays;

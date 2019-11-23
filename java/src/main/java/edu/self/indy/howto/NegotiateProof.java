@@ -1,12 +1,12 @@
 package edu.self.indy.howto;
 
+import edu.self.indy.util.Utils;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 
 import org.json.JSONArray;

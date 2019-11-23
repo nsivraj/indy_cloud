@@ -3,9 +3,8 @@ package edu.self.indy.sample.utils;
 import org.apache.commons.io.FileUtils;
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.pool.Pool;
-import org.hyperledger.indy.sdk.pool.PoolJSONParameters;
 
-import edu.self.indy.howto.Utils;
+import edu.self.indy.util.Utils;
 
 import java.io.File;
 import java.io.FileWriter;

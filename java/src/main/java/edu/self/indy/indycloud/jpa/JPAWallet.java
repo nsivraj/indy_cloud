@@ -18,19 +18,28 @@ public class JPAWallet {
   //public String masterSecretId;
   @Column(name = "WALLET_DID", unique=true)
   public String walletDID;
+  public String roleList;
 
-  protected JPAWallet() {}
+  protected JPAWallet() {
+    this.roleList = "";
+  }
 
   public JPAWallet(String walletName, Boolean secure) {
-      this.walletName = walletName;
-      this.secure = secure;
+    this();
+    this.walletName = walletName;
+    this.secure = secure;
   }
 
-  public JPAWallet(String walletName, Boolean secure, String genesisPath) {
-      this.walletName = walletName;
-      this.secure = secure;
-      this.genesisPath = genesisPath;
+  public JPAWallet(String walletName, Boolean secure, String roleList) {
+    this.roleList = roleList;
+    this.walletName = walletName;
+    this.secure = secure;
   }
+
+//  public JPAWallet(String walletName, Boolean secure, String genesisPath) {
+//    this(walletName, secure);
+//    this.genesisPath = genesisPath;
+//  }
 
   @Override
   public String toString() {
@@ -57,6 +66,24 @@ public class JPAWallet {
 
   public void setWalletDID(String walletDID) {
     this.walletDID = walletDID;
+  }
+
+  public String getRoleList() {
+    return roleList;
+  }
+
+  public void setRoleList(String roleList) {
+    if(roleList != null) {
+      this.roleList = roleList;
+    }
+  }
+
+  public boolean hasRole(String role) {
+    if(role == null) {
+      return false;
+    } else {
+      return roleList.toLowerCase().contains(role.toLowerCase());
+    }
   }
 
   // public String getMasterSecretId() {

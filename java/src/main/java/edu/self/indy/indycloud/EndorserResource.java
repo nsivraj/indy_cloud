@@ -1,7 +1,6 @@
 package edu.self.indy.indycloud;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -12,27 +11,18 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.self.indy.util.Utils;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
-import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
-import org.hyperledger.indy.sdk.did.DidResults.CreateAndStoreMyDidResult;
-import org.hyperledger.indy.sdk.did.Did;
-import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
-import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
+
 import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 import static org.hyperledger.indy.sdk.ledger.Ledger.*;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.*;
-
-import edu.self.indy.howto.Utils;
 import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
-import edu.self.indy.util.MiscDB;
 
 @Path("/endorser")
 public class EndorserResource {

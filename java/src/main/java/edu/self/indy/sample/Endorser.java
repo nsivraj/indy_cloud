@@ -8,7 +8,6 @@ import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidJSONParameters;
 import org.hyperledger.indy.sdk.did.DidResults.CreateAndStoreMyDidResult;
 import org.hyperledger.indy.sdk.LibIndy;
-import org.hyperledger.indy.sdk.IndyException;
 
 import static org.hyperledger.indy.sdk.ledger.Ledger.buildNymRequest;
 import static org.hyperledger.indy.sdk.ledger.Ledger.buildSchemaRequest;
@@ -20,12 +19,9 @@ import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import edu.self.indy.howto.Utils;
+import edu.self.indy.util.Utils;
 import edu.self.indy.sample.utils.PoolUtils;
-
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

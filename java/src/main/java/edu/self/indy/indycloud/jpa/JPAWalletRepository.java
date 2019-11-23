@@ -8,7 +8,9 @@ public interface JPAWalletRepository extends CrudRepository<JPAWallet, Long> {
 
   List<JPAWallet> findByWalletName(String walletName);
 
-  List<JPAWallet> findByWalletDID(String walletDID);
+  List<JPAWallet> findByRoleList(String roleList);
+
+  JPAWallet findByWalletDID(String walletDID);
 
 	JPAWallet findById(long walletId);
 }

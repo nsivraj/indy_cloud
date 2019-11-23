@@ -14,6 +14,7 @@ import javax.ws.rs.core.StreamingOutput;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.self.indy.util.WSResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,6 @@ import edu.self.indy.util.MiscDB;
 @Path("/wallets")
 public class WalletResource
 {
-  private static String defaultTrusteeSeed = "000000000000000000000000Trustee1";
-
   @Autowired
   JPAWalletRepository walletRepository;
 
@@ -64,16 +63,32 @@ public class WalletResource
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response signupForWallet(String signupPayload) throws Exception {
+    JPAWallet wallet = signupForWallet(signupPayload, false, walletRepository);
+    return Response.ok( "{\"action\": \"wallets/signupForWallet\", \"walletId\": " + wallet.getId() + "}" ).build();
+  }
+
+
+  public static final JPAWallet signupForWallet(String signupPayload, boolean forTrustee, JPAWalletRepository walletRepository) throws Exception {
 
     // TODO: add code to restrict the call to signupForWallet to users
     // whose account does not yet have a wallet associated with it yet,
     // if we don't do this then we will get overwhelmed by someone who
     // wants to just create empty wallets!!!! Our site will be hacked!!
 
+
     JsonNode signupData = Misc.jsonMapper.readTree(signupPayload);
     boolean secure = signupData.get("secure").asBoolean();
+    JPAWallet wallet = null;
 
-    JPAWallet wallet = walletRepository.save(new JPAWallet("tmp_placeholder_name", secure));
+    if(forTrustee) {
+      wallet = MiscDB.findTrusteeWallet(walletRepository);
+      if(wallet == null) {
+        wallet = walletRepository.save(new JPAWallet("tmp_placeholder_name", secure, Role.TRUSTEE.toString()));
+      }
+    } else {
+      wallet = walletRepository.save(new JPAWallet("tmp_placeholder_name", secure));
+    }
+
     if(secure) {
       // TODO: If they want a secure wallet then additional security requirements will be enforced
       throw new UnsupportedOperationException("A secure wallet is comming soon. Please try again in a few weeks.");
@@ -81,29 +96,32 @@ public class WalletResource
       // TODO: add code here for unsecure wallets
     }
 
-    return Response.ok( "{\"action\": \"wallets/signupForWallet\", \"walletId\": " + wallet.getId() + "}" ).build();
+    return wallet;
   }
 
 
-  @GET
+  @POST
   @Path("createWallet/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
 	public Response createWallet(
     @PathParam("walletId") long walletId,
     String newWalletPayload) throws Exception {
-      return createWallet(walletId, newWalletPayload, null, walletRepository);
+
+      WSResponse wsResp = createWallet(walletId, newWalletPayload, null, walletRepository);
+      return Response.status(wsResp.status).entity(wsResp.entity).build();
 	}
 
 
-  public static final Response createWallet(
+  public static final WSResponse createWallet(
     long walletId,
     String newWalletPayload,
     String trusteeSeed,
     JPAWalletRepository walletRepository) throws Exception {
 
 		Wallet newWallet = null;
-    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("wallets :: createWallet")).build();
+    //Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("wallets :: createWallet")).build();
+    WSResponse wsResp = new WSResponse(Response.Status.INTERNAL_SERVER_ERROR, new RuntimeException("wallets :: createWallet"));
 
 		try {
       JsonNode newWalletData = Misc.jsonMapper.readTree(newWalletPayload);
@@ -147,11 +165,15 @@ public class WalletResource
       jpaWallet.walletDID = walletDid;
       jpaWallet = walletRepository.save(jpaWallet);
 
-			resp = Response.ok( createWalletResponseJSON ).build();
+			//resp = Response.ok( createWalletResponseJSON ).build();
+      wsResp.status = Response.Status.OK;
+      wsResp.entity = createWalletResponseJSON;
 
 		} catch(Exception ex) {
 			ex.printStackTrace();
-      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+      //resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+      wsResp.status = Response.Status.INTERNAL_SERVER_ERROR;
+      wsResp.entity = ex;
     } finally {
       if(newWallet != null) {
         newWallet.closeWallet().get();
@@ -159,8 +181,8 @@ public class WalletResource
       }
     }
 
-    return resp;
-
+    //return resp;
+    return wsResp;
   }
 
 
