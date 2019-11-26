@@ -22,7 +22,8 @@ public class WalletFilter implements ContainerRequestFilter {
   @Override
   public void filter(ContainerRequestContext ctx) throws IOException {
     String uriPath = ctx.getUriInfo().getRequestUri().getPath();
-    if(uriPath.contains("signupForWallet")) {
+    System.out.println("Checking request uri path: " + uriPath);
+    if(uriPath.contains("signupForWallet") || uriPath.contains("trustee/add")) {
       return;
     }
 

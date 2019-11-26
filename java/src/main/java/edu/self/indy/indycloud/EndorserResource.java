@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
@@ -41,15 +41,15 @@ public class EndorserResource {
 
   //   try {
 
-  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.ENDORSER_WALLET_CONFIG);
   //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
   //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
   //     String walletConfig = walletConfigData.toString();
   //     System.out.println("The walletConfig is: " + walletConfig);
 
   //     // 3. Create and Open Endorser Wallet
-  //     Wallet.createWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
-  //     endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //     Wallet.createWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
+  //     endorserWallet = Wallet.openWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
 
   //     // 5. Create Endorser DID
   //     CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
@@ -70,7 +70,7 @@ public class EndorserResource {
   //   } finally {
   //     if(endorserWallet != null) {
   //       endorserWallet.closeWallet().get();
-  //       //Wallet.deleteWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //       //Wallet.deleteWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
   //     }
   //   }
 
@@ -99,7 +99,7 @@ public class EndorserResource {
       String schemaVersion = schemaData.get("schemaVersion").asText();
       String schemaAttributes = schemaData.get("schemaAttributes").toString();
 
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.ENDORSER_WALLET_CONFIG);
       String storageConfigPath = Misc.getStorageConfigPath(walletId);
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       String walletConfig = walletConfigData.toString();
@@ -107,13 +107,13 @@ public class EndorserResource {
 
       // 1.
       System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-      Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).get();
+      Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      Pool.createPoolLedgerConfig(Const.ENDORSER_POOL_NAME, Const.SERVERONE_POOL_CONFIG).get();
 
       System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-      pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+      pool = Pool.openPoolLedger(Const.ENDORSER_POOL_NAME, "{}").get();
 
-      endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+      endorserWallet = Wallet.openWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
       // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
       // String endorserDid = createMyDidResult.getDid();
 
@@ -140,11 +140,11 @@ public class EndorserResource {
     } finally {
       if(endorserWallet != null) {
         endorserWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
       }
       if(pool != null) {
         pool.closePoolLedger().get();
-        Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
+        Pool.deletePoolLedgerConfig(Const.ENDORSER_POOL_NAME).get();
       }
     }
 
@@ -170,7 +170,7 @@ public class EndorserResource {
   //   Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("endorser :: signAndSubmitRequest")).build();
 
   //   try {
-  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.ENDORSER_WALLET_CONFIG);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.ENDORSER_WALLET_CONFIG);
   //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
   //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
   //     String walletConfig = walletConfigData.toString();
@@ -178,14 +178,14 @@ public class EndorserResource {
 
   //     // 1.
   //     System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-  //     Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-  //     Pool.createPoolLedgerConfig(Utils.ENDORSER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).get();
+  //     Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+  //     Pool.createPoolLedgerConfig(Const.ENDORSER_POOL_NAME, Const.SERVERONE_POOL_CONFIG).get();
 
   //     // 2
   //     System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-  //     pool = Pool.openPoolLedger(Utils.ENDORSER_POOL_NAME, "{}").get();
+  //     pool = Pool.openPoolLedger(Const.ENDORSER_POOL_NAME, "{}").get();
 
-  //     endorserWallet = Wallet.openWallet(walletConfig, Utils.ENDORSER_WALLET_CREDENTIALS).get();
+  //     endorserWallet = Wallet.openWallet(walletConfig, Const.ENDORSER_WALLET_CREDENTIALS).get();
 
   //     // 5. Create Endorser DID
   //     // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(endorserWallet, "{}").get();
@@ -215,11 +215,11 @@ public class EndorserResource {
   //   } finally {
   //     if(endorserWallet != null) {
   //       endorserWallet.closeWallet().get();
-  //       //Wallet.deleteWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //       //Wallet.deleteWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
   //     }
   //     if(pool != null) {
   //       pool.closePoolLedger().get();
-  //       Pool.deletePoolLedgerConfig(Utils.ENDORSER_POOL_NAME).get();
+  //       Pool.deletePoolLedgerConfig(Const.ENDORSER_POOL_NAME).get();
   //     }
   //   }
 

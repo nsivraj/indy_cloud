@@ -1,5 +1,6 @@
 package edu.self.indy.sample;
 
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
 import org.hyperledger.indy.sdk.pool.Pool;
@@ -20,7 +21,6 @@ import static org.hyperledger.indy.sdk.anoncreds.Anoncreds.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import edu.self.indy.util.Utils;
 import edu.self.indy.sample.utils.PoolUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -168,12 +168,12 @@ public class Endorser {
 
         //13. Prover create Master Secret
         // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
-        String proverMasterSecretId = proverCreateMasterSecret(proverWallet, Utils.PROVER_MASTER_SECRET_ID).exceptionally((t) -> {
+        String proverMasterSecretId = proverCreateMasterSecret(proverWallet, Const.PROVER_MASTER_SECRET_ID).exceptionally((t) -> {
           t.printStackTrace();
-          return Utils.PROVER_MASTER_SECRET_ID;
+          return Const.PROVER_MASTER_SECRET_ID;
         }).get();
         //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
-        //System.out.println("Utils.PROVER_MASTER_SECRET_ID :: " + Utils.PROVER_MASTER_SECRET_ID);
+        //System.out.println("Const.PROVER_MASTER_SECRET_ID :: " + Const.PROVER_MASTER_SECRET_ID);
 
         Thread.sleep(5000);
 
@@ -185,7 +185,7 @@ public class Endorser {
 
         //15. Prover Creates Credential Request
         AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
-            proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
+            proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Const.PROVER_MASTER_SECRET_ID).get();
         String credReqJson = createCredReqResult.getCredentialRequestJson();
         String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
@@ -287,13 +287,13 @@ public class Endorser {
             // System.out.println("****** credentialDefs: " + credentialDefs);
             // System.out.println("****** revocStates: " + revocStates);
             // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
-            // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
+            // System.out.println("****** Const.PROVER_MASTER_SECRET_ID: " + Const.PROVER_MASTER_SECRET_ID);
             // System.out.println("****** ");
 
             proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-              Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
+              Const.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
             // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-            //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+            //   Const.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
             //     t.printStackTrace();
             //     if(t instanceof IndyException) {
             //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());

@@ -11,7 +11,8 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.self.indy.util.Utils;
+import com.fasterxml.jackson.databind.node.TextNode;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 
@@ -24,6 +25,10 @@ import static org.junit.Assert.*;
 
 import edu.self.indy.indycloud.jpa.JPAWalletRepository;
 import edu.self.indy.util.Misc;
+
+import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.Map;
 
 @Path("/author")
 public class AuthorResource {
@@ -46,17 +51,17 @@ public class AuthorResource {
 	// 	String schemaVersion = schemaData.get("schemaVersion").asText();
 	// 	String schemaAttributes = schemaData.get("schemaAttributes").toString();
 
-	// 	JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+	// 	JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.AUTHOR_WALLET_CONFIG);
 	// 	String storageConfigPath = Misc.getStorageConfigPath(walletId);
 	// 	((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
 	// 	String walletConfig = walletConfigData.toString();
 	// 	System.out.println("The walletConfig is: " + walletConfig);
 
 	// // System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-	// 	// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-	// 	// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+	// 	// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+	// 	// Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
-	// 	Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+	// 	Wallet authorWallet = Wallet.openWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 	// 	// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
 	// 	// String authorDid = createMyDidResult.getDid();
 
@@ -79,10 +84,10 @@ public class AuthorResource {
 	// 					multiSignRequest(authorWallet, authorDid, schemaRequestWithEndorser).get();
 
 	// 	//pool.closePoolLedger().get();
-	// 	//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+	// 	//Pool.deletePoolLedgerConfig(Const.AUTHOR_POOL_NAME).get();
 
 	// 	authorWallet.closeWallet().get();
-	// 	//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+	// 	//Wallet.deleteWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 	// 	return Response.ok( "{\"action\": \"author/createSchema\", \"signedSchemaRequest\": " + schemaRequestWithEndorserSignedByAuthor + ", \"schemaJson\": " + schemaJson + ", \"schemaId\": \"" + schemaId + "\"}" ).build();
 	// }
@@ -101,17 +106,17 @@ public class AuthorResource {
 		String authorDid = credDefData.get("authorDid").asText();
 		String credDefTag = credDefData.get("credDefTag").asText();
 
-		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.AUTHOR_WALLET_CONFIG);
 		String storageConfigPath = Misc.getStorageConfigPath(walletId);
 		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
 		String walletConfig = walletConfigData.toString();
 		System.out.println("The walletConfig is: " + walletConfig);
 
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 		// CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(authorWallet, "{}").get();
 		// String authorDid = createMyDidResult.getDid();
 
@@ -132,10 +137,10 @@ public class AuthorResource {
 		//Thread.sleep(5000);
 
 		//pool.closePoolLedger().get();
-		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+		//Pool.deletePoolLedgerConfig(Const.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createCredDef\", \"credDefId\": \"" + credDefId + "\", \"credDefJson\": " + credDefJson + "}" ).build();
 	}
@@ -152,17 +157,17 @@ public class AuthorResource {
 		JsonNode credOfferData = Misc.jsonMapper.readTree(credOfferPayload);
 		String credDefId = credOfferData.get("credDefId").asText();
 
-		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
+		JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.AUTHOR_WALLET_CONFIG);
 		String storageConfigPath = Misc.getStorageConfigPath(walletId);
 		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
 		String walletConfig = walletConfigData.toString();
 		System.out.println("The walletConfig is: " + walletConfig);
 
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		// Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
-		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet authorWallet = Wallet.openWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		//14. Issuer Creates Credential Offer
 		String credOffer = issuerCreateCredentialOffer(authorWallet, credDefId).get();
@@ -172,10 +177,10 @@ public class AuthorResource {
 		//Thread.sleep(5000);
 
 		//pool.closePoolLedger().get();
-		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+		//Pool.deletePoolLedgerConfig(Const.AUTHOR_POOL_NAME).get();
 
 		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		//Wallet.deleteWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		return Response.ok( "{\"action\": \"author/createCredOffer\", \"credOffer\": " + credOffer + "}" ).build();
 	}
@@ -189,44 +194,72 @@ public class AuthorResource {
     @PathParam("walletId") long walletId,
     String credentialPayload) throws Exception {
 
-		JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
-		String credOffer = credentialData.get("credOffer").toString();
-		String credReqJson = credentialData.get("credReqJson").toString();
+		Wallet authorWallet = null;
+		Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("author :: createCredential")).build();
 
-		JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.AUTHOR_WALLET_CONFIG);
-		String storageConfigPath = Misc.getStorageConfigPath(walletId);
-		((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
-		String walletConfig = walletConfigData.toString();
-		System.out.println("The walletConfig is: " + walletConfig);
+		try {
 
-		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+			JsonNode credentialData = Misc.jsonMapper.readTree(credentialPayload);
+			String credOffer = credentialData.get("credOffer").toString();
+			String credReqJson = credentialData.get("credReqJson").toString();
+			JsonNode credValues = credentialData.get("credValuesJson");
+			Iterator<Map.Entry<String, JsonNode>> credValuesFields = credValues.fields();
+			while (credValuesFields.hasNext()) {
+				Map.Entry<String, JsonNode> credValue = (Map.Entry<String, JsonNode>)credValuesFields.next();
+				//logger.info("key --> " + credValue.getKey() + " value-->" + credValue.getValue());
+				String encodedValue = credValue.getValue().get("encoded").asText();
+				if(encodedValue.trim().length() == 0) {
+					BigInteger bigInt = new BigInteger(credValue.getValue().get("raw").asText().getBytes());
+					encodedValue = bigInt.toString(16);
+					((ObjectNode)credValue.getValue()).set("encoded", new TextNode(encodedValue));
+				}
+			}
+			String credValuesJson = credValues.toString();
+			System.out.println("The credValuesJson is: " + credValuesJson);
 
-		Wallet authorWallet = Wallet.openWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+			JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.AUTHOR_WALLET_CONFIG);
+			String storageConfigPath = Misc.getStorageConfigPath(walletId);
+			((ObjectNode) walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+			String walletConfig = walletConfigData.toString();
+			System.out.println("The walletConfig is: " + walletConfig);
 
-		//16. Issuer create Credential
-		//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
-		String credValuesJson = new JSONObject()
-				.put("sex", new JSONObject().put("raw", "male").put("encoded", "849383848382949383294939293929239393"))
-				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "9694859482717283848483282383838383"))
-				.put("height", new JSONObject().put("raw", "175").put("encoded", "175"))
-				.put("age", new JSONObject().put("raw", "28").put("encoded", "28"))
-		.toString();
+			// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
+			// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+			// Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
-		AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
-				issuerCreateCredential(authorWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
-		// AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
-		//     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
-		String credential = createCredentialResult.getCredentialJson();
+			authorWallet = Wallet.openWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
-		//pool.closePoolLedger().get();
-		//Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+			//16. Issuer create Credential
+			//   note that encoding is not standardized by Indy except that 32-bit integers are encoded as themselves. IS-786
+//		credValuesJson = new JSONObject()
+//				.put("sex", new JSONObject().put("raw", "male").put("encoded", "849383848382949383294939293929239393"))
+//				.put("name", new JSONObject().put("raw", "Alex").put("encoded", "9694859482717283848483282383838383"))
+//				.put("height", new JSONObject().put("raw", "175").put("encoded", "175"))
+//				.put("age", new JSONObject().put("raw", "28").put("encoded", "28"))
+//		.toString();
 
-		authorWallet.closeWallet().get();
-		//Wallet.deleteWallet(walletConfig, Utils.AUTHOR_WALLET_CREDENTIALS).get();
 
-		return Response.ok( "{\"action\": \"author/createCredential\", \"credential\": " + credential + "}" ).build();
+			AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+					issuerCreateCredential(authorWallet, credOffer, credReqJson, credValuesJson, null, -1).get();
+			// AnoncredsResults.IssuerCreateCredentialResult createCredentialResult =
+			//     issuerCreateCredential(endorserWallet, credOffer, credReqJson, credValuesJson, null, - 1).get();
+			String credential = createCredentialResult.getCredentialJson();
+
+			resp = Response.ok("{\"action\": \"author/createCredential\", \"credential\": " + credential + "}").build();
+
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+		} finally {
+			if(authorWallet != null) {
+				authorWallet.closeWallet().get();
+				//Wallet.deleteWallet(walletConfig, Const.AUTHOR_WALLET_CREDENTIALS).get();
+			}
+			//pool.closePoolLedger().get();
+			//Pool.deletePoolLedgerConfig(Const.AUTHOR_POOL_NAME).get();
+		}
+
+		return resp;
 	}
 
 
@@ -238,30 +271,30 @@ public class AuthorResource {
   public Response step1(@PathParam("walletId") long walletId) throws Exception {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Const.AUTHOR_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
-		Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 4
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
-		Wallet issuerWalletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet issuerWalletHandle = Wallet.openWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		// 5
 		System.out.println("\n5. Generating and storing steward DID and Verkey\n");
-		String did_json = "{\"seed\": \"" + Utils.STEWARD_SEED + "\"}";
+		String did_json = "{\"seed\": \"" + Const.STEWARD_SEED + "\"}";
 		DidResults.CreateAndStoreMyDidResult stewardResult = Did.createAndStoreMyDid(issuerWalletHandle, did_json).get();
 		String defaultStewardDid = stewardResult.getDid();
 		System.out.println("Steward did: " + defaultStewardDid);
@@ -322,7 +355,7 @@ public class AuthorResource {
 		//String schemaDataJSON = "{\"seqNo\": 1, \"dest\": \"" + defaultStewardDid + "\", \"data\": " + schemaJson + "}";
 		System.out.println("Schema:\n" + schemaJson);
 		//String claimDef = issuerCreateAndStoreCredentialDef(issuerWalletHandle, trustAnchorDID, schemaDataJSON, "CL", false).get();
-		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredentialDefResult = issuerCreateAndStoreCredentialDef					(issuerWalletHandle, trustAnchorDID, schemaJson, "tag1", null, Utils.DEFAULT_REVOCATION_CONFIG).get();
+		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredentialDefResult = issuerCreateAndStoreCredentialDef					(issuerWalletHandle, trustAnchorDID, schemaJson, "tag1", null, Const.DEFAULT_REVOCATION_CONFIG).get();
 		String credDefId = createCredentialDefResult.getCredDefId();
 		String credDefJson = createCredentialDefResult.getCredDefJson();
 		System.out.println("Credential Definition:\n" + credDefJson);
@@ -353,7 +386,7 @@ public class AuthorResource {
 
 		//System.out.println("step3: Using credDefId that was passed in... " + credDefId);
 
-		Wallet issuerWalletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet issuerWalletHandle = Wallet.openWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		// 14
 		System.out.println("\n14. Issuer (Trust Anchor) is creating a Credential Offer for Prover\n");
@@ -380,7 +413,7 @@ public class AuthorResource {
     String credOffer = credentialOffer.get("credOffer").toString();
     String credReqJson = credentialOffer.get("credReqJson").toString();
 
-		Wallet issuerWalletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet issuerWalletHandle = Wallet.openWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		// 16
 		System.out.println("\n16. Issuer (Trust Anchor) creates Credential for Credential Request\n");

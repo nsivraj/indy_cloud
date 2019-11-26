@@ -1,6 +1,5 @@
 package edu.self.indy.indycloud;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -11,7 +10,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 
@@ -45,15 +44,15 @@ public class TrusteeResource {
 
   //   try {
 
-  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.TRUSTEE_WALLET_CONFIG);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.TRUSTEE_WALLET_CONFIG);
   //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
   //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
   //     String walletConfig = walletConfigData.toString();
   //     System.out.println("The walletConfig is: " + walletConfig);
 
   //     // 3. Create and Open Trustee Wallet
-  //     Wallet.createWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
-  //     trusteeWallet = Wallet.openWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+  //     Wallet.createWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
+  //     trusteeWallet = Wallet.openWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
 
   //     // 4. Create Trustee DID
   //     DidJSONParameters.CreateAndStoreMyDidJSONParameter theirDidJson =
@@ -76,7 +75,7 @@ public class TrusteeResource {
   //   } finally {
   //     if(trusteeWallet != null) {
   //       trusteeWallet.closeWallet().get();
-  //       //Wallet.deleteWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+  //       //Wallet.deleteWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
   //     }
   //   }
 
@@ -84,12 +83,10 @@ public class TrusteeResource {
   // }
 
   @POST
-  @Path("addAuthor/{walletId}")
+  @Path("addAuthor")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response addAuthorToLedger(
-    @PathParam("walletId") long walletId,
-    String authorPayload) throws Exception {
+  public Response addAuthorToLedger(String authorPayload) throws Exception {
 
     Wallet trusteeWallet = null;
     Pool pool = null;
@@ -98,26 +95,25 @@ public class TrusteeResource {
     try {
 
       JsonNode authorData = Misc.jsonMapper.readTree(authorPayload);
-      //String trusteeDid = authorData.get("trusteeDid").asText();
       String authorDid = authorData.get("authorDid").asText();
       String authorVerkey = authorData.get("authorVerkey").asText();
 
       // 2
       System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-      Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).get();
+      Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      Pool.createPoolLedgerConfig(Const.TRUSTEE_POOL_NAME, Const.SERVERONE_POOL_CONFIG).get();
 
       System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-      pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
+      pool = Pool.openPoolLedger(Const.TRUSTEE_POOL_NAME, "{}").get();
 
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.TRUSTEE_WALLET_CONFIG);
-      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.TRUSTEE_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(trustee.getWalletId());
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       String walletConfig = walletConfigData.toString();
       System.out.println("The walletConfig is: " + walletConfig);
 
       // 3. Open Trustee Wallet
-      trusteeWallet = Wallet.openWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+      trusteeWallet = Wallet.openWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
 
       // 7. Build Author Nym Request
       String nymRequest = buildNymRequest(trustee.getDID(), authorDid, authorVerkey, null, null).get();
@@ -139,11 +135,11 @@ public class TrusteeResource {
     } finally {
       if(trusteeWallet != null) {
         trusteeWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
       }
       if(pool != null) {
         pool.closePoolLedger().get();
-        Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+        Pool.deletePoolLedgerConfig(Const.TRUSTEE_POOL_NAME).get();
       }
     }
 
@@ -153,12 +149,10 @@ public class TrusteeResource {
 
 
   @POST
-  @Path("addEndorser/{walletId}")
+  @Path("addEndorser")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response addEndorserToLedger(
-    @PathParam("walletId") long walletId,
-    String endorserPayload) throws Exception {
+  public Response addEndorserToLedger(String endorserPayload) throws Exception {
 
     Wallet trusteeWallet = null;
     Pool pool = null;
@@ -173,20 +167,20 @@ public class TrusteeResource {
 
       // 2
       System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-      Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      Pool.createPoolLedgerConfig(Utils.TRUSTEE_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).get();
+      Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      Pool.createPoolLedgerConfig(Const.TRUSTEE_POOL_NAME, Const.SERVERONE_POOL_CONFIG).get();
 
       System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-      pool = Pool.openPoolLedger(Utils.TRUSTEE_POOL_NAME, "{}").get();
+      pool = Pool.openPoolLedger(Const.TRUSTEE_POOL_NAME, "{}").get();
 
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.TRUSTEE_WALLET_CONFIG);
-      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.TRUSTEE_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(trustee.getWalletId());
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       String walletConfig = walletConfigData.toString();
       System.out.println("The walletConfig is: " + walletConfig);
 
       // 3. Open Trustee Wallet
-      trusteeWallet = Wallet.openWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+      trusteeWallet = Wallet.openWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
 
       // 7. Build Author Nym Request
       String nymRequest = buildNymRequest(trustee.getDID(), endorserDid, endorserVerkey, null, "ENDORSER").get();
@@ -208,11 +202,11 @@ public class TrusteeResource {
     } finally {
       if(trusteeWallet != null) {
         trusteeWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.TRUSTEE_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Const.TRUSTEE_WALLET_CREDENTIALS).get();
       }
       if(pool != null) {
         pool.closePoolLedger().get();
-        Pool.deletePoolLedgerConfig(Utils.TRUSTEE_POOL_NAME).get();
+        Pool.deletePoolLedgerConfig(Const.TRUSTEE_POOL_NAME).get();
       }
     }
 

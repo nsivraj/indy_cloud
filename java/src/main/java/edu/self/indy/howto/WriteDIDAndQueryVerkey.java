@@ -1,6 +1,6 @@
 package edu.self.indy.howto;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.pool.Pool;
@@ -36,20 +36,20 @@ public class WriteDIDAndQueryVerkey {
 
         // 1.
         System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-        Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-        Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+        Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+        Pool.createPoolLedgerConfig(Const.AUTHOR_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
             t.printStackTrace();
             return null;
         }).get();
 
         // 2
         System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-        Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+        Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
         // 3
         System.out.println("\n3. Creates a new secure wallet\n");
         //Wallet.createWallet(POOL_NAME, walletName, "default", null, null).get();
-        Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
+        Wallet.createWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
             t.printStackTrace();
             return null;
         }).get();
@@ -57,11 +57,11 @@ public class WriteDIDAndQueryVerkey {
         // 4
         System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
         //Wallet walletHandle = Wallet.openWallet(walletName, null, null).get();
-        Wallet walletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+        Wallet walletHandle = Wallet.openWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
         // 5
         System.out.println("\n5. Generating and storing steward DID and Verkey\n");
-        String did_json = "{\"seed\": \"" + Utils.STEWARD_SEED + "\"}";
+        String did_json = "{\"seed\": \"" + Const.STEWARD_SEED + "\"}";
         DidResults.CreateAndStoreMyDidResult stewardResult = Did.createAndStoreMyDid(walletHandle, did_json).get();
         String defaultStewardDid = stewardResult.getDid();
         System.out.println("Steward DID: " + defaultStewardDid);
@@ -116,7 +116,7 @@ public class WriteDIDAndQueryVerkey {
         System.out.println("\n13. Close wallet\n");
         walletHandle.closeWallet().get();
         //Wallet.deleteWallet(walletName, null).get();
-        //Wallet.deleteWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
         // 14
         System.out.println("\n14. Close pool\n");
@@ -124,6 +124,6 @@ public class WriteDIDAndQueryVerkey {
 
         // 15
         //System.out.println("\n15. Delete pool ledger config\n");
-        //Pool.deletePoolLedgerConfig(Utils.AUTHOR_POOL_NAME).get();
+        //Pool.deletePoolLedgerConfig(Const.AUTHOR_POOL_NAME).get();
     }
 }

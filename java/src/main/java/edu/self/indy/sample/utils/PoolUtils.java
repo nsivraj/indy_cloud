@@ -4,7 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.pool.Pool;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -49,13 +49,13 @@ public class PoolUtils {
 		//PoolJSONParameters.CreatePoolLedgerConfigJSONParameter createPoolLedgerConfigJSONParameter
     //		= new PoolJSONParameters.CreatePoolLedgerConfigJSONParameter(genesisTxnFile.getAbsolutePath());
 
-    Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+    Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Const.AUTHOR_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		//Pool.createPoolLedgerConfig(DEFAULT_POOL_NAME, createPoolLedgerConfigJSONParameter.toJson()).get();
-		return Utils.AUTHOR_POOL_NAME;
+		return Const.AUTHOR_POOL_NAME;
 	}
 }

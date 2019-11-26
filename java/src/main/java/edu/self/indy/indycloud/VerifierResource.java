@@ -76,19 +76,19 @@ public class VerifierResource {
     JSONObject proof = new JSONObject(proofJson);
 
     //13. Verifier verify Proof
-    JSONObject revealedAttr1 = proof.getJSONObject("requested_proof").getJSONObject("revealed_attrs").getJSONObject("attr1_referent");
-    assertEquals("Alex", revealedAttr1.getString("raw"));
+    //JSONObject revealedAttr1 = proof.getJSONObject("requested_proof").getJSONObject("revealed_attrs").getJSONObject("attr1_referent");
+    //assertEquals("Alex", revealedAttr1.getString("raw"));
 
-    assertNotNull(proof.getJSONObject("requested_proof").getJSONObject("unrevealed_attrs").getJSONObject("attr2_referent").getInt("sub_proof_index"));
+    //assertNotNull(proof.getJSONObject("requested_proof").getJSONObject("unrevealed_attrs").getJSONObject("attr2_referent").getInt("sub_proof_index"));
 
-    String selfAttestedValue = "8-800-300";
-    assertEquals(selfAttestedValue, proof.getJSONObject("requested_proof").getJSONObject("self_attested_attrs").getString("attr3_referent"));
+    //String selfAttestedValue = "8-800-300";
+    //assertEquals(selfAttestedValue, proof.getJSONObject("requested_proof").getJSONObject("self_attested_attrs").getString("attr3_referent"));
 
     String revocRegDefs = new JSONObject().toString();
     String revocRegs = new JSONObject().toString();
 
     Boolean valid = verifierVerifyProof(proofRequestJson, proofJson, schemas, credentialDefs, revocRegDefs, revocRegs).get();
-    assertTrue(valid);
+    //assertTrue(valid);
 
     return Response.ok( "{\"action\": \"verifier/createProofRequest\", \"proved\": " + valid + "}" ).build();
   }
@@ -102,26 +102,26 @@ public class VerifierResource {
 
 		// 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		// Pool.createPoolLedgerConfig(Utils.VERIFIER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		// Pool.createPoolLedgerConfig(Const.VERIFIER_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 		// 		t.printStackTrace();
 		// 		return null;
 		// }).get();
 
 		// // 2
 		// System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		// Pool pool = Pool.openPoolLedger(Utils.VERIFIER_POOL_NAME, "{}").get();
+		// Pool pool = Pool.openPoolLedger(Const.VERIFIER_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
-		Wallet.createWallet(Utils.VERIFIER_WALLET_CONFIG, Utils.VERIFIER_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Const.VERIFIER_WALLET_CONFIG, Const.VERIFIER_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 4
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
-		Wallet verifierWalletHandle = Wallet.openWallet(Utils.VERIFIER_WALLET_CONFIG, Utils.VERIFIER_WALLET_CREDENTIALS).get();
+		Wallet verifierWalletHandle = Wallet.openWallet(Const.VERIFIER_WALLET_CONFIG, Const.VERIFIER_WALLET_CREDENTIALS).get();
 
     // 17.5
     System.out.println("\n17.5. Verifier sends Proof Request to Prover\n");

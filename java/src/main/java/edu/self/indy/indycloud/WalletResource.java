@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.self.indy.util.WSResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.hyperledger.indy.sdk.wallet.WalletExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
@@ -122,17 +123,16 @@ public class WalletResource
 		Wallet newWallet = null;
     //Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("wallets :: createWallet")).build();
     WSResponse wsResp = new WSResponse(Response.Status.INTERNAL_SERVER_ERROR, new RuntimeException("wallets :: createWallet"));
+    JPAWallet jpaWallet = MiscDB.findWalletById(walletRepository, walletId);
+    JsonNode newWalletData = Misc.jsonMapper.readTree(newWalletPayload);
+    String walletConfig = newWalletData.get("walletConfig").toString();
+    String walletCred = newWalletData.get("walletCredential").toString();
 
-		try {
-      JsonNode newWalletData = Misc.jsonMapper.readTree(newWalletPayload);
-      String walletConfig = newWalletData.get("walletConfig").toString();
-      String walletCred = newWalletData.get("walletCredential").toString();
-
+    try {
 			JsonNode walletConfigData = Misc.jsonMapper.readTree(walletConfig);
       String storageConfigPath = Misc.getStorageConfigPath(walletId);
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       walletConfig = walletConfigData.toString();
-      System.out.println("The walletConfig is: " + walletConfig);
 
 			// 3. Create and Open new Wallet
 			Wallet.createWallet(walletConfig, walletCred).get();
@@ -146,22 +146,23 @@ public class WalletResource
         CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(newWallet, "{}").get();
         walletDid = createMyDidResult.getDid();
         walletVerkey = createMyDidResult.getVerkey();
-        System.out.println("New Wallet did: " + walletDid);
+        System.out.println("New Wallet did: " + walletDid + " with wallet id: " + walletId);
         System.out.println("New Wallet verkey: " + walletVerkey);
+        System.out.println("The walletConfig is: " + walletConfig);
         createWalletResponseJSON = "{\"action\": \"wallets/createWallet\", \"walletDid\": \"" + walletDid + "\", \"walletVerkey\": \"" + walletVerkey + "\"}";
       } else {
         // 4. Create Trustee DID
-        DidJSONParameters.CreateAndStoreMyDidJSONParameter theirDidJson =
+        DidJSONParameters.CreateAndStoreMyDidJSONParameter trusteeDidJson =
                 new DidJSONParameters.CreateAndStoreMyDidJSONParameter(null, trusteeSeed, null, null);
-        CreateAndStoreMyDidResult createTheirDidResult = Did.createAndStoreMyDid(newWallet, theirDidJson.toJson()).get();
+        CreateAndStoreMyDidResult createTheirDidResult = Did.createAndStoreMyDid(newWallet, trusteeDidJson.toJson()).get();
         walletDid = createTheirDidResult.getDid();
         walletVerkey = createTheirDidResult.getVerkey();
-        System.out.println("Trustee did: " + walletDid);
+        System.out.println("Trustee did: " + walletDid + " with wallet id: " + walletId);
         System.out.println("Trustee verkey: " + walletVerkey);
+        System.out.println("The walletConfig is: " + walletConfig);
         createWalletResponseJSON = "{\"action\": \"wallets/createWallet\", \"walletDid\": \"" + walletDid + "\"}";
       }
 
-			JPAWallet jpaWallet = MiscDB.findWalletById(walletRepository, walletId);
       jpaWallet.walletDID = walletDid;
       jpaWallet = walletRepository.save(jpaWallet);
 
@@ -170,10 +171,17 @@ public class WalletResource
       wsResp.entity = createWalletResponseJSON;
 
 		} catch(Exception ex) {
-			ex.printStackTrace();
-      //resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
-      wsResp.status = Response.Status.INTERNAL_SERVER_ERROR;
-      wsResp.entity = ex;
+			if(ex.getCause() != null && WalletExistsException.class.equals(ex.getCause().getClass())) {
+        wsResp.status = Response.Status.OK;
+        newWallet = Wallet.openWallet(walletConfig, walletCred).get();
+        String walletVerkey = Did.keyForLocalDid(newWallet, jpaWallet.getWalletDID()).get();
+        wsResp.entity = "{\"action\": \"wallets/createWallet\", \"walletDid\": \"" + jpaWallet.getWalletDID() + "\", \"walletVerkey\": \"" + walletVerkey + "\"}";
+      } else {
+        ex.printStackTrace();
+        //resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+        wsResp.status = Response.Status.INTERNAL_SERVER_ERROR;
+        wsResp.entity = ex;
+      }
     } finally {
       if(newWallet != null) {
         newWallet.closeWallet().get();

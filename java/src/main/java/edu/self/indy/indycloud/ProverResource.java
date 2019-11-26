@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq;
 import org.hyperledger.indy.sdk.wallet.Wallet;
@@ -44,15 +44,15 @@ public class ProverResource {
 
   //   try {
 
-  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+  //     JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
   //     String storageConfigPath = Misc.getStorageConfigPath(walletId);
   //     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
   //     String walletConfig = walletConfigData.toString();
   //     System.out.println("The walletConfig is: " + walletConfig);
 
   //     // 3. Create and Open Prover Wallet
-  //     Wallet.createWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
-  //     proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //     Wallet.createWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
+  //     proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
   //     // 5. Create Prover DID
   //     CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
@@ -73,7 +73,7 @@ public class ProverResource {
   //   } finally {
   //     if(proverWallet != null) {
   //       proverWallet.closeWallet().get();
-  //       //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+  //       //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
   //     }
   //   }
 
@@ -92,7 +92,7 @@ public class ProverResource {
     JsonNode masterSecretData = Misc.jsonMapper.readTree(masterSecretPayload);
     String masterSecretId = masterSecretData.get("masterSecretId").asText();
 
-    JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+    JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
     String storageConfigPath = Misc.getStorageConfigPath(walletId);
     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
     String walletConfig = walletConfigData.toString();
@@ -100,9 +100,9 @@ public class ProverResource {
 
     // 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+		// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+    // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
     //13. Prover create Master Secret
     // String proverMasterSecretId = proverCreateMasterSecret(proverWallet, null).get();
@@ -111,16 +111,16 @@ public class ProverResource {
       return masterSecretId;
     }).get();
     //System.out.println("proverMasterSecretId :: " + proverMasterSecretId);
-    //System.out.println("Utils.PROVER_MASTER_SECRET_ID :: " + Utils.PROVER_MASTER_SECRET_ID);
+    //System.out.println("Const.PROVER_MASTER_SECRET_ID :: " + Const.PROVER_MASTER_SECRET_ID);
 
     // NOTE: sleep for 5 seconds to give ledger time to persist changes
     //Thread.sleep(5000);
 
     //pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+    //Pool.deletePoolLedgerConfig(Const.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+    //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
     return Response.ok( "{\"action\": \"prover/createMasterSecret\", \"masterSecretId\": \"" + proverMasterSecretId + "\"}" ).build();
   }
@@ -143,7 +143,7 @@ public class ProverResource {
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createCredRequest")).build();
 
     try {
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
       String storageConfigPath = Misc.getStorageConfigPath(walletId);
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       String walletConfig = walletConfigData.toString();
@@ -151,21 +151,21 @@ public class ProverResource {
 
       // 1.
       // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-      // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+      // Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
+      proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
       // CreateAndStoreMyDidResult createMyDidResult = Did.createAndStoreMyDid(proverWallet, "{}").get();
       // String proverDid = createMyDidResult.getDid();
 
       //15. Prover Creates Credential Request
       AnoncredsResults.ProverCreateCredentialRequestResult createCredReqResult =
-      proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Utils.PROVER_MASTER_SECRET_ID).get();
+      proverCreateCredentialReq(proverWallet, proverDid, credOffer, credDefJson, Const.PROVER_MASTER_SECRET_ID).get();
       String credReqJson = createCredReqResult.getCredentialRequestJson();
       String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
       //pool.closePoolLedger().get();
-      //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      //Pool.deletePoolLedgerConfig(Const.PROVER_POOL_NAME).get();
       resp = Response.ok( "{\"action\": \"prover/createCredRequest\", \"credReqMetadataJson\": " + credReqMetadataJson + ", \"credReqJson\": " + credReqJson + "}" ).build();
 
     } catch(Exception ex) {
@@ -174,7 +174,7 @@ public class ProverResource {
     } finally {
       if(proverWallet != null) {
         proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
       }
     }
 
@@ -195,7 +195,7 @@ public class ProverResource {
     String credDefJson = credentialData.get("credDefJson").toString();
     String credential = credentialData.get("credential").toString();
 
-    JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+    JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
     String storageConfigPath = Misc.getStorageConfigPath(walletId);
     ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
     String walletConfig = walletConfigData.toString();
@@ -203,9 +203,9 @@ public class ProverResource {
 
 		// 1.
 		// System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		// Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-    // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-    Wallet proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+		// Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+    // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
+    Wallet proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
     //17. Prover Stores Credential
     proverStoreCredential(proverWallet, null, credReqMetadataJson, credential, credDefJson, null).get();
@@ -214,10 +214,10 @@ public class ProverResource {
     //Thread.sleep(5000);
 
     //pool.closePoolLedger().get();
-    //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+    //Pool.deletePoolLedgerConfig(Const.PROVER_POOL_NAME).get();
 
     proverWallet.closeWallet().get();
-    //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+    //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
     return Response.ok( "{\"action\": \"prover/saveCredential\"}" ).build();
   }
@@ -243,7 +243,7 @@ public class ProverResource {
     Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: createProof")).build();
 
     try {
-      JsonNode walletConfigData = Misc.jsonMapper.readTree(Utils.PROVER_WALLET_CONFIG);
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
       String storageConfigPath = Misc.getStorageConfigPath(walletId);
       ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
       String walletConfig = walletConfigData.toString();
@@ -251,9 +251,9 @@ public class ProverResource {
 
       // 1.
       // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-      // Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-      // Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
-      proverWallet = Wallet.openWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+      // Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
+      proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
       CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
 
@@ -306,13 +306,13 @@ public class ProverResource {
           // System.out.println("****** credentialDefs: " + credentialDefs);
           // System.out.println("****** revocStates: " + revocStates);
           // System.out.println("****** requestedCredentialsJson: " + requestedCredentialsJson);
-          // System.out.println("****** Utils.PROVER_MASTER_SECRET_ID: " + Utils.PROVER_MASTER_SECRET_ID);
+          // System.out.println("****** Const.PROVER_MASTER_SECRET_ID: " + Const.PROVER_MASTER_SECRET_ID);
           // System.out.println("****** ");
 
           proofJson = proverCreateProof(proverWallet, proofReqJson, requestedCredentialsJson,
-            Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
+            Const.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).get();
           // proofJson = proverCreateProof(proverWallet, proofRequestJson, requestedCredentialsJson,
-          //   Utils.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
+          //   Const.PROVER_MASTER_SECRET_ID, schemas, credentialDefs, revocStates).exceptionally((t) -> {
           //     t.printStackTrace();
           //     if(t instanceof IndyException) {
           //       System.out.println("t.getSdkErrorCode() :: " + ((IndyException)t).getSdkErrorCode());
@@ -339,11 +339,11 @@ public class ProverResource {
     } finally {
       if(proverWallet != null) {
         proverWallet.closeWallet().get();
-        //Wallet.deleteWallet(walletConfig, Utils.PROVER_WALLET_CREDENTIALS).get();
+        //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
       }
       // if(pool != null) {
       //   //pool.closePoolLedger().get();
-      //   //Pool.deletePoolLedgerConfig(Utils.PROVER_POOL_NAME).get();
+      //   //Pool.deletePoolLedgerConfig(Const.PROVER_POOL_NAME).get();
       // }
     }
 
@@ -360,33 +360,33 @@ public class ProverResource {
 
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.PROVER_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Const.PROVER_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.PROVER_POOL_NAME, "{}").get();
+		Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
 
     // 12
 		System.out.println("\n12. Creating Prover wallet and opening it to get the handle\n");
 		//String proverDID = "VsKV7grR1BUE29mG2Fm2kX";
 		//String proverWalletName = "prover_wallet";
 		//Wallet.createWallet(poolName, proverWalletName, null, null, null);
-		Wallet.createWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 		//Wallet proverWalletHandle = Wallet.openWallet(proverWalletName, null, null).get();
-		Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+		Wallet proverWalletHandle = Wallet.openWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
 
 		// 13
 		System.out.println("\n13. Prover is creating Master Secret\n");
-		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET_ID).get();
+		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Const.PROVER_MASTER_SECRET_ID).get();
     //String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
-    edu.self.indy.indycloud.jpa.Wallet dbWallet = new edu.self.indy.indycloud.jpa.Wallet(Utils.PROVER_WALLET_NAME, false);
+    edu.self.indy.indycloud.jpa.Wallet dbWallet = new edu.self.indy.indycloud.jpa.Wallet(Const.PROVER_WALLET_NAME, false);
     dbWallet.masterSecretId = proverMasterSecretId;
     dbWallet = walletRepository.save(dbWallet);
 
@@ -419,7 +419,7 @@ public class ProverResource {
 
     String credOffer = credentialOffer.get("credOffer").toString();
     String credDefJson = credentialOffer.get("credDefJson").toString();
-    Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWalletHandle = Wallet.openWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
 
     // 15
 		System.out.println("\n15. Prover creates Credential Request\n");
@@ -440,7 +440,7 @@ public class ProverResource {
 		String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
 		//String claimRequestJSON = proverCreateAndStoreClaimReq(proverWalletHandle, proverDID, claimOfferJSON,
-		//		claimDef, Utils.PROVER_MASTER_SECRET_ID).get();
+		//		claimDef, Const.PROVER_MASTER_SECRET_ID).get();
 		//System.out.println("Claim Request:\n" + claimRequestJSON);
 
     System.out.println("\n21. Close wallet\n");
@@ -466,7 +466,7 @@ public class ProverResource {
     String credReqMetadataJson = credentialData.get("credReqMetadataJson").toString();
     String credential = credentialData.get("credential").toString();
 
-    Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+    Wallet proverWalletHandle = Wallet.openWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
 
     // 17
 		System.out.println("\n17. Prover processes and stores Credential\n");
@@ -505,7 +505,7 @@ public class ProverResource {
       String schemaId = proofRequestData.get("schemaId").asText();
       String schemaJson = proofRequestData.get("schemaJson").toString();
 
-      Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+      Wallet proverWalletHandle = Wallet.openWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
 
     // 18
     System.out.println("\n18. Prover Gets Credentials for Proof Request\n");

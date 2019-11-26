@@ -1,6 +1,6 @@
 package edu.self.indy.howto;
 
-import edu.self.indy.util.Utils;
+import edu.self.indy.util.Const;
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
@@ -24,30 +24,30 @@ public class IssueCredential {
 	static void demo() throws Exception {
 		// 1.
 		System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
-		Pool.setProtocolVersion(Utils.PROTOCOL_VERSION).get();
-		Pool.createPoolLedgerConfig(Utils.AUTHOR_POOL_NAME, Utils.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
+		Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+		Pool.createPoolLedgerConfig(Const.AUTHOR_POOL_NAME, Const.SERVERONE_POOL_CONFIG).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 2
 		System.out.println("\n2. Open pool ledger and get the pool handle from libindy.\n");
-		Pool pool = Pool.openPoolLedger(Utils.AUTHOR_POOL_NAME, "{}").get();
+		Pool pool = Pool.openPoolLedger(Const.AUTHOR_POOL_NAME, "{}").get();
 
 		// 3
 		System.out.println("\n3. Creates a new secure wallet\n");
-		Wallet.createWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 
 		// 4
 		System.out.println("\n4. Open wallet and get the wallet handle from libindy\n");
-		Wallet issuerWalletHandle = Wallet.openWallet(Utils.AUTHOR_WALLET_CONFIG, Utils.AUTHOR_WALLET_CREDENTIALS).get();
+		Wallet issuerWalletHandle = Wallet.openWallet(Const.AUTHOR_WALLET_CONFIG, Const.AUTHOR_WALLET_CREDENTIALS).get();
 
 		// 5
 		System.out.println("\n5. Generating and storing steward DID and Verkey\n");
-		String did_json = "{\"seed\": \"" + Utils.STEWARD_SEED + "\"}";
+		String did_json = "{\"seed\": \"" + Const.STEWARD_SEED + "\"}";
 		DidResults.CreateAndStoreMyDidResult stewardResult = Did.createAndStoreMyDid(issuerWalletHandle, did_json).get();
 		String defaultStewardDid = stewardResult.getDid();
 		System.out.println("Steward did: " + defaultStewardDid);
@@ -108,7 +108,7 @@ public class IssueCredential {
 		//String schemaDataJSON = "{\"seqNo\": 1, \"dest\": \"" + defaultStewardDid + "\", \"data\": " + schemaJson + "}";
 		System.out.println("Schema:\n" + schemaJson);
 		//String claimDef = issuerCreateAndStoreCredentialDef(issuerWalletHandle, trustAnchorDID, schemaDataJSON, "CL", false).get();
-		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredentialDefResult = issuerCreateAndStoreCredentialDef(issuerWalletHandle, trustAnchorDID, schemaJson, "tag1", null, Utils.DEFAULT_REVOCATION_CONFIG).get();
+		AnoncredsResults.IssuerCreateAndStoreCredentialDefResult createCredentialDefResult = issuerCreateAndStoreCredentialDef(issuerWalletHandle, trustAnchorDID, schemaJson, "tag1", null, Const.DEFAULT_REVOCATION_CONFIG).get();
 		String credDefId = createCredentialDefResult.getCredDefId();
 		String credDefJson = createCredentialDefResult.getCredDefJson();
 		System.out.println("Credential Definition:\n" + credDefJson);
@@ -119,16 +119,16 @@ public class IssueCredential {
 		//String proverDID = "VsKV7grR1BUE29mG2Fm2kX";
 		//String proverWalletName = "prover_wallet";
 		//Wallet.createWallet(poolName, proverWalletName, null, null, null);
-		Wallet.createWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
+		Wallet.createWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).exceptionally((t) -> {
 				t.printStackTrace();
 				return null;
 		}).get();
 		//Wallet proverWalletHandle = Wallet.openWallet(proverWalletName, null, null).get();
-		Wallet proverWalletHandle = Wallet.openWallet(Utils.PROVER_WALLET_CONFIG, Utils.PROVER_WALLET_CREDENTIALS).get();
+		Wallet proverWalletHandle = Wallet.openWallet(Const.PROVER_WALLET_CONFIG, Const.PROVER_WALLET_CREDENTIALS).get();
 
 		// 13
 		System.out.println("\n13. Prover is creating Master Secret\n");
-		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Utils.PROVER_MASTER_SECRET_ID).get();
+		String proverMasterSecretId = Anoncreds.proverCreateMasterSecret(proverWalletHandle, Const.PROVER_MASTER_SECRET_ID).get();
 		//String proverMasterSecretId = proverCreateMasterSecret(proverWalletHandle, null).get();
 
 		// 14
@@ -148,7 +148,7 @@ public class IssueCredential {
 		String credReqMetadataJson = createCredReqResult.getCredentialRequestMetadataJson();
 
 		//String claimRequestJSON = proverCreateAndStoreClaimReq(proverWalletHandle, proverDID, claimOfferJSON,
-		//		claimDef, Utils.PROVER_MASTER_SECRET_ID).get();
+		//		claimDef, Const.PROVER_MASTER_SECRET_ID).get();
 		//System.out.println("Claim Request:\n" + claimRequestJSON);
 
 

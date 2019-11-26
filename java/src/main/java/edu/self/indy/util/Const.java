@@ -1,6 +1,6 @@
 package edu.self.indy.util;
 
-public class Utils {
+public class Const {
   public static final int PROTOCOL_VERSION = 2;
   public static final String STORAGE_TYPE = "default";
   public static final String STEWARD_SEED = "000000000000000000000000Steward1";
