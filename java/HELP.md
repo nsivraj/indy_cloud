@@ -1,4 +1,4 @@
-# Getting Started 1
+# Getting Started
 
 Need to keep these steps for Mac:
 ---------------------------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ Using docker on a mac or linux to install linux docker image and setup server
     b) docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 80:80 -p 81:81 -it ${USER}/indy_cloud /bin/bash
     c) docker run -v /Users/norm/forge/work/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 9000:9000 -p 9001:9001 -t -d ${USER}/indy_cloud
     d) docker run -v /root/forge/personal/code/indy_cloud:/root/indy_cloud -p 1044:1044 -p 80:80 -p 81:81 -t -d ${USER}/indy_cloud
+    e) docker exec -it 4f79fbe2f45e /bin/bash
 5) Once inside the container then do:
     a) cd /root/indy_cloud/java
     b) ./run.sh
@@ -51,10 +52,7 @@ log line that contains either string: grep 'PoolService::create\|WalletAction:' 
 
 Next Ones to implement
 ------------------------------------------------------------------------------------------------------
-indy-cloud.server.output.log.keepme.1:java.lang.ClassNotFoundException: edu.self.indy.indycloud.actionhandler.DeleteConnection
-indy-cloud.server.output.log.keepme.3:java.lang.ClassNotFoundException: edu.self.indy.indycloud.actionhandler.GetTokenInfo
-indy-cloud.server.output.log.keepme.3:java.lang.ClassNotFoundException: edu.self.indy.indycloud.actionhandler.GetTokenInfo
-indy-cloud.server.output.log.keepme.3:java.lang.ClassNotFoundException: edu.self.indy.indycloud.actionhandler.DeserializeClaimOffer
+
 
 apt-cache show libvcx
 apt-cache show libsovtoken
