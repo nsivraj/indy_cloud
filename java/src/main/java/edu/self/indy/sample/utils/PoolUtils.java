@@ -42,8 +42,6 @@ public class PoolUtils {
 		return file;
 	}
 
-  public static final String SERVERONE_POOL_CONFIG = "{\"genesis_txn\": \"/root/indy_cloud/vcx-cli/config/serverone-pool_transactions_genesis.json\"}";
-
 	public static String createPoolLedgerConfig() throws IOException, InterruptedException, java.util.concurrent.ExecutionException, IndyException {
 		//File genesisTxnFile = createGenesisTxnFile("temp.txn");
 		//PoolJSONParameters.CreatePoolLedgerConfigJSONParameter createPoolLedgerConfigJSONParameter

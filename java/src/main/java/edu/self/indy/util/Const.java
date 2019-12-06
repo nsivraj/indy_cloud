@@ -4,7 +4,8 @@ public class Const {
   public static final int PROTOCOL_VERSION = 2;
   public static final String STORAGE_TYPE = "default";
   public static final String STEWARD_SEED = "000000000000000000000000Steward1";
-  public static final String SERVERONE_POOL_CONFIG = "{\"genesis_txn\": \"/root/indy_cloud/vcx-cli/config/serverone-pool_transactions_genesis.json\"}";
+  public static final String SERVERONE_GENESIS_PATH = System.getProperty("serverone.genesis.path"); //"/root/indy_cloud/vcx-cli/config/serverone-pool_transactions_genesis.json";
+  public static final String SERVERONE_POOL_CONFIG = "{\"genesis_txn\": \"" + SERVERONE_GENESIS_PATH + "\"}";
   public static final String DEFAULT_REVOCATION_CONFIG = "{\"support_revocation\":false}";
 
 

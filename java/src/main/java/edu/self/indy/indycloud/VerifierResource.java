@@ -27,30 +27,42 @@ public class VerifierResource {
 	@Autowired
   JPAWalletRepository walletRepository;
 
-  @GET
+  @POST
   @Path("createProofRequest/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
-  public Response createProofRequest(@PathParam("walletId") long walletId) throws Exception {
+  public Response createProofRequest(
+    @PathParam("walletId") long walletId,
+    String proofRequestPayload) throws Exception {
 
+    JsonNode proofRequestData = Misc.jsonMapper.readTree(proofRequestPayload);
+    String proofReqName = proofRequestData.get("name").asText();
+    String proofReqVersion = proofRequestData.get("version").asText();
+    String requestedAttrs = proofRequestData.get("attributes").toString();
+    String requestedPreds = proofRequestData.get("predicates").toString();
+
+    // JSONObject requestedAttributes = new JSONObject()
+    //         .put("attr1_referent", new JSONObject().put("name", "name"))
+    //         .put("attr2_referent", new JSONObject().put("name", "sex"))
+    //         .put("attr3_referent", new JSONObject().put("name", "phone"));
+    JSONObject requestedAttributes = new JSONObject(requestedAttrs);
+
+    // JSONObject requestedPredicates = new JSONObject()
+    //         .put("predicate1_referent", new JSONObject()
+    //             .put("name", "age")
+    //             .put("p_type", ">=")
+    //             .put("p_value", 18)
+    //         );
+    JSONObject requestedPredicates = new JSONObject(requestedPreds);
+                
     //11. Verifier creates Proof Request
     String nonce = generateNonce().get();
     String proofRequestJson = new JSONObject()
         .put("nonce", nonce)
-        .put("name", "proof_req_1")
-        .put("version", "0.2")
-        .put("requested_attributes", new JSONObject()
-            .put("attr1_referent", new JSONObject().put("name", "name"))
-            .put("attr2_referent", new JSONObject().put("name", "sex"))
-            .put("attr3_referent", new JSONObject().put("name", "phone"))
-        )
-        .put("requested_predicates", new JSONObject()
-            .put("predicate1_referent", new JSONObject()
-                .put("name", "age")
-                .put("p_type", ">=")
-                .put("p_value", 18)
-            )
-        )
+        .put("name", proofReqName)
+        .put("version", proofReqVersion)
+        .put("requested_attributes", requestedAttributes)
+        .put("requested_predicates", requestedPredicates)
         .toString();
 
     return Response.ok( "{\"action\": \"verifier/createProofRequest\", \"proofRequestJson\": " + proofRequestJson + "}" ).build();
