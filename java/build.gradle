@@ -21,6 +21,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-jersey'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	//implementation 'com.evernym:vcx:0.4.55832442'
 	implementation 'net.java.dev.jna:jna:4.5.0'
 	implementation 'net.sourceforge.streamsupport:android-retrofuture:1.6.2'

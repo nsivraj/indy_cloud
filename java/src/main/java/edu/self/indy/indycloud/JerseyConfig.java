@@ -1,14 +1,13 @@
 package edu.self.indy.indycloud;
 
-import javax.ws.rs.ApplicationPath;
-
+import edu.self.indy.agency.AgencyResource;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletProperties;
-import org.springframework.context.annotation.Configuration;
+
 import org.springframework.stereotype.Component;
 
-import edu.self.indy.agency.AgencyResource;
+import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/api")
 @Component
