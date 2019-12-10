@@ -224,6 +224,93 @@ public class ProverResource {
 
 
   @POST
+  @Path("findCredentials/{walletId}")
+  @Produces({ MediaType.APPLICATION_JSON })
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response findCredentials(
+    @PathParam("walletId") long walletId,
+    String findCredPayload) throws Exception {
+
+    JsonNode findCredData = Misc.jsonMapper.readTree(findCredPayload);
+    JsonNode proofReqData = findCredData.get("proofReqJson");
+
+    Wallet proverWallet = null;
+    //Pool pool = null;
+    Response resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new RuntimeException("prover :: findCredentials")).build();
+
+    try {
+      JsonNode walletConfigData = Misc.jsonMapper.readTree(Const.PROVER_WALLET_CONFIG);
+      String storageConfigPath = Misc.getStorageConfigPath(walletId);
+      ((ObjectNode)walletConfigData).set("storage_config", Misc.jsonMapper.readTree("{\"path\": \"" + storageConfigPath + "\"}"));
+      String walletConfig = walletConfigData.toString();
+      System.out.println("The walletConfig is: " + walletConfig);
+
+      // 1.
+      // System.out.println("\n1. Creating a new local pool ledger configuration that can be used later to connect pool nodes.\n");
+      // Pool.setProtocolVersion(Const.PROTOCOL_VERSION).get();
+      // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
+      proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
+
+      CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqData.toString(), null).get();
+
+      JSONObject matchingCredentials = new JSONObject();
+
+      // loop over requested attributes...
+      JsonNode proofReqAttrs = proofReqData.get("requested_attributes");
+      JsonNode attrRef = null;
+      for(int attrIndex = 0; (attrIndex == 0 || attrRef != null); ++attrIndex) {
+        String attrRefName = "attr" + (attrIndex+1) + "_referent";
+        attrRef = proofReqAttrs.get(attrRefName);
+        JSONArray credsForAttr = new JSONArray(credentialsSearch.fetchNextCredentials(attrRefName, 100).get());
+        matchingCredentials.put(attrRefName, credsForAttr);
+      }
+      // JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+      // String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+      // JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+      // String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+      // JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+      // //assertEquals(0, credentialsForAttribute3.length());
+
+
+      //loop over requested predicates...
+      JsonNode proofReqPreds = proofReqData.get("requested_predicates");
+      JsonNode predRef = null;
+      for(int predIndex = 0; (predIndex == 0 || predRef != null); ++predIndex) {
+        String predRefName = "predicate" + (predIndex+1) + "_referent";
+        predRef = proofReqPreds.get(predRefName);
+        JSONArray credsForPred = new JSONArray(credentialsSearch.fetchNextCredentials(predRefName, 100).get());
+        matchingCredentials.put(predRefName, credsForPred);
+      }
+
+      // JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+      // String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+
+
+      credentialsSearch.close();
+
+      resp = Response.ok( "{\"action\": \"prover/findCredentials\", \"matchingCredentials\": " + matchingCredentials + "}" ).build();
+    } catch(Exception ex) {
+			ex.printStackTrace();
+      resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex).build();
+    } finally {
+      if(proverWallet != null) {
+        proverWallet.closeWallet().get();
+        //Wallet.deleteWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
+      }
+      // if(pool != null) {
+      //   //pool.closePoolLedger().get();
+      //   //Pool.deletePoolLedgerConfig(Const.PROVER_POOL_NAME).get();
+      // }
+    }
+
+    return resp;
+
+  }
+
+
+  @POST
   @Path("createProof/{walletId}")
   @Produces({ MediaType.APPLICATION_JSON })
   @Consumes({ MediaType.APPLICATION_JSON })
@@ -237,6 +324,7 @@ public class ProverResource {
     String credDefId = proofRequestData.get("credDefId").asText();
     String schemaId = proofRequestData.get("schemaId").asText();
     String schemaJson = proofRequestData.get("schemaJson").toString();
+    String requestedCredentialsJson = proofRequestData.get("requestedCredentialsJson").toString();
 
     Wallet proverWallet = null;
     //Pool pool = null;
@@ -255,42 +343,50 @@ public class ProverResource {
       // Pool pool = Pool.openPoolLedger(Const.PROVER_POOL_NAME, "{}").get();
       proverWallet = Wallet.openWallet(walletConfig, Const.PROVER_WALLET_CREDENTIALS).get();
 
-      CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
+      //CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWallet, proofReqJson, null).get();
 
-      JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
-      String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+//      build the requestedCredentialsJson by looping over proofReqJson taking
+//      each attr referent and predicate referent to check the credentialsSearch
+//      for that referent and if the attr referent does not exist then set it as
+//      self attested and as the user for the values...
+      
 
-      JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
-      String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+      // JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+      // String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-      JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
-      //assertEquals(0, credentialsForAttribute3.length());
+      // JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+      // String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-      JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
-      String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
+      // JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+      // //assertEquals(0, credentialsForAttribute3.length());
 
-      credentialsSearch.close();
+      // JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+      // String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-      //12. Prover Creates Proof
-      String selfAttestedValue = "8-800-300";
-      String requestedCredentialsJson = new JSONObject()
-          .put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
-          .put("requested_attributes", new JSONObject()
-              .put("attr1_referent", new JSONObject()
-                  .put("cred_id", credentialIdForAttribute1)
-                  .put("revealed", true)
-              )
-              .put("attr2_referent", new JSONObject()
-                  .put("cred_id", credentialIdForAttribute2)
-                  .put("revealed", false)
-              )
-          )
-          .put("requested_predicates", new JSONObject()
-              .put("predicate1_referent", new JSONObject()
-                  .put("cred_id",credentialIdForPredicate)
-              )
-          )
-          .toString();
+      // credentialsSearch.close();
+
+      // //12. Prover Creates Proof
+      // String selfAttestedValue = "8-800-300";
+      // String requestedCredentialsJson = new JSONObject()
+      //     .put("self_attested_attributes", new JSONObject().put("attr3_referent", selfAttestedValue))
+      //     .put("requested_attributes", new JSONObject()
+      //         .put("attr1_referent", new JSONObject()
+      //             .put("cred_id", credentialIdForAttribute1)
+      //             .put("revealed", true)
+      //         )
+      //         .put("attr2_referent", new JSONObject()
+      //             .put("cred_id", credentialIdForAttribute2)
+      //             .put("revealed", false)
+      //         )
+      //     )
+      //     .put("requested_predicates", new JSONObject()
+      //         .put("predicate1_referent", new JSONObject()
+      //             .put("cred_id",credentialIdForPredicate)
+      //         )
+      //     )
+      //     .toString();
+
+      System.out.println("requestedCredentialsJson: " + requestedCredentialsJson);
 
       String schemas = new JSONObject().put(schemaId, new JSONObject(schemaJson)).toString();
       String credentialDefs = new JSONObject().put(credDefId,  new JSONObject(credDefJson)).toString();
