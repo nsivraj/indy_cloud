@@ -30,6 +30,8 @@ import edu.self.indy.util.Misc;
 @Path("/prover")
 public class ProverResource {
 
+  public static final int MAX_ATTRS_PER_CRED = 100;
+
   @Autowired
   JPAWalletRepository walletRepository;
 
@@ -261,18 +263,16 @@ public class ProverResource {
       for(int attrIndex = 0; (attrIndex == 0 || attrRef != null); ++attrIndex) {
         String attrRefName = "attr" + (attrIndex+1) + "_referent";
         attrRef = proofReqAttrs.get(attrRefName);
-        JSONArray credsForAttr = new JSONArray(credentialsSearch.fetchNextCredentials(attrRefName, 100).get());
-        matchingCredentials.put(attrRefName, credsForAttr);
+        if(attrRef != null) {
+          try {
+            JSONArray credsForAttr = new JSONArray(credentialsSearch.fetchNextCredentials(attrRefName, MAX_ATTRS_PER_CRED).get());
+            matchingCredentials.put(attrRefName, credsForAttr);
+          } catch(Exception ex) {
+            ex.printStackTrace();
+            matchingCredentials.put(attrRefName, new JSONArray());
+          }
+        }
       }
-      // JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
-      // String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
-
-      // JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
-      // String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
-
-      // JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
-      // //assertEquals(0, credentialsForAttribute3.length());
-
 
       //loop over requested predicates...
       JsonNode proofReqPreds = proofReqData.get("requested_predicates");
@@ -280,13 +280,16 @@ public class ProverResource {
       for(int predIndex = 0; (predIndex == 0 || predRef != null); ++predIndex) {
         String predRefName = "predicate" + (predIndex+1) + "_referent";
         predRef = proofReqPreds.get(predRefName);
-        JSONArray credsForPred = new JSONArray(credentialsSearch.fetchNextCredentials(predRefName, 100).get());
-        matchingCredentials.put(predRefName, credsForPred);
+        if(predRef != null) {
+          try {
+            JSONArray credsForPred = new JSONArray(credentialsSearch.fetchNextCredentials(predRefName, MAX_ATTRS_PER_CRED).get());
+            matchingCredentials.put(predRefName, credsForPred);
+          } catch(Exception ex) {
+            ex.printStackTrace();
+            matchingCredentials.put(predRefName, new JSONArray());
+          }
+        }
       }
-
-      // JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
-      // String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
-
 
       credentialsSearch.close();
 
@@ -351,16 +354,16 @@ public class ProverResource {
 //      self attested and as the user for the values...
       
 
-      // JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+      // JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", MAX_ATTRS_PER_CRED).get());
       // String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-      // JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+      // JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", MAX_ATTRS_PER_CRED).get());
       // String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-      // JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+      // JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", MAX_ATTRS_PER_CRED).get());
       // //assertEquals(0, credentialsForAttribute3.length());
 
-      // JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+      // JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", MAX_ATTRS_PER_CRED).get());
       // String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
       // credentialsSearch.close();
@@ -607,16 +610,16 @@ public class ProverResource {
     System.out.println("\n18. Prover Gets Credentials for Proof Request\n");
 		CredentialsSearchForProofReq credentialsSearch = CredentialsSearchForProofReq.open(proverWalletHandle, proofReqJson, null).get();
 
-		JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", 100).get());
+		JSONArray credentialsForAttribute1 = new JSONArray(credentialsSearch.fetchNextCredentials("attr1_referent", MAX_ATTRS_PER_CRED).get());
 		String credentialIdForAttribute1 = credentialsForAttribute1.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-		JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", 100).get());
+		JSONArray credentialsForAttribute2 = new JSONArray(credentialsSearch.fetchNextCredentials("attr2_referent", MAX_ATTRS_PER_CRED).get());
 		String credentialIdForAttribute2 = credentialsForAttribute2.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
-		JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", 100).get());
+		JSONArray credentialsForAttribute3 = new JSONArray(credentialsSearch.fetchNextCredentials("attr3_referent", MAX_ATTRS_PER_CRED).get());
 		assertEquals(0, credentialsForAttribute3.length());
 
-		JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", 100).get());
+		JSONArray credentialsForPredicate = new JSONArray(credentialsSearch.fetchNextCredentials("predicate1_referent", MAX_ATTRS_PER_CRED).get());
 		String credentialIdForPredicate = credentialsForPredicate.getJSONObject(0).getJSONObject("cred_info").getString("referent");
 
 		credentialsSearch.close();
