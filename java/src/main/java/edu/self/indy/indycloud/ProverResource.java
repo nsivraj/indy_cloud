@@ -327,7 +327,7 @@ public class ProverResource {
     String credDefId = proofRequestData.get("credDefId").asText();
     String schemaId = proofRequestData.get("schemaId").asText();
     String schemaJson = proofRequestData.get("schemaJson").toString();
-    String requestedCredentialsJson = proofRequestData.get("requestedCredentialsJson").toString();
+    String requestedCredentialsJson = proofRequestData.get("requestedCredentials").toString();
 
     Wallet proverWallet = null;
     //Pool pool = null;
